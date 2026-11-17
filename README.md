@@ -152,7 +152,6 @@ js/ui/hud.js, js/ui/menus.js
 | 14 | Morgrath, Segador Espectral | Guadaña de largo alcance | 82 | Orbe de Almas (teledirigido) | Arco Segador (atrae) | Ascenso Fantasmal | Manos Sepulcrales / tajo meteórico |
 | 15 | Brakk, Gladiador de Hierro | Brawler · pasiva de combo | 115 | Arranque de Tierra | Puño Ariete (armadura) | Uppercut Cohete | Cuerpo de Hierro (absorbe y devuelve) |
 | 16 | Luma, Farolera de Ascuas | Invocadora · medidor LLAMA | 90 | Fuego Fatuo Errante | Golpe de Farol (quema) | Ascenso de Brasas | Custodia de Llama (absorbe) |
-
 | 17 | Kael, Mente Psiónica | Flotante, cañón de cristal · orbe almacenable | 79 | Orbe del Vacío (cargable y almacenable con Escudo) | Desvío Mental (refleja y voltea al rival) | Salto Etéreo (teletransporte direccional) | Mirada Paralizante (aturde si te mira) |
 | 18 | Volgur, Señor de la Forja | Superpesado · 4 saltos | 127 | Fuelle Voraz (inhala rivales/proyectiles y escupe) | Bola de Púas (rebota) | Gran Salto Aplastante (Escudo cancela) | Martillo a Vapor (cargable, se puede caminar) |
 | 19 | Chronia, Relojera del Tiempo | Control de tiempo | 86 | Burbuja Temporal (ralentiza) | Agujas del Reloj | Rebobinar (vuelve a su posición pasada) | Pausa (aturde en área) |
