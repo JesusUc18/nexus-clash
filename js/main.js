@@ -9,7 +9,7 @@
   const STEP = 1000 / 60;
 
   /* Ajustes persistentes (vidas, tiempo, música, narrador). */
-  const DEFAULT_SETTINGS = { stocks: 3, minutes: 7, music: true, narrator: true };
+  const DEFAULT_SETTINGS = { stocks: 3, minutes: 7, music: true, narrator: true, touch: 'auto' };
   NX.Settings = Object.assign({}, DEFAULT_SETTINGS);
   try { const raw = window.localStorage && localStorage.getItem('nexusclash.settings'); if (raw) Object.assign(NX.Settings, JSON.parse(raw)); } catch (e) { /* almacenamiento no disponible */ }
   NX.saveSettings = function () { try { localStorage.setItem('nexusclash.settings', JSON.stringify(NX.Settings)); } catch (e) { /* almacenamiento no disponible */ } };
@@ -25,6 +25,7 @@
       this.resize();
       window.addEventListener('resize', () => this.resize());
       NX.HUD.init();
+      if (NX.Touch) NX.Touch.init();
       NX.Menus.init(this);
       NX.Audio.setMusic(NX.Settings.music);
       NX.Audio.setNarrator(NX.Settings.narrator);
@@ -65,6 +66,7 @@
         this.match.on('finish', () => { this.resultsTimer = 40; });
         NX.HUD.build(this.match);
         NX.HUD.show();
+        if (NX.Touch) NX.Touch.setActive(true);
         this.state = 'match';
         this.resultsTimer = 0;
         NX.Audio.playMusic('battle');
@@ -87,6 +89,7 @@
     quitToMenu() {
       this.match = null; this.state = 'menu'; this.paused = false;
       NX.HUD.hide();
+      if (NX.Touch) NX.Touch.setActive(false);
       NX.Audio.playMusic('menu');
       NX.Menus.show('main');
     },
@@ -95,6 +98,7 @@
       const res = this.match.result;
       this.state = 'results';
       NX.HUD.hide();
+      if (NX.Touch) NX.Touch.setActive(false);
       NX.Menus.show('results', res);
       this.lastResult = res;
       this.matchForBg = this.match;

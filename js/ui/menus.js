@@ -84,10 +84,10 @@
         <div class="logo">
           <div class="logo-emblem"><span></span><span></span><span></span></div>
           <div class="logo-a">NEXUS</div><div class="logo-b">CLASH</div>
-          <div class="logo-sub">ULTIMATE ARENA · V4</div>
+          <div class="logo-sub">ULTIMATE ARENA · V5</div>
         </div>
-        <div class="press">PULSA <b>ENTER</b> O HAZ CLIC PARA EMPEZAR</div>
-        <div class="title-foot">Teclado · Gamepad · Pulsa <b>M</b> para silenciar</div>`;
+        <div class="press"><span class="kb-only">PULSA <b>ENTER</b> O HAZ CLIC PARA EMPEZAR</span><span class="touch-only"><b>TOCA</b> LA PANTALLA PARA EMPEZAR</span></div>
+        <div class="title-foot"><span class="kb-only">Teclado · Gamepad · Pulsa <b>M</b> para silenciar</span><span class="touch-only">Controles táctiles activados · Juega en horizontal</span></div>`;
       s.addEventListener('click', () => this.titleGo());
       this.root.appendChild(s);
       this.onBack = null;
@@ -95,6 +95,7 @@
     titleGo() {
       if (this.locked) return;
       NX.Audio.unlock(); NX.Audio.play('menuSelect');
+      if (NX.Touch && NX.Touch.enabled) NX.Touch.tryFullscreen();
       NX.Audio.playMusic('menu');
       this.show('main');
     },
@@ -106,7 +107,7 @@
       s.innerHTML = `
         <div class="main-head"><div class="mh-k">MENÚ PRINCIPAL</div><div class="mh-rules">${rulesHTML()}</div></div>
         <div class="main-tiles"></div>
-        <div class="main-foot">WASD / Flechas mover · Espacio saltar · J ataque · U smash · K especial · L escudo · I agarre</div>`;
+        <div class="main-foot"><span class="kb-only">WASD / Flechas mover · Espacio saltar · J ataque · U smash · K especial · L escudo · I agarre</span><span class="touch-only">Joystick a la izquierda · A ataque · B especial · ▲ salto · S smash · ◆ escudo · ✊ agarre</span></div>`;
       const tiles = s.querySelector('.main-tiles');
       const mk = (cls, k, d, act) => {
         const b = el('button', 'mbtn tile ' + cls, `<span class="tile-k">${k}</span><span class="tile-d">${d}</span>`);
@@ -119,7 +120,7 @@
       const b2 = mk('tile-black', 'BATALLA CAMPAL', 'Tú contra 3 CPUs · Todos contra todos', () => this.show('select', { mode: 'ffa' }));
       const S = NX.Settings;
       const bR = mk('tile-white tile-rules', 'REGLAS', `${S.stocks} ${S.stocks === 1 ? 'vida' : 'vidas'} · ${fmtMin(S.minutes)} · audio`, () => this.show('rules', { back: 'main' }));
-      const b3 = mk('tile-white', 'CONTROLES', 'Teclado y gamepad', () => this.show('controls'));
+      const b3 = mk('tile-white', 'CONTROLES', 'Teclado, gamepad y táctil', () => this.show('controls'));
       list.push(b1, b2, bR, b3);
       if (NX.Packager) list.push(mk('tile-white tile-zip', 'DESCARGAR .ZIP', '🔒 Protegido con contraseña', () => NX.Packager.download()));
       if (missing.length) {
@@ -137,23 +138,23 @@
     build_controls() {
       const s = el('div', 'scr scr-controls');
       const rows = [
-        ['Mover / Dirección', 'WASD o Flechas', 'Stick izq. / D-Pad'],
-        ['Caminar', 'Mantener Shift + dirección', 'Stick a medias'],
-        ['Saltar (doble salto en el aire)', 'Espacio o W / ↑', 'X / Y'],
-        ['Caída rápida', 'Pulsar ↓ en el aire', 'Stick ↓'],
-        ['Ataque normal / Tilts / Aéreos', 'J (+ dirección)', 'A'],
-        ['Ataque Smash cargable', 'U + dirección (mantener para cargar)', 'RT o Stick derecho'],
-        ['Especiales (Neutral, Lateral, Arriba, Abajo)', 'K (+ dirección)', 'B'],
-        ['Escudo / Esquiva / Esquiva aérea', 'L (+ dirección para rodar)', 'LB / LT'],
-        ['Agarre (luego dirección para lanzar, J golpea)', 'I', 'RB'],
-        ['Soltarse de agarres / aturdimientos', 'Pulsar teclas rápidamente', 'Machacar botones'],
-        ['Bordes: subir / saltar / atacar / rodar / soltar', '→ / Espacio / J / L / ↓', 'Igual'],
-        ['Pausa', 'Esc o P', 'Start'],
-        ['Silenciar audio', 'M', '—']
+        ['Mover / Dirección', 'WASD o Flechas', 'Stick izq. / D-Pad', 'Joystick (mitad izquierda)'],
+        ['Caminar', 'Mantener Shift + dirección', 'Stick a medias', 'Joystick a medias'],
+        ['Saltar (doble salto en el aire)', 'Espacio o W / ↑', 'X / Y', '▲ o joystick arriba'],
+        ['Caída rápida', 'Pulsar ↓ en el aire', 'Stick ↓', 'Joystick ↓'],
+        ['Ataque normal / Tilts / Aéreos', 'J (+ dirección)', 'A', 'A (+ joystick)'],
+        ['Ataque Smash cargable', 'U + dirección (mantener para cargar)', 'RT o Stick derecho', 'S + joystick (mantener)'],
+        ['Especiales (Neutral, Lateral, Arriba, Abajo)', 'K (+ dirección)', 'B', 'B (+ joystick)'],
+        ['Escudo / Esquiva / Esquiva aérea', 'L (+ dirección para rodar)', 'LB / LT', '◆ (+ joystick)'],
+        ['Agarre (luego dirección para lanzar, J golpea)', 'I', 'RB', '✊'],
+        ['Soltarse de agarres / aturdimientos', 'Pulsar teclas rápidamente', 'Machacar botones', 'Tocar botones rápido'],
+        ['Bordes: subir / saltar / atacar / rodar / soltar', '→ / Espacio / J / L / ↓', 'Igual', 'Igual'],
+        ['Pausa', 'Esc o P', 'Start', '❚❚ (arriba a la izquierda)'],
+        ['Silenciar audio', 'M', '—', 'REGLAS → MÚSICA']
       ];
       s.innerHTML = `<div class="sel-header"><div class="sel-title">CONTROLES</div><div class="sel-rules">${rulesHTML()}</div></div>
-        <div class="ctrl-wrap"><table class="ctrl-table"><thead><tr><th>Acción</th><th>Teclado</th><th>Gamepad</th></tr></thead>
-        <tbody>${rows.map(r => `<tr><td>${r[0]}</td><td><kbd>${r[1]}</kbd></td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div>`;
+        <div class="ctrl-wrap"><table class="ctrl-table"><thead><tr><th>Acción</th><th>Teclado</th><th>Gamepad</th><th>Táctil</th></tr></thead>
+        <tbody>${rows.map(r => `<tr><td>${r[0]}</td><td><kbd>${r[1]}</kbd></td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
       const back = el('button', 'mbtn back-btn', '◄ VOLVER');
       back.addEventListener('click', () => { NX.Audio.play('menuBack'); this.show('main'); });
       s.appendChild(back);
@@ -169,8 +170,8 @@
       s.innerHTML = `
         <div class="sel-header"><div class="sel-title">REGLAS</div><div class="sel-mode">SIN OBJETOS · COMPETITIVO</div><div class="sel-rules"></div></div>
         <div class="rules-wrap"><div class="rules-list"></div>
-          <div class="rules-help">↑↓ elegir · ←→ cambiar · Enter alternar · Esc volver</div></div>
-        <button class="back-mini">◄ VOLVER (Esc)</button>`;
+          <div class="rules-help"><span class="kb-only">↑↓ elegir · ←→ cambiar · Enter alternar · Esc volver</span><span class="touch-only">Toca ◄ ► para cambiar cada opción</span></div></div>
+        <button class="back-mini">◄ VOLVER <span class="kb-only">(Esc)</span></button>`;
       this.root.appendChild(s);
       this.rulesEl = s;
       const list = s.querySelector('.rules-list');
@@ -180,6 +181,7 @@
         { label: 'TIEMPO', desc: 'Límite de combate (∞ = sin límite)', val: () => fmtMin(S.minutes), change: d => { const i = Math.max(0, TIME_STEPS.indexOf(S.minutes)); S.minutes = TIME_STEPS[(i + d + TIME_STEPS.length) % TIME_STEPS.length]; } },
         { label: 'MÚSICA', desc: 'Pistas sintetizadas', val: () => (S.music ? 'SÍ' : 'NO'), change: () => { S.music = !S.music; NX.Audio.setMusic(S.music); } },
         { label: 'NARRADOR', desc: 'Voz del anunciador', val: () => (S.narrator ? 'SÍ' : 'NO'), change: () => { S.narrator = !S.narrator; NX.Audio.setNarrator(S.narrator); } },
+        { label: 'CONTROLES TÁCTILES', desc: 'Auto: se activan en teléfono/tablet o al tocar la pantalla', val: () => (NX.Touch ? NX.Touch.modeLabel() : 'NO'), change: d => { if (NX.Touch) NX.Touch.cycleMode(d); } },
         { label: 'RESTABLECER', desc: 'Reglamento competitivo: 3 vidas · 7:00', val: () => '↺', change: () => { S.stocks = 3; S.minutes = 7; } }
       ];
       this.ruleRows = rows.map((r, i) => {
@@ -246,13 +248,13 @@
           <div class="sel-title">ELIGE A TU LUCHADOR</div>
           <div class="sel-mode">${mode === 'ffa' ? 'BATALLA CAMPAL · 4 JUGADORES' : '1 VS 1 · COMPETITIVO'}</div>
           <div class="sel-rules">${rulesHTML()}</div>
-          <button class="rules-btn">⚙ REGLAS <small>(R)</small></button>
+          <button class="rules-btn">⚙ REGLAS <small class="kb-only">(R)</small></button>
         </div>
         <div class="sel-grid"></div>
         <div class="sel-cards"></div>
         <div class="sel-tokens"></div>
-        <div class="ready-bar"><div class="rb-in"><span>¡LISTOS PARA LUCHAR!</span><small>ENTER / CLIC</small></div></div>
-        <button class="back-mini">◄ VOLVER (Esc)</button>`;
+        <div class="ready-bar"><div class="rb-in"><span>¡LISTOS PARA LUCHAR!</span><small><span class="kb-only">ENTER / CLIC</span><span class="touch-only">TOCA AQUÍ</span></small></div></div>
+        <button class="back-mini">◄ VOLVER <span class="kb-only">(Esc)</span></button>`;
       this.root.appendChild(s);
       this.selEl = s;
       const grid = s.querySelector('.sel-grid');
@@ -457,7 +459,7 @@
     build_stage() {
       const s = el('div', 'scr scr-stage');
       s.innerHTML = `<div class="sel-header"><div class="sel-title">ELIGE ESCENARIO</div><div class="sel-mode">COMPETITIVO · SIN HAZARDS</div><div class="sel-rules">${rulesHTML()}</div></div>
-        <div class="stage-cards"></div><button class="back-mini">◄ VOLVER (Esc)</button>`;
+        <div class="stage-cards"></div><button class="back-mini">◄ VOLVER <span class="kb-only">(Esc)</span></button>`;
       const wrap = s.querySelector('.stage-cards');
       const list = (NX.STAGES || []).map(sd => {
         const b = el('button', 'mbtn stage-card');

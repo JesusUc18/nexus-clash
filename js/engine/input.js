@@ -157,6 +157,12 @@
       const kb = readKeyboard();
       const gp = readGamepad();
       const raw = Object.assign({}, kb);
+      const tc = NX.Touch && NX.Touch.read();
+      if (tc) {
+        if (Math.abs(tc.x) > Math.abs(raw.x)) raw.x = tc.x;
+        if (Math.abs(tc.y) > Math.abs(raw.y)) raw.y = tc.y;
+        for (const a of ACTIONS) raw[a] = raw[a] || tc[a];
+      }
       if (gp) {
         if (Math.abs(gp.x) > Math.abs(raw.x)) raw.x = gp.x;
         if (Math.abs(gp.y) > Math.abs(raw.y)) raw.y = gp.y;

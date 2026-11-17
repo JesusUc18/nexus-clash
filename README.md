@@ -1,8 +1,22 @@
-# NEXUS CLASH · Ultimate Arena — v4
+# NEXUS CLASH · Ultimate Arena — v5
+
+**Jugar en el navegador:** https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript ES6+, sin imágenes externas.
 Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 30 luchadores originales, 5 escenarios competitivos
 y bots de nivel 1 a 9.
+
+## Novedades v5 — teléfono y tablet
+- **Detección automática del dispositivo.** En laptop/PC se juega con teclado o gamepad como siempre; en
+  teléfono o tablet aparecen los **controles táctiles**. En una laptop con pantalla táctil basta con tocar
+  la pantalla para que aparezcan, y vuelven a ocultarse al usar el teclado o un gamepad.
+- **Controles táctiles**: joystick flotante en la mitad izquierda (aparece bajo tu pulgar; a medias =
+  caminar, arriba = saltar) y botones **A** ataque, **B** especial, **▲** salto, **S** smash, **◆** escudo y
+  **✊** agarre a la derecha, más **❚❚** pausa arriba a la izquierda. Admite varios dedos a la vez.
+- El HUD sube a la parte superior en modo táctil para dejar libres los pulgares.
+- Aviso para girar el teléfono a horizontal, pantalla completa al empezar (donde el navegador lo permite)
+  y menús adaptados a pantallas bajas.
+- Nueva opción en **REGLAS → CONTROLES TÁCTILES**: AUTO (por defecto), SÍ o NO.
 
 ## Novedades v4 — ataques renovados
 - **Normales únicos para cada luchador.** Antes los 30 compartían los ataques de su arquetipo; ahora
@@ -82,19 +96,19 @@ En la selección de personaje arrastra las fichas (P1 / CPU) sobre los retratos,
 y Enter. Esc vuelve atrás.
 
 ## Controles
-| Acción | Teclado | Gamepad |
-|---|---|---|
-| Mover | WASD o Flechas (Shift = caminar) | Stick izq. / D-Pad |
-| Saltar / doble salto | Espacio o W/↑ | X / Y |
-| Caída rápida | ↓ en el aire | Stick ↓ |
-| Ataque normal, tilts, aéreos | J (+ dirección) | A |
-| Smash cargable | U + dirección (mantén para cargar) | RT o stick derecho |
-| Especiales (neutral, lateral, arriba, abajo) | K (+ dirección) | B |
-| Escudo / esquivas / esquiva aérea | L (+ dirección) | LB / LT |
-| Agarre (luego dirección = lanzar, J = golpear) | I | RB |
-| Cambiar de forma (Nia, Sol y Luna) | ↓ + K | ↓ + B |
-| Reglas (en la selección) | R | — |
-| Pausa | Esc o P | Start |
+| Acción | Teclado | Gamepad | Táctil |
+|---|---|---|---|
+| Mover | WASD o Flechas (Shift = caminar) | Stick izq. / D-Pad | Joystick (a medias = caminar) |
+| Saltar / doble salto | Espacio o W/↑ | X / Y | ▲ o joystick arriba |
+| Caída rápida | ↓ en el aire | Stick ↓ | Joystick ↓ |
+| Ataque normal, tilts, aéreos | J (+ dirección) | A | A (+ joystick) |
+| Smash cargable | U + dirección (mantén para cargar) | RT o stick derecho | S + joystick (mantén) |
+| Especiales (neutral, lateral, arriba, abajo) | K (+ dirección) | B | B (+ joystick) |
+| Escudo / esquivas / esquiva aérea | L (+ dirección) | LB / LT | ◆ (+ joystick) |
+| Agarre (luego dirección = lanzar, J = golpear) | I | RB | ✊ |
+| Cambiar de forma (Nia, Sol y Luna) | ↓ + K | ↓ + B | Joystick ↓ + B |
+| Reglas (en la selección) | R | — | Botón ⚙ REGLAS |
+| Pausa | Esc o P | Start | ❚❚ |
 
 ## Escenarios (Parte 3)
 | Escenario | Diseño |
@@ -118,6 +132,7 @@ css/styles.css
 js/main.js                 Bucle de paso fijo a 60 FPS y gestor de estados
 js/engine/physics.js       Gravedad, fricción, AABB, pass-through, ledges, knockback
 js/engine/input.js         Teclado + Gamepad
+js/engine/touch.js         Detección de dispositivo + controles táctiles (v5)
 js/engine/audio.js         Sintetizador Web Audio + narrador SpeechSynthesis
 js/engine/combat.js        Hitboxes, escudos, agarres, proyectiles, efectos, relámpago de KO
 js/engine/renderer.js      Sprites vectoriales procedurales
