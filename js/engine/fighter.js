@@ -200,7 +200,7 @@
       this.def = d;
       this.palette = this.altIndex && NX.altPalette ? NX.altPalette(d.palette, this.altIndex) : d.palette;
       this.base = Object.assign({}, DEFAULT_STATS, d.stats || {});
-      this.w = this.base.width; this.h = this.base.height;
+      this.w = this.base.width * (this.sizeMult || 1); this.h = this.base.height * (this.sizeMult || 1);
       this.moves = d._moves || (d._moves = buildMoveset(d));
       this.meterMax = d.meter ? d.meter.max : 0;
       if (!d.meter) this.meter = 0;
@@ -231,6 +231,7 @@
     /* ----------------------------- CONSULTAS ------------------------------ */
     stat(k) {
       let v = this.base[k];
+      if (k === 'weight' && this.weightMult) v *= this.weightMult;
       if (this.def.statMod) v = this.def.statMod(this, k, v);
       return v;
     }
@@ -294,7 +295,12 @@
     isShielding() { return this.state === ST.SHIELD || this.state === ST.SHIELDSTUN; }
     shieldRadius() { return this.h * 0.52 * (0.32 + 0.68 * Math.max(0, this.shieldHP) / PHYS.SHIELD_MAX); }
     shieldCenter() { return { x: this.x, y: this.y - this.h * 0.5 }; }
-    hbScale() { return this.drawScale || 1; }
+    hbScale() { return (this.drawScale || 1) * (this.sizeMult || 1); }
+    /* v8 · Multiplicadores (jefe de la Horda): tamaño, peso, daño y resistencia. */
+    applyBoost(o) {
+      this.sizeMult = o.size || 1; this.weightMult = o.weight || 1; this.dmgMult = o.dmg || 1; this.resistMult = o.resist || 1;
+      this.w = this.base.width * this.sizeMult; this.h = this.base.height * this.sizeMult;
+    }
 
     /* ---------------------- DAÑO / KNOCKBACK / ARMOR ---------------------- */
     damageMultiplier(d, o) {
@@ -309,6 +315,7 @@
       }
       if (this.def.damageMod) k *= this.def.damageMod(this, d, o) || 1;
       if (this.buffDamage) k *= this.buffDamage;
+      if (this.dmgMult) k *= this.dmgMult;
       return k;
     }
     registerStale(key) {
@@ -337,6 +344,7 @@
     modifyIncomingDamage(dmg, atk, d) {
       if (this.def.onIncoming) { const r = this.def.onIncoming(this, dmg, atk, d); if (r != null) dmg = r; }
       if (this.damageTakenMult) dmg *= this.damageTakenMult;
+      if (this.resistMult) dmg *= this.resistMult;
       return dmg;
     }
     addDamage(d, atk) {

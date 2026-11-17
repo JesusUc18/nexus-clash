@@ -59,41 +59,9 @@
       this.panelsEl.innerHTML = '';
       this.panels = [];
       this.panelsEl.style.setProperty('--n', match.fighters.length);
-      match.fighters.forEach(f => {
-        const p = el('div', 'hud-panel');
-        p.style.setProperty('--pc', f.color);
-        const port = el('canvas', 'hud-portrait'); port.width = 120; port.height = 120;
-        NX.Render.drawPortrait(port, f.def);
-        const info = el('div', 'hud-info');
-        const name = el('div', 'hud-name', f.def.name.toUpperCase());
-        const many = f.stocks > 5;
-        const tag = el('div', 'hud-tag', f.tag);
-        const pct = el('div', 'hud-pct', '<span class="pi">0</span><span class="pd">.0</span><span class="ps">%</span>');
-        const stocks = el('div', 'hud-stocks');
-        const icons = [];
-        for (let i = 0; i < (many ? 1 : f.stocks); i++) {
-          const c = el('canvas', 'hud-stock'); c.width = 26; c.height = 26;
-          NX.Render.drawStockIcon(c, f.slotDef, f.color);
-          stocks.appendChild(c); icons.push(c);
-        }
-        const stockX = many ? el('span', 'hud-stock-x', '×' + f.stocks) : null;
-        if (stockX) stocks.appendChild(stockX);
-        let meter = null, meterFill = null, meterLabel = null;
-        if (f.def.meter) {
-          meter = el('div', 'hud-meter');
-          meter.style.setProperty('--mc', f.def.meter.color || '#fff');
-          meterFill = el('div', 'hud-meter-fill');
-          meterLabel = el('div', 'hud-meter-label', f.def.meter.label || 'MEDIDOR');
-          meter.append(meterFill, meterLabel);
-        }
-        const elim = el('div', 'hud-elim', 'ELIMINATED');
-        info.append(tag, name);
-        p.append(port, info, pct, stocks);
-        if (meter) p.appendChild(meter);
-        p.appendChild(elim);
-        this.panelsEl.appendChild(p);
-        this.panels.push({ f, p, pct, pi: pct.querySelector('.pi'), pd: pct.querySelector('.pd'), icons, stockX, many, meterFill, meterLabel, port, name, def: f.def, last: {} });
-      });
+      match.fighters.forEach(f => { const P = this.makePanel(f); this.panelsEl.appendChild(P.p); this.panels.push(P); });
+      this.rulesEl.classList.toggle('horde', !!match.horde);
+      if (match.horde) this.setWave(match.horde.wave, match.horde.total);
       this.lastTimer = '';
       this.bigEl.innerHTML = '';
       this.annEl.innerHTML = '';
@@ -102,7 +70,57 @@
       match.on('eliminated', f => this.markEliminated(f));
       match.on('ko', d => this.flashPanel(d.f));
       match.on('sudden', () => this.rebuildStocks());
+      match.on('wave', d => { this.replacePanel(d.idx, d.f); this.setWave(d.wave, d.total); });
       this.update(match);
+    },
+
+    makePanel(f) {
+      const p = el('div', 'hud-panel');
+      p.style.setProperty('--pc', f.color);
+      const port = el('canvas', 'hud-portrait'); port.width = 120; port.height = 120;
+      NX.Render.drawPortrait(port, f.def);
+      const info = el('div', 'hud-info');
+      const name = el('div', 'hud-name', f.def.name.toUpperCase());
+      const many = f.stocks > 5 || !!f.infiniteStocks;
+      const tag = el('div', 'hud-tag', f.tag);
+      if (f.boss) p.classList.add('boss');
+      const pct = el('div', 'hud-pct', '<span class="pi">0</span><span class="pd">.0</span><span class="ps">%</span>');
+      const stocks = el('div', 'hud-stocks');
+      const icons = [];
+      for (let i = 0; i < (many ? 1 : f.stocks); i++) {
+        const c = el('canvas', 'hud-stock'); c.width = 26; c.height = 26;
+        NX.Render.drawStockIcon(c, f.slotDef, f.color);
+        stocks.appendChild(c); icons.push(c);
+      }
+      const stockX = many ? el('span', 'hud-stock-x', f.infiniteStocks ? '∞' : '×' + f.stocks) : null;
+      if (stockX) stocks.appendChild(stockX);
+      let meter = null, meterFill = null, meterLabel = null;
+      if (f.def.meter) {
+        meter = el('div', 'hud-meter');
+        meter.style.setProperty('--mc', f.def.meter.color || '#fff');
+        meterFill = el('div', 'hud-meter-fill');
+        meterLabel = el('div', 'hud-meter-label', f.def.meter.label || 'MEDIDOR');
+        meter.append(meterFill, meterLabel);
+      }
+      const elim = el('div', 'hud-elim', 'ELIMINATED');
+      info.append(tag, name);
+      p.append(port, info, pct, stocks);
+      if (meter) p.appendChild(meter);
+      p.appendChild(elim);
+      return { f, p, pct, pi: pct.querySelector('.pi'), pd: pct.querySelector('.pd'), icons, stockX, many, meterFill, meterLabel, port, name, def: f.def, last: {} };
+    },
+
+    /* v8 · Horda: cambia el panel del rival al entrar una nueva oleada. */
+    replacePanel(i, f) {
+      const old = this.panels[i];
+      if (!old) return;
+      const P = this.makePanel(f);
+      old.p.replaceWith(P.p);
+      this.panels[i] = P;
+      this.update(this.match);
+    },
+    setWave(w, total) {
+      this.rulesEl.innerHTML = `HORDA <i></i> OLEADA <b>${w}</b>/${total}${w >= total ? ' <i></i> <b class="boss-tag">JEFE</b>' : ''}`;
     },
 
     rebuildStocks() {
@@ -144,7 +162,7 @@
         if (shake > 0.2) P.pct.style.transform = `translate(${U.rand(-shake, shake).toFixed(1)}px, ${U.rand(-shake, shake).toFixed(1)}px) scale(${1 + (f.hudShake > 0 ? 0.08 : 0)})`;
         else if (L.shook) P.pct.style.transform = '';
         L.shook = shake > 0.2;
-        if (L.stocks !== f.stocks) {
+        if (L.stocks !== f.stocks && !f.infiniteStocks) {
           if (P.many) { P.stockX.textContent = '×' + f.stocks; P.icons[0].classList.toggle('lost', f.stocks <= 0); }
           else P.icons.forEach((c, i) => { c.classList.toggle('lost', i >= f.stocks); });
           L.stocks = f.stocks;
@@ -155,7 +173,7 @@
           P.name.textContent = f.def.name.toUpperCase();
           P.p.classList.remove('swap'); void P.p.offsetWidth; P.p.classList.add('swap');
         }
-        if (P.meterFill) {
+        if (P.meterFill && f.def.meter) {
           const k = f.meterMax ? f.meter / f.meterMax : 0;
           const w = Math.round(k * 1000) / 10;
           if (L.meter !== w) { P.meterFill.style.width = w + '%'; P.p.classList.toggle('meter-full', k >= 1); L.meter = w; }

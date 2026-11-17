@@ -413,3 +413,49 @@ body.touch-mode .hud-bigcount { top: 22%; }
   .press { margin-top: 4vh; }
   .title-foot { bottom: 10px; font-size: 12px; }
 }
+
+/* ===================== v8 · MODO HORDA Y MENÚ PRINCIPAL ===================== */
+.main-tiles.v8 { min-height: 0; grid-template-columns: 1.3fr 1fr !important; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .62fr) !important; }
+.main-tiles.v8 .tile-red { grid-column: 1 !important; grid-row: 1 / 3 !important; }
+.main-tiles.v8 .tile-horde { grid-column: 2 !important; grid-row: 1 !important; }
+.main-tiles.v8 .tile-black { grid-column: 2 !important; grid-row: 2 !important; }
+.main-tiles.v8 .tile-rules { grid-column: 1 !important; grid-row: 3 !important; }
+.main-tiles.v8 .tile-white:not(.tile-rules) { grid-column: 2 !important; grid-row: 3 !important; }
+.main-tiles.v8 .tile-white .tile-k { font-size: clamp(22px, 2.6vw, 38px); }
+.tile-horde { background: linear-gradient(135deg, #8a2be2, #2a0a4a); border-color: #d68aff55; box-shadow: inset 0 -8px 0 #0004; }
+.tile-horde::after { content: '☠'; position: absolute; right: 26px; top: 10px; font-size: clamp(30px, 4vw, 60px); opacity: .25; transform: skewX(14deg); }
+.tile-horde.focus, .tile-horde:hover:not(:disabled) { box-shadow: 0 0 0 4px #b34dff, 0 18px 40px #000a; }
+.zip-mini { font: 800 13px var(--f-body); letter-spacing: 1px; color: #fffc; background: #000a; border: 2px solid #ffffff40; padding: 4px 12px; transform: skewX(var(--skew)); }
+.zip-mini small { font-size: 10px; }
+.zip-mini.focus, .zip-mini:hover { color: #fff; border-color: #e8141f; background: #e8141f; }
+@media (max-width: 1000px) {
+  .main-tiles.v8 { grid-template-columns: 1fr !important; grid-template-rows: none !important; }
+  .main-tiles.v8 .tile { grid-column: auto !important; grid-row: auto !important; }
+}
+@media (max-height: 500px) {
+  .main-tiles.v8 { grid-template-columns: 1.3fr 1fr !important; grid-template-rows: repeat(3, minmax(0, 1fr)) !important; }
+  .main-tiles.v8 .tile-red { grid-column: 1 !important; grid-row: 1 / 3 !important; }
+  .main-tiles.v8 .tile-horde { grid-column: 2 !important; grid-row: 1 !important; }
+  .main-tiles.v8 .tile-black { grid-column: 2 !important; grid-row: 2 !important; }
+  .main-tiles.v8 .tile-rules { grid-column: 1 !important; grid-row: 3 !important; }
+  .main-tiles.v8 .tile-white:not(.tile-rules) { grid-column: 2 !important; grid-row: 3 !important; }
+  .zip-mini { font-size: 11px; padding: 2px 8px; }
+}
+.chip-horde { background: #9b3cff; color: #fff; }
+.hud-rules.horde { border-left-color: #b34dff; }
+.hud-rules.horde i { background: #b34dff; }
+.hud-rules .boss-tag { color: #d68aff; animation: blink .8s steps(2) infinite; }
+body.touch-mode .hud-rules.horde { display: block; top: auto; bottom: calc(10px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) skewX(var(--skew)); font-size: 12px; }
+.hud-panel.boss::before { background: linear-gradient(100deg, #9b3cff 0 30%, #1a0630e6 30%); border-bottom-color: #b34dff; box-shadow: 0 0 18px #9b3cffaa; }
+.hud-panel.boss .hud-tag { background: #9b3cff; color: #fff; }
+.scr-horde .res-title { text-shadow: 4px 4px 0 #9b3cff; }
+.horde-time { display: flex; flex-direction: column; transform: skewX(var(--skew)); }
+.horde-time small { font: 800 16px var(--f-body); letter-spacing: 6px; color: #d68aff; }
+.horde-time b { font: 400 clamp(54px, 7vw, 100px)/1 var(--f-head); letter-spacing: 3px; color: #fff; text-shadow: 6px 6px 0 #9b3cff; }
+.horde-time em { font: 800 18px var(--f-body); font-style: normal; letter-spacing: 3px; color: #000; background: var(--gold); padding: 2px 12px; align-self: flex-start; margin-top: 6px; animation: blink .7s steps(2) infinite; }
+.horde-best { font: 700 16px var(--f-body); color: #fffb; letter-spacing: 1px; }
+.horde-best b { color: var(--gold); }
+.scr-horde .res-table td:last-child { text-align: right; font-family: var(--f-head); font-weight: 400; font-size: 1.15em; }
+.scr-horde .res-table tr td:first-child { border-left-color: #9b3cff; }
+@media (max-height: 500px) { .horde-time b { font-size: 44px; } .horde-time small { font-size: 12px; } }
+.main-tiles.v8 .tile-black .tile-k, .main-tiles.v8 .tile-horde .tile-k { font-size: clamp(28px, 3.9vw, 58px); }

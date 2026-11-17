@@ -1,10 +1,22 @@
-# NEXUS CLASH · Ultimate Arena — v7
+# NEXUS CLASH · Ultimate Arena — v8
 
 **Jugar en el navegador:** https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript ES6+, sin imágenes externas.
 Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 34 luchadores originales, 5 escenarios competitivos
 y bots de nivel 1 a 9.
+
+## Novedades v8 — modo HORDA
+- **HORDA** (menú principal): elige luchador y escenario; en cuanto empieza la partida aparece un
+  **rival aleatorio**. Al derrotarlo llega otro, y así hasta la **oleada 10**. Sin límite de vidas ni de
+  tiempo: el objetivo es terminar **en el menor tiempo posible**.
+  - El cronómetro cuenta hacia arriba; el nivel de los bots sube con cada oleada (2 → 9) y no se repiten
+    rivales seguidos.
+  - **Oleada 10 · JEFE FINAL**: rival aleatorio un 30% más grande, más pesado, con más resistencia
+    (recibe un 35% menos de daño) y más daño (+30%), envuelto en un aura de **partículas moradas**.
+  - Al terminar se muestra el tiempo final, las caídas y el daño, y se guarda tu **récord** en el navegador
+    (aparece en el mosaico de HORDA).
+- El botón de **descarga .ZIP** ahora es un botón pequeño en la esquina del menú principal.
 
 ## Novedades v7 — Monocromo y LosGemelos (34 en total)
 - **Monocromo, Hombre LCD** (kit tipo Mr. Game & Watch): silueta negra plana de cristal líquido que se
@@ -123,7 +135,8 @@ se activa tras la primera tecla o clic, como exigen los navegadores. Pulsa **M**
 ## Modos
 - **1 VS 1**: tú contra un CPU. Ajusta su nivel (1–9) con los botones − / + de su tarjeta.
 - **Batalla Campal**: tú contra 3 CPUs, todos contra todos, cada uno con su propio nivel.
-- **Descargar .ZIP**: empaqueta todo el proyecto. Usa JSZip desde CDN y, sin conexión, un
+- **Horda**: 10 oleadas de rivales aleatorios contra reloj, con jefe final en la oleada 10.
+- **⬇ .ZIP** (botón pequeño arriba a la derecha del menú): empaqueta todo el proyecto. Usa JSZip desde CDN y, sin conexión, un
   compresor ZIP propio integrado.
 
 En la selección de personaje arrastra las fichas (P1 / CPU) sobre los retratos, o usa las flechas

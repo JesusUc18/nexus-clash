@@ -60,7 +60,7 @@
       this.paused = false;
       const begin = () => {
         NX.Menus.hideAll();
-        this.match = new NX.Match(setup);
+        this.match = new NX.Match(setup.mode === 'horde' ? this.hordeConfig(setup) : setup);
         this.match.camera.resize(this.W, this.H);
         this.match.camera.snap(this.match);
         this.match.on('finish', () => { this.resultsTimer = 40; });
@@ -73,6 +73,15 @@
       };
       if (this.state === 'match') { NX.Menus.wipe(); setTimeout(begin, 300); }
       else { NX.Menus.wipe(); NX.Menus.locked = true; setTimeout(() => { begin(); NX.Menus.locked = false; }, 320); }
+    },
+
+    /* v8 · HORDA: el jugador elegido contra un primer rival aleatorio. */
+    hordeConfig(setup) {
+      const p1 = setup.players[0];
+      const pool = (NX.ROSTER || []).filter(d => d.id !== p1.fighterId);
+      const first = (pool.length ? NX.U.pick(pool) : NX.ROSTER[0]).id;
+      return { mode: 'horde', stageId: setup.stageId, rules: setup.rules,
+        players: [{ fighterId: p1.fighterId, human: true, level: 0 }, { fighterId: first, human: false, level: NX.hordeLevel(1) }] };
     },
 
     togglePause(forceOff) {

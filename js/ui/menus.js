@@ -16,6 +16,12 @@
     return `<span class="chip"><b>${S.stocks}</b> ${S.stocks === 1 ? 'VIDA' : 'VIDAS'}</span><span class="chip"><b>${fmtMin(S.minutes)}</b> ${S.minutes ? 'MIN' : 'TIEMPO'}</span><span class="chip chip-red">SIN OBJETOS</span>`;
   }
 
+  /* v8 · Récord de la Horda (mejor tiempo), guardado en el navegador. */
+  const BEST_KEY = 'nexusclash.hordeBest';
+  function hordeBest() { try { return JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); } catch (e) { return null; } }
+  function saveHordeBest(b) { try { localStorage.setItem(BEST_KEY, JSON.stringify(b)); } catch (e) { /* almacenamiento no disponible */ } }
+  function fmtClock(frames) { const t = NX.fmtTime(frames); return `${t.m}:${t.s}.${t.cs}`; }
+
   const Menus = {
     init(game) {
       this.game = game;
@@ -84,7 +90,7 @@
         <div class="logo">
           <div class="logo-emblem"><span></span><span></span><span></span></div>
           <div class="logo-a">NEXUS</div><div class="logo-b">CLASH</div>
-          <div class="logo-sub">ULTIMATE ARENA · V7</div>
+          <div class="logo-sub">ULTIMATE ARENA · V8</div>
         </div>
         <div class="press"><span class="kb-only">PULSA <b>ENTER</b> O HAZ CLIC PARA EMPEZAR</span><span class="touch-only"><b>TOCA</b> LA PANTALLA PARA EMPEZAR</span></div>
         <div class="title-foot"><span class="kb-only">Teclado · Gamepad · Pulsa <b>M</b> para silenciar</span><span class="touch-only">Controles táctiles activados · Juega en horizontal</span></div>`;
@@ -106,7 +112,7 @@
       const s = el('div', 'scr scr-main');
       s.innerHTML = `
         <div class="main-head"><div class="mh-k">MENÚ PRINCIPAL</div><div class="mh-rules">${rulesHTML()}</div></div>
-        <div class="main-tiles"></div>
+        <div class="main-tiles v8"></div>
         <div class="main-foot"><span class="kb-only">WASD / Flechas mover · Espacio saltar · J ataque · U smash · K especial · L escudo · I agarre</span><span class="touch-only">Joystick a la izquierda · A ataque · B especial · ▲ salto · S smash · ◆ escudo · ✊ agarre</span></div>`;
       const tiles = s.querySelector('.main-tiles');
       const mk = (cls, k, d, act) => {
@@ -117,14 +123,23 @@
       };
       const list = [];
       const b1 = mk('tile-red', '1 VS 1', 'Tú contra un CPU · Dificultad nivel 1 a 9', () => this.show('select', { mode: '1v1' }));
+      const best = hordeBest();
+      const bH = mk('tile-horde', 'HORDA', `10 oleadas de rivales al azar · Contra reloj${best ? ' · Récord ' + fmtClock(best.frames) : ''}`, () => this.show('select', { mode: 'horde' }));
       const b2 = mk('tile-black', 'BATALLA CAMPAL', 'Tú contra 3 CPUs · Todos contra todos', () => this.show('select', { mode: 'ffa' }));
       const S = NX.Settings;
       const bR = mk('tile-white tile-rules', 'REGLAS', `${S.stocks} ${S.stocks === 1 ? 'vida' : 'vidas'} · ${fmtMin(S.minutes)} · audio`, () => this.show('rules', { back: 'main' }));
       const b3 = mk('tile-white', 'CONTROLES', 'Teclado, gamepad y táctil', () => this.show('controls'));
-      list.push(b1, b2, bR, b3);
-      if (NX.Packager) list.push(mk('tile-white tile-zip', 'DESCARGAR .ZIP', '🔒 Protegido con contraseña', () => NX.Packager.download()));
+      list.push(b1, bH, b2, bR, b3);
+      if (NX.Packager) {
+        const z = el('button', 'mbtn zip-mini', '⬇ .ZIP <small>🔒</small>');
+        z.title = 'Descargar el juego (.zip protegido con contraseña)';
+        z.addEventListener('click', () => { NX.Audio.play('menuSelect'); NX.Packager.download(); });
+        z.addEventListener('mouseenter', () => { this.focusIdx = this.focusables.indexOf(z); this.refreshFocus(); });
+        s.querySelector('.main-head').appendChild(z);
+        list.push(z);
+      }
       if (missing.length) {
-        b1.disabled = b2.disabled = true;
+        b1.disabled = b2.disabled = bH.disabled = true;
         const m = el('div', 'missing', `<b>PROYECTO INCOMPLETO</b> · Faltan módulos: ${missing.join(' · ')}`);
         s.appendChild(m);
       }
@@ -230,7 +245,7 @@
       const mode = data.mode;
       const roster = NX.ROSTER || [];
       const prev = this.game.setup && this.game.setup.mode === mode ? this.game.setup : null;
-      const nCpu = mode === 'ffa' ? 3 : 1;
+      const nCpu = mode === 'ffa' ? 3 : mode === 'horde' ? 0 : 1;
       this.sel = {
         mode, cursor: 0, dragging: null,
         slots: [{ human: true, fighterId: prev ? prev.players[0].fighterId : null, level: 0, color: NX.SLOT_COLORS[0], tag: 'P1' }]
@@ -246,7 +261,7 @@
       s.innerHTML = `
         <div class="sel-header">
           <div class="sel-title">ELIGE A TU LUCHADOR</div>
-          <div class="sel-mode">${mode === 'ffa' ? 'BATALLA CAMPAL · 4 JUGADORES' : '1 VS 1 · COMPETITIVO'}</div>
+          <div class="sel-mode">${mode === 'ffa' ? 'BATALLA CAMPAL · 4 JUGADORES' : mode === 'horde' ? 'HORDA · 10 OLEADAS · CONTRA RELOJ' : '1 VS 1 · COMPETITIVO'}</div>
           <div class="sel-rules">${rulesHTML()}</div>
           <button class="rules-btn">⚙ REGLAS <small class="kb-only">(R)</small></button>
         </div>
@@ -507,12 +522,13 @@
       this.prevScreen = this.screen;
       const s = el('div', 'scr scr-pause');
       const R = this.game.match ? this.game.match.rules : NX.Settings;
-      s.innerHTML = `<div class="pause-k">PAUSA</div><div class="pause-rules"><span class="chip"><b>${R.stocks}</b> VIDAS</span><span class="chip"><b>${fmtMin(R.minutes)}</b></span><span class="chip chip-red">SIN OBJETOS</span></div>`;
+      const H = this.game.match && this.game.match.horde;
+      s.innerHTML = `<div class="pause-k">PAUSA</div><div class="pause-rules">${H ? `<span class="chip chip-horde">HORDA</span><span class="chip">OLEADA <b>${H.wave}</b>/${H.total}</span><span class="chip">VIDAS <b>∞</b></span>` : `<span class="chip"><b>${R.stocks}</b> VIDAS</span><span class="chip"><b>${fmtMin(R.minutes)}</b></span><span class="chip chip-red">SIN OBJETOS</span>`}</div>`;
       const btns = el('div', 'pause-btns');
       const mk = (t, fn) => { const b = el('button', 'mbtn', t); b.addEventListener('click', () => { NX.Audio.play('menuSelect'); fn(); }); btns.appendChild(b); return b; };
       const list = [
         mk('CONTINUAR', () => this.game.togglePause()),
-        mk('REINICIAR COMBATE', () => { this.game.togglePause(true); this.game.startMatch(this.game.setup); }),
+        mk(H ? 'REINICIAR HORDA' : 'REINICIAR COMBATE', () => { this.game.togglePause(true); this.game.startMatch(this.game.setup); }),
         mk('SALIR AL MENÚ', () => { this.game.togglePause(true); this.game.quitToMenu(); })
       ];
       s.appendChild(btns);
@@ -525,6 +541,7 @@
 
     /* ---------------------------- RESULTADOS ----------------------------- */
     build_results(res) {
+      if (res.horde) { this.build_hordeResults(res); return; }
       const w = res.winner;
       const s = el('div', 'scr scr-results');
       s.style.setProperty('--pc', w ? w.color : '#fff');
@@ -566,6 +583,48 @@
         this.anim = [{ canvas: s.querySelector('.res-art'), def: w.def, full: true, state: NX.ST.VICTORY, t0: this.tickN }];
         setTimeout(() => NX.Audio.say('The winner is... ' + w.slotDef.name + '!', { rate: 0.85 }), 500);
       }
+      NX.Audio.playMusic('victory');
+    },
+
+    /* v8 · Resultados de la Horda: tiempo final, récord y estadísticas. */
+    build_hordeResults(res) {
+      const h = res.horde, p = h.player;
+      const prev = hordeBest();
+      const record = h.cleared && (!prev || h.time < prev.frames);
+      if (record) saveHordeBest({ frames: h.time, fighter: p.slotDef.name, stage: h.stageId });
+      const best = record ? { frames: h.time, fighter: p.slotDef.name } : prev;
+      const s = el('div', 'scr scr-results scr-horde');
+      s.style.setProperty('--pc', '#9b3cff');
+      s.innerHTML = `
+        <div class="res-left">
+          <div class="res-burst"></div>
+          <canvas class="res-art" width="520" height="600"></canvas>
+          <div class="res-winner"><small>HORDA SUPERADA</small><b>${p.slotDef.name.toUpperCase()}</b><span>${h.waves} OLEADAS</span></div>
+        </div>
+        <div class="res-right">
+          <div class="res-title">¡HORDA COMPLETADA!</div>
+          <div class="horde-time"><small>TIEMPO FINAL</small><b>${fmtClock(h.time)}</b>${record ? '<em>¡NUEVO RÉCORD!</em>' : ''}</div>
+          <div class="horde-best">Récord: <b>${best ? fmtClock(best.frames) : '—'}</b>${best && best.fighter ? ' · ' + best.fighter : ''}</div>
+          <table class="res-table"><tbody>
+            <tr><td>Oleadas derrotadas</td><td>${h.waves} / ${h.waves}</td></tr>
+            <tr><td>Caídas</td><td>${h.falls}</td></tr>
+            <tr><td>Daño infligido</td><td>${h.dealt.toFixed(1)}%</td></tr>
+            <tr><td>Daño recibido</td><td>${h.taken.toFixed(1)}%</td></tr>
+          </tbody></table>
+          <div class="res-btns"></div>
+        </div>`;
+      const btns = s.querySelector('.res-btns');
+      const mk = (t, fn, cls) => { const b = el('button', 'mbtn ' + (cls || ''), t); b.addEventListener('click', () => { NX.Audio.play('menuSelect'); fn(); }); btns.appendChild(b); return b; };
+      const list = [
+        mk('REINTENTAR', () => this.game.startMatch(this.game.setup), 'btn-red'),
+        mk('CAMBIAR LUCHADOR', () => this.show('select', { mode: 'horde' })),
+        mk('MENÚ PRINCIPAL', () => { NX.Audio.playMusic('menu'); this.show('main'); })
+      ];
+      this.root.appendChild(s);
+      this.setFocusables(list);
+      this.onBack = null;
+      this.anim = [{ canvas: s.querySelector('.res-art'), def: p.def, full: true, state: NX.ST.VICTORY, t0: this.tickN }];
+      setTimeout(() => NX.Audio.say(record ? 'New record!' : 'Horde complete!', { rate: 0.85 }), 500);
       NX.Audio.playMusic('victory');
     },
 

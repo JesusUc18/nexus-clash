@@ -19,6 +19,11 @@
     suddenShrinkRate: 0.45
   });
 
+  /* v8 · Horda: 10 oleadas; el nivel del bot sube con cada una. */
+  const HORDE_WAVES = 10;
+  function hordeLevel(w) { return Math.min(9, 1 + Math.ceil(w * 0.8)); }
+  NX.hordeLevel = hordeLevel;
+
   /* Colores alternativos para luchadores repetidos (mirror matches). */
   function hueShift(hex, deg, light) {
     const c = U.hexToRgb(hex);
@@ -51,7 +56,7 @@
   class Match {
     constructor(cfg) {
       this.cfg = cfg; this.mode = cfg.mode;
-      const r = cfg.rules || {};
+      const r = cfg.mode === 'horde' ? { stocks: 1, minutes: 0 } : (cfg.rules || {});
       this.rules = {
         stocks: U.clamp(r.stocks || RULES.stocks, 1, 99),
         minutes: r.minutes == null ? 7 : r.minutes
@@ -92,7 +97,68 @@
         else if (NX.BotController) ctrl = new NX.BotController(f, p.level, this);
         this.controllers.push(ctrl);
       });
+      /* v8 · HORDA: el jugador tiene vidas infinitas; cada rival, una sola. */
+      this.horde = null;
+      if (cfg.mode === 'horde') {
+        this.horde = { wave: 1, total: cfg.hordeTotal || HORDE_WAVES, pending: 0, used: [cfg.players[1].fighterId] };
+        this.fighters[0].infiniteStocks = true;
+        this.applyWave(this.fighters[1], 1);
+      }
       this.camera.snap(this);
+    }
+
+    /* ============================ HORDA ================================= */
+    applyWave(f, wave) {
+      f.wave = wave;
+      if (wave >= this.horde.total) {
+        f.boss = true; f.tag = 'JEFE';
+        f.applyBoost({ size: 1.3, weight: 1.4, dmg: 1.3, resist: 0.65 });
+      }
+    }
+    hordeCleared(f, x, y) {
+      const H = this.horde;
+      f.eliminated = true; f.eliminatedAt = this.frame; this.koOrder.push(f);
+      this.emit('eliminated', f);
+      if (H.wave >= H.total) { this.gameSet(this.fighters[0], x, y); return; }
+      H.wave++; H.pending = 95;
+    }
+    spawnWave() {
+      const H = this.horde, idx = 1, old = this.fighters[idx];
+      const player = this.fighters[0];
+      const roster = (NX.ROSTER || []).filter(d => H.used.slice(-4).indexOf(d.id) < 0);
+      const def = U.pick(roster.length ? roster : NX.ROSTER);
+      H.used.push(def.id);
+      const level = hordeLevel(H.wave);
+      const nf = new NX.Fighter(def, idx, this, { human: false, level, stocks: 1, tag: 'CPU' });
+      if (def === player.slotDef) { nf.altIndex = 1; nf.palette = altPalette(nf.def.palette, 1); }
+      this.applyWave(nf, H.wave);
+      this.fighters[idx] = nf;
+      this.controllers[idx] = NX.BotController ? new NX.BotController(nf, level, this) : null;
+      for (const f of this.fighters) if (f.lastAttacker === old) f.lastAttacker = null;
+      this.respawnFighter(nf);
+      const boss = H.wave >= H.total;
+      this.announce(boss ? '¡JEFE FINAL!' : 'OLEADA ' + H.wave, { style: 'time', say: boss ? 'Final boss!' : 'Wave ' + H.wave });
+      if (boss) { NX.Audio.play('lethal'); this.camera.shake(14); }
+      this.emit('wave', { wave: H.wave, total: H.total, f: nf, idx });
+    }
+    updateHorde() {
+      const H = this.horde;
+      if (H.pending > 0 && --H.pending === 0) this.spawnWave();
+      for (const f of this.fighters) {
+        if (!f.boss || !f.inPlay()) continue;
+        if (this.frame % 2 === 0) this.effects.spawn('sparkle', f.x + U.rand(-f.w * 0.7, f.w * 0.7), f.y - U.rand(0, f.h), { color: U.pick(['#b34dff', '#d68aff', '#7a1ad8']) });
+        if (this.frame % 7 === 0) this.effects.list.push({ type: 'wisp', x: f.x + U.rand(-f.w * 0.5, f.w * 0.5), y: f.y - U.rand(0, f.h * 0.6), vx: U.rand(-0.6, 0.6), vy: -U.rand(0.8, 2), life: 34, max: 34, size: U.rand(6, 12), color: '#a33cff' });
+      }
+    }
+    drawBossAura(ctx, f) {
+      const t = this.frame, cx = f.x, cy = f.y - f.h * 0.5, r = f.h * (0.75 + 0.05 * Math.sin(t * 0.15));
+      ctx.save();
+      const g = ctx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
+      g.addColorStop(0, 'rgba(179,77,255,.48)'); g.addColorStop(0.6, 'rgba(150,40,240,.22)'); g.addColorStop(1, 'rgba(120,20,220,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, U.TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(214,138,255,.55)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(f.x, f.y, f.w * 0.9, 8, 0, 0, U.TAU); ctx.stroke();
+      ctx.restore();
     }
 
     on(ev, fn) { (this.listeners[ev] = this.listeners[ev] || []).push(fn); }
@@ -152,11 +218,11 @@
       this.phaseTime++;
       switch (this.phase) {
         case 'countdown': this.updateCountdown(); this.simulate(false); break;
-        case 'play': this.simulate(true); this.updateTimer(); break;
+        case 'play': this.simulate(true); this.updateTimer(); if (this.horde) this.updateHorde(); break;
         case 'time': this.updateTimeUp(); break;
         case 'sdintro': this.updateSuddenIntro(); this.simulate(false); break;
         case 'sudden': this.simulate(true); this.updateSudden(); break;
-        case 'game': this.simulate(true); if (this.phaseTime > 140) this.finish(); break;
+        case 'game': this.simulate(true); if (this.horde) this.updateHorde(); if (this.phaseTime > 140) this.finish(); break;
         default: break;
       }
     }
@@ -298,6 +364,11 @@
       f.state = NX.ST.DEAD; f.stateTime = 0; f.respawnTimer = 80;
       f.vx = f.vy = f.lvx = f.lvy = 0; f.burn = null;
       this.emit('ko', { f, killer });
+      if (this.horde) {
+        if (f.infiniteStocks) f.stocks = 1;
+        else if (this.phase !== 'game') this.hordeCleared(f, px, py);
+        return;
+      }
       if (f.stocks <= 0) {
         f.eliminated = true; f.eliminatedAt = this.frame; this.koOrder.push(f);
         this.emit('eliminated', f);
@@ -348,6 +419,11 @@
       const dead = this.koOrder.slice().reverse().filter(f => alive.indexOf(f) < 0);
       const ranking = alive.concat(dead);
       this.result = { ranking, winner: ranking[0], mode: this.mode, frames: this.frame, timeLeft: this.timer, sudden: this.suddenDeath };
+      if (this.horde) {
+        const p = this.fighters[0];
+        this.result.horde = { time: this.timer, waves: this.horde.total, cleared: this.horde.wave >= this.horde.total, player: p, falls: p.stats.falls, dealt: p.stats.damageDealt, taken: p.stats.damageTaken, stageId: this.stageDef.id };
+        this.result.winner = p;
+      }
       this.emit('finish', this.result);
     }
 
@@ -368,6 +444,7 @@
       for (const f of this.fighters) if (f.state === NX.ST.RESPAWN && f.respawnPlat) this.drawAngelPlatform(ctx, f);
       for (const f of this.fighters) if (f.slotDef.drawBackdrop && !f.eliminated) f.slotDef.drawBackdrop(ctx, f, this);
       const order = this.fighters.slice().sort((a, b) => (a.isHuman ? 1 : 0) - (b.isHuman ? 1 : 0));
+      for (const f of order) if (f.boss && f.inPlay() && !f.hidden) this.drawBossAura(ctx, f);
       for (const f of order) f.draw(ctx);
       for (const p of this.projectiles) p.draw(ctx);
       this.effects.draw(ctx);
