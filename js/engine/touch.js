@@ -85,7 +85,7 @@
     root.innerHTML = `
       <div class="t-zone t-left"><div class="t-stick"><div class="t-knob"></div></div></div>
       <div class="t-zone t-right">${BUTTONS.map(b => `<div class="tbtn ${b[3]}" data-a="${b[0]}"><b>${b[1]}</b><small>${b[2]}</small></div>`).join('')}</div>
-      <button class="t-pause" aria-label="Pausa">❚❚</button>`;
+      <button class="t-pause" aria-label="Pausa"><i></i><i></i></button>`;
     document.getElementById('app').appendChild(root);
     base = root.querySelector('.t-stick'); knob = root.querySelector('.t-knob');
     pauseBtn = root.querySelector('.t-pause');

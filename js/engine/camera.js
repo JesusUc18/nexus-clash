@@ -10,12 +10,18 @@
   class Camera {
     constructor() {
       this.x = 0; this.y = -200; this.zoom = 0.8;
-      this.w = 1280; this.h = 720; this.padBottom = 130;
+      this.w = 1280; this.h = 720; this.padBottom = 130; this.padTop = 0;
       this.shakeAmt = 0; this.sx = 0; this.sy = 0;
       this.focus = null; this.focusTimer = 0; this.focusZoom = 1.4;
       this.initialized = false;
     }
-    resize(w, h) { this.w = w; this.h = h; this.padBottom = Math.min(150, h * 0.18); }
+    resize(w, h) {
+      this.w = w; this.h = h;
+      /* V1.0 · En modo táctil el HUD va arriba: se reserva espacio superior. */
+      const touch = typeof document !== 'undefined' && document.body && document.body.classList.contains('touch-mode');
+      this.padTop = touch ? Math.min(78, h * 0.19) : 0;
+      this.padBottom = touch ? Math.min(40, h * 0.08) : Math.min(150, h * 0.18);
+    }
     shake(a) { this.shakeAmt = Math.max(this.shakeAmt, a); }
     focusOn(target, frames, zoomMul) { this.focus = target; this.focusTimer = frames; this.focusZoom = zoomMul || 1.4; }
 
@@ -37,7 +43,7 @@
           minY = Math.min(minY, y - f.h - 150); maxY = Math.max(maxY, y + 90);
         }
       }
-      const viewH = this.h - this.padBottom * 0.55;
+      const viewH = this.h - this.padBottom * 0.55 - (this.padTop || 0);
       const minW = 1040, minH = 585;
       let bw = Math.max(maxX - minX, minW), bh = Math.max(maxY - minY, minH);
       const aspect = this.w / viewH;
@@ -49,7 +55,7 @@
       const halfW = this.w / zoom / 2, halfH = viewH / zoom / 2;
       cx = (cb.right - cb.left) / 2 < halfW ? (cb.left + cb.right) / 2 : U.clamp(cx, cb.left + halfW, cb.right - halfW);
       cy = (cb.bottom - cb.top) / 2 < halfH ? (cb.top + cb.bottom) / 2 : U.clamp(cy, cb.top + halfH, cb.bottom - halfH);
-      cy += (this.padBottom * 0.28) / zoom;
+      cy += (this.padBottom * 0.28 - (this.padTop || 0) * 0.5) / zoom;
       return { x: cx, y: cy, zoom };
     }
 

@@ -90,10 +90,20 @@
         <div class="logo">
           <div class="logo-emblem"><span></span><span></span><span></span></div>
           <div class="logo-a">NEXUS</div><div class="logo-b">CLASH</div>
-          <div class="logo-sub">ULTIMATE ARENA · V8</div>
+          <div class="logo-sub">ULTIMATE ARENA <span class="ver">V1.0</span></div>
         </div>
         <div class="press"><span class="kb-only">PULSA <b>ENTER</b> O HAZ CLIC PARA EMPEZAR</span><span class="touch-only"><b>TOCA</b> LA PANTALLA PARA EMPEZAR</span></div>
+        <div class="title-roster"><div class="tr-track"></div></div>
         <div class="title-foot"><span class="kb-only">Teclado · Gamepad · Pulsa <b>M</b> para silenciar</span><span class="touch-only">Controles táctiles activados · Juega en horizontal</span></div>`;
+      /* V1.0 · Desfile del plantel en la portada (retratos que cruzan la pantalla). */
+      const track = s.querySelector('.tr-track');
+      const roster = NX.ROSTER || [];
+      for (let k = 0; k < 2; k++) roster.forEach(d => {
+        const c = el('canvas', 'tr-face'); c.width = 96; c.height = 96;
+        c.style.setProperty('--fc', NX.Render.resolveDef(d).palette.primary);
+        NX.Render.drawPortrait(c, d); track.appendChild(c);
+      });
+      track.style.setProperty('--n', roster.length);
       s.addEventListener('click', () => this.titleGo());
       this.root.appendChild(s);
       this.onBack = null;
@@ -168,11 +178,21 @@
         ['Silenciar audio', 'M', '—', 'REGLAS → MÚSICA']
       ];
       s.innerHTML = `<div class="sel-header"><div class="sel-title">CONTROLES</div><div class="sel-rules">${rulesHTML()}</div></div>
-        <div class="ctrl-wrap"><table class="ctrl-table"><thead><tr><th>Acción</th><th>Teclado</th><th>Gamepad</th><th>Táctil</th></tr></thead>
-        <tbody>${rows.map(r => `<tr><td>${r[0]}</td><td><kbd>${r[1]}</kbd></td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
+        <div class="ctrl-wrap">
+          <div class="touch-only touch-map" aria-hidden="true">
+            <div class="tm-screen">
+              <div class="tm-stick"><i></i></div><span class="tm-lab tm-l1">Mover · arrastra donde quieras</span>
+              <div class="tm-pause"><i></i><i></i></div>
+              <div class="tm-btns"><b class="g">✊</b><b class="y">B</b><b class="o">S</b><b class="r">A</b><b class="w">▲</b><b class="c">◆</b></div>
+              <span class="tm-lab tm-l2">A ataque · B especial · S smash · ▲ salto · ◆ escudo · ✊ agarre</span>
+            </div>
+          </div>
+          <table class="ctrl-table"><thead><tr><th>Acción</th><th class="kb-only">Teclado</th><th class="kb-only">Gamepad</th><th class="touch-only">Táctil</th></tr></thead>
+          <tbody>${rows.map(r => `<tr><td>${r[0]}</td><td class="kb-only"><kbd>${r[1]}</kbd></td><td class="kb-only">${r[2]}</td><td class="touch-only">${r[3]}</td></tr>`).join('')}</tbody></table></div>
+        <div class="ctrl-foot"></div>`;
       const back = el('button', 'mbtn back-btn', '◄ VOLVER');
       back.addEventListener('click', () => { NX.Audio.play('menuBack'); this.show('main'); });
-      s.appendChild(back);
+      s.querySelector('.ctrl-foot').appendChild(back);
       this.root.appendChild(s);
       this.setFocusables([back]);
       this.onBack = () => back.click();
@@ -273,7 +293,8 @@
       this.root.appendChild(s);
       this.selEl = s;
       const grid = s.querySelector('.sel-grid');
-      grid.style.setProperty('--cols', roster.length > 16 ? Math.ceil(roster.length / 2) : 8);
+      grid.style.setProperty('--cols', roster.length > 24 ? Math.ceil(roster.length / 3) : roster.length > 16 ? Math.ceil(roster.length / 2) : 8);
+      grid.style.setProperty('--cols-short', Math.ceil(roster.length / 2));
       this.cells = roster.map((d, i) => {
         const c = el('div', 'cell');
         c.dataset.idx = i;
@@ -300,7 +321,7 @@
         const ctrl = el('div', 'card-ctrl');
         if (slot.human) ctrl.innerHTML = '<span>JUGADOR</span>';
         else {
-          ctrl.innerHTML = `<button class="lv-btn" data-d="-1">−</button><span class="lv">CPU NV <b>${slot.level}</b></span><button class="lv-btn" data-d="1">+</button>`;
+          ctrl.innerHTML = `<button class="lv-btn" data-d="-1" aria-label="Bajar nivel">−</button><span class="lv">NIVEL <b>${slot.level}</b></span><button class="lv-btn" data-d="1" aria-label="Subir nivel">+</button>`;
           ctrl.querySelectorAll('.lv-btn').forEach(b => b.addEventListener('click', e => {
             e.stopPropagation(); slot.level = U.clamp(slot.level + Number(b.dataset.d), 1, 9);
             ctrl.querySelector('b').textContent = slot.level; NX.Audio.play('menuMove');
@@ -504,7 +525,7 @@
       const ctx = cv.getContext('2d');
       const W = cv.width, H = cv.height;
       const stub = { stagePlatforms: sd.platforms.map(p => Object.assign({ type: 'solid' }, p)), dynamicSolids: [], fighters: [], frame: 0, stageDef: sd, blast: sd.blast };
-      const cam = new NX.Camera(); cam.resize(W, H); cam.padBottom = 0;
+      const cam = new NX.Camera(); cam.resize(W, H); cam.padBottom = 0; cam.padTop = 0;
       const cb = sd.camera;
       cam.zoom = Math.min(W / (cb.right - cb.left), H / (cb.bottom - cb.top)) * 1.25;
       cam.x = (cb.left + cb.right) / 2; cam.y = (cb.top + cb.bottom) / 2 + 60;

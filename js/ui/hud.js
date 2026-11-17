@@ -59,6 +59,7 @@
       this.panelsEl.innerHTML = '';
       this.panels = [];
       this.panelsEl.style.setProperty('--n', match.fighters.length);
+      this.panelsEl.dataset.n = match.fighters.length;
       match.fighters.forEach(f => { const P = this.makePanel(f); this.panelsEl.appendChild(P.p); this.panels.push(P); });
       this.rulesEl.classList.toggle('horde', !!match.horde);
       if (match.horde) this.setWave(match.horde.wave, match.horde.total);

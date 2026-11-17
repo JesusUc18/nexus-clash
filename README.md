@@ -1,10 +1,26 @@
-# NEXUS CLASH · Ultimate Arena — v8
+# NEXUS CLASH · Ultimate Arena — V1.0
 
-**Jugar en el navegador:** https://jesusuc18.github.io/nexus-clash/
+### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
-Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript ES6+, sin imágenes externas.
-Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 34 luchadores originales, 5 escenarios competitivos
-y bots de nivel 1 a 9.
+Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript, sin imágenes externas para los personajes.
+Funciona en **laptop/PC** (teclado o gamepad) y en **teléfono o tablet** (controles táctiles), sin instalar nada.
+**34 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal** y **Horda**, y bots
+de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configurable en REGLAS).
+
+> Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
+> como una app a pantalla completa.
+
+## V1.0 — versión oficial (UX/UI)
+- **Portada nueva** con el sello V1.0 y un desfile de los 34 luchadores.
+- **Selección de personajes** más clara: cuadrícula compacta con los nombres completos y el aviso
+  "¡LISTOS PARA LUCHAR!" en la parte de abajo, sin tapar a los luchadores elegidos.
+- **Escenarios** que siempre caben en pantalla, con el nombre bajo cada imagen.
+- **Controles**: en teléfono se muestra un mapa de los botones táctiles y solo la columna táctil; en laptop,
+  teclado y gamepad. El botón VOLVER ya no tapa la tabla.
+- **Teléfono**: HUD compacto y legible con 4 jugadores, la cámara deja espacio bajo el HUD, botón de pausa
+  rediseñado, textos de "GO!" más pequeños y resultados con el ganador y su celebración.
+- **Al compartir el enlace** (WhatsApp, Discord, etc.) aparece una imagen de vista previa con los luchadores.
+- **Ícono propio** y soporte para instalarlo en el celular (pantalla completa y horizontal).
 
 ## Novedades v8 — modo HORDA
 - **HORDA** (menú principal): elige luchador y escenario; en cuanto empieza la partida aparece un
