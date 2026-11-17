@@ -338,7 +338,14 @@
     corvin: { col: '#ffe14a', jab: 'jabSword2', ftilt: 'ftiltSlash', utilt: ['utiltBurst', { fx: 'fire' }], dtilt: 'dtiltSlash', dashattack: 'dashSlash',
       fsmash: ['fsmashSword', { fx: 'elec' }], usmash: ['usmashArc', { fx: 'elec' }], dsmash: ['dsmashSlash', { fx: 'elec' }], nair: ['nairSlash', { fx: 'elec' }], fair: ['fairArc', { fx: 'elec' }], bair: ['bairSlash', { fx: 'elec' }], uair: ['uairArc', { fx: 'elec' }], dair: ['dairStab', { fx: 'elec' }] },
     gyron: { col: '#ff7a2a', jab: ['jabRapid', { kind: 'punch' }], ftilt: 'ftiltPunch', utilt: 'utiltArc', dtilt: 'dtiltPoke', dashattack: 'dashShoulder',
-      fsmash: ['fsmashBlast', { fx: 'fire' }], usmash: ['usmashPillar', { fx: 'fire' }], dsmash: 'dsmashSweep', nair: 'nairSpin', fair: 'fairPunch', bair: ['airBurst', { dir: 'b', fx: 'fire' }], uair: 'uairMulti', dair: ['airBurst', { dir: 'd', fx: 'fire' }] }
+      fsmash: ['fsmashBlast', { fx: 'fire' }], usmash: ['usmashPillar', { fx: 'fire' }], dsmash: 'dsmashSweep', nair: 'nairSpin', fair: 'fairPunch', bair: ['airBurst', { dir: 'b', fx: 'fire' }], uair: 'uairMulti', dair: ['airBurst', { dir: 'd', fx: 'fire' }] },
+    /* v7: Monocromo (objetos LCD) y LosGemelos (Copete grita, Flequillo golpea con la laptop). */
+    monocromo: { jab: ['jabRapid', { kind: 'punch' }], ftilt: ['ftiltChop', { limb: 'hF' }], utilt: 'utiltArc', dtilt: 'dtiltSweep', dashattack: 'dashKick',
+      fsmash: ['fsmashBlast', { fx: 'fire' }], usmash: 'usmashUppercut', dsmash: 'dsmashSlam', nair: 'nairSpin', fair: 'fairSpike', bair: 'bairKick', uair: 'uairMulti', dair: 'dairDrill' },
+    gemelos_copete: { fx: 'wind', col: '#bfe3ff', jab: ['jabCombo', { fin: 'palm' }], ftilt: 'ftiltPalm', utilt: 'utiltBurst', dtilt: 'dtiltPoke', dashattack: 'dashBurst',
+      fsmash: 'fsmashBlast', usmash: 'usmashPillar', dsmash: 'dsmashSlam', nair: 'nairBurst', fair: ['airBurst', { dir: 'f' }], bair: ['airBurst', { dir: 'b' }], uair: ['airBurst', { dir: 'u' }], dair: ['airBurst', { dir: 'd' }] },
+    gemelos_flequillo: { jab: 'jabSword2', ftilt: 'ftiltChop', utilt: 'utiltSword', dtilt: 'dtiltSlash', dashattack: 'dashSlash',
+      fsmash: ['fsmashHammer', { fx: 'heavy' }], usmash: 'usmashArc', dsmash: 'dsmashSlash', nair: 'nairSlash', fair: 'fairArc', bair: 'bairSlash', uair: 'uairArc', dair: 'dairStab' }
   };
   /* Aria: su smash hacia arriba es una estocada vertical (no un arco). */
   KITS.aria.usmash = 'usmashThrustUp';

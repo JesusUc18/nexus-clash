@@ -1,10 +1,27 @@
-# NEXUS CLASH · Ultimate Arena — v6
+# NEXUS CLASH · Ultimate Arena — v7
 
 **Jugar en el navegador:** https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript ES6+, sin imágenes externas.
-Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 32 luchadores originales, 5 escenarios competitivos
+Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 34 luchadores originales, 5 escenarios competitivos
 y bots de nivel 1 a 9.
+
+## Novedades v7 — Monocromo y LosGemelos (34 en total)
+- **Monocromo, Hombre LCD** (kit tipo Mr. Game & Watch): silueta negra plana de cristal líquido que se
+  mueve **a saltos de fotograma** y hace pitidos en cada ataque. Ligero y flotante.
+  - **Sartén** (neutral): lanza comida en arco (salchicha, pescado o huevo).
+  - **Juez** (lateral): martillo con un número al azar del **1 al 9**. El 1 le hace daño a él; el 9 es un
+    golpe devastador; el 5 electrocuta, el 6 quema y el 8 moja.
+  - **Trampolín** (arriba): dos bomberos lo lanzan muy alto y cae despacio; puede seguir atacando.
+  - **Cubo** (abajo): absorbe **3 proyectiles**; con el cubo lleno vierte aceite ardiente (golpe muy fuerte).
+- **LosGemelos, Dúo Gamer** (original, dos en uno como Pyra/Mythra). Ambos con **camisa azul rey** y
+  **lentes**; cambian el pantalón y el peinado. **Abajo + B** cambia de gemelo.
+  - **Copete** (copete de mango chupado, pantalón negro, tenis blancos): normales a **gritos** (ondas de
+    sonido, "¡AAAAH!" en los smashes). Especiales con su **consola portátil**: Píxel Cargado (cargable),
+    Joy-Bumerán (lanza los dos controles, que regresan) y Salto Turbo (sube golpeando y cae en picado).
+  - **Flequillo** (flequillo de lado, pantalón caqui): normales con su **laptop**. Especiales con
+    **cartas coleccionables** de fuego, agua, rayo o planta: Abanico de Cartas (3 cartas), Carta Veloz
+    (embestida) y Carta Gigante (sube sobre una carta y lanza 3 hacia abajo). Más rápido.
 
 ## Novedades v6 — 2 luchadores nuevos (32 en total)
 - **Corvin, Estratega Arcano** — táctico con tomo y espada rúnica (kit tipo Robin). Sus hechizos gastan
@@ -158,7 +175,7 @@ js/engine/camera.js        Cámara dinámica
 js/engine/match.js         Reglas, KOs, muerte súbita, colores alternativos
 js/engine/ai.js            Bots (Parte 3)
 js/fighters/kits.js        Biblioteca de ataques normales y kit de cada luchador (v4)
-js/fighters/roster.js      32 luchadores (Partes 2, v2, v3, v3.1 y v6)
+js/fighters/roster.js      34 luchadores (Partes 2, v2, v3, v3.1, v6 y v7)
 js/stages/stages.js        3 escenarios (Parte 3)
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
 js/tools/bundle.js         Copia de las fuentes para el ZIP (generada)
@@ -200,5 +217,7 @@ js/ui/hud.js, js/ui/menus.js
 | 30 | Tamba, Titán de la Selva | Superpesado · carga | 127 | Puñetazo Gigante (almacenable) | Cabezazo (entierra) | Kong Giratorio | Palmada al suelo |
 | 31 | Corvin, Estratega Arcano | Táctico · medidor MANÁ | 95 | Trueno (4 niveles, almacenable) | Fuego Arcano (pilar de llamas) | Ventisca Doble | Sangría (roba vida) |
 | 32 | Gyron-64, Centinela Retro | Robot sobre ruedas · COMBUSTIBLE | 106 | Láser Óptico (se recarga) | Rotor de Brazos (refleja) | Propulsores (vuelo) | Peonza Giro (cargable) |
+| 33 | Monocromo, Hombre LCD | Silueta LCD · ligero · medidor CUBO | 75 | Sartén (comida en arco) | Juez (número 1–9) | Trampolín | Cubo (absorbe 3 y vierte aceite) |
+| 34 | LosGemelos, Dúo Gamer | Multiforma (2 gemelos) | 94 / 88 | Píxel Cargado · Abanico de Cartas | Joy-Bumerán · Carta Veloz | Salto Turbo · Carta Gigante | Cambiar de gemelo |
 
 Con el medidor lleno: Aria potencia su siguiente especial ("Crescendo") y Luma invoca al espíritu Fuego Fatuo durante 12 s.

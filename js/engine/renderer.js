@@ -561,13 +561,20 @@
   }
 
   /* ---------------------------- LUCHADOR ---------------------------------- */
+  /* v7 · Estilo pantalla LCD: la pose solo cambia cada `n` ticks (o al
+   * cambiar de estado), como los viejos juegos de cristal líquido. */
+  function lcdPose(f, n) {
+    const t = f.tick || 0, c = f._lcd;
+    if (!c || t - c.t >= n || t < c.t || c.st !== f.state || c.mv !== f.move) f._lcd = { t, st: f.state, mv: f.move, p: getPose(f) };
+    return f._lcd.p;
+  }
   function fighterScale(f, rig) { return (f.h / rig.natural) * (f.drawScale || 1); }
 
   function drawFighter(ctx, f, opts) {
     opts = opts || {};
     if (f.hidden || f.state === NX.ST.DEAD) return;
     const def = f.def, rig = getRig(def), pal = f.palette || def.palette;
-    const p = getPose(f);
+    const p = def.lcd ? lcdPose(f, def.lcd) : getPose(f);
     const s = fighterScale(f, rig) * (opts.scale || 1);
     let x = opts.x != null ? opts.x : f.x, y = opts.y != null ? opts.y : f.y;
     if (f.hitlag > 0 && f.shaking) { x += U.rand(-1, 1) * Math.min(6, f.hitlag * 0.5); y += U.rand(-1, 1) * 2; }
@@ -575,7 +582,7 @@
 
     /* Estela de arma / extremidad en espacio mundo (v4: respeta giros y
      * sigue al puño, pie o arma que golpea según def.limb). */
-    if (!opts.noTrail) {
+    if (!opts.noTrail && !def.lcd) {
       const H0 = rig.natural, cr = Math.cos(p.rot || 0), sr = Math.sin(p.rot || 0);
       const W = q => {
         let lx = q.x + p.ox, ly = q.y + p.oy;
