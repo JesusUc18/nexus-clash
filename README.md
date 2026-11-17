@@ -1,14 +1,34 @@
-# NEXUS CLASH · Ultimate Arena — V1.0
+# NEXUS CLASH · Ultimate Arena — V1.1
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript, sin imágenes externas para los personajes.
 Funciona en **laptop/PC** (teclado o gamepad) y en **teléfono o tablet** (controles táctiles), sin instalar nada.
-**34 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal** y **Horda**, y bots
+**36 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal** y **Horda**, y bots
 de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configurable en REGLAS).
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.1 — BigSimio y Jochis (36 en total)
+- **BigSimio, Simio del Termo** — pesado, lento y con mucho daño. Grande, con suéter blanco, lentes y cabello
+  negro peinado hacia delante. Sus normales son **termazos con un termo negro** y sus especiales usan **bananas**:
+  - **Racimo Explosivo** (neutral): cargable; lanza un racimo en arco que estalla en 3 bananas.
+  - **Cáscara Traicionera** (lateral): deja hasta 2 cáscaras en el suelo; el rival que las pisa **resbala**.
+  - **Banana Cohete** (arriba): sube montado en una banana gigante (dirigible) con golpes múltiples.
+  - **Pisotón Platanero** (abajo): golpe al suelo con ondas a ambos lados; en el aire cae en picado.
+  - Pasiva **Simio Molesto**: a partir de **110%** se enfurece hasta perder la vida — partículas y símbolo de
+    enojo, tono rojizo, **+15% de velocidad** y **+15% de daño**. Su medidor RABIA muestra cuánto falta.
+- **Jochis, Tarotista Gamer** — ligero, velocidad media y buen daño. Pequeño, con camisa café, lentes y cabello
+  negro. Sus normales son golpes con un **mando rosa estilo consola** y sus especiales usan **cartas de tarot**:
+  - **Tirada de Tarot** (neutral): saca un arcano al azar — El Sol (bola de fuego), La Luna (orbe
+    teledirigido), La Torre (rayo sobre el rival), La Estrella (se cura 8% y lanza estrellas), La Muerte (tajo
+    devastador, poco común) o El Loco (le estalla en la cara).
+  - **Rueda de la Fortuna** (lateral): rueda giratoria de varios golpes que frena y estalla.
+  - **El Carro** (arriba): sube en diagonal montado en una carta gigante.
+  - **La Justicia** (abajo): contraataque que devuelve el golpe ×1.3.
+  - Pasiva **Arcano Mayor**: si sobrevive **1:30** sin perder la vida gana **+25% de alcance** y **+30% de peso**
+    (dos cartas orbitan a su alrededor). El medidor AGUANTE marca la cuenta atrás.
 
 ## V1.0 — versión oficial (UX/UI)
 - **Portada nueva** con el sello V1.0 y un desfile de los 34 luchadores.
@@ -204,7 +224,7 @@ js/engine/camera.js        Cámara dinámica
 js/engine/match.js         Reglas, KOs, muerte súbita, colores alternativos
 js/engine/ai.js            Bots (Parte 3)
 js/fighters/kits.js        Biblioteca de ataques normales y kit de cada luchador (v4)
-js/fighters/roster.js      34 luchadores (Partes 2, v2, v3, v3.1, v6 y v7)
+js/fighters/roster.js      36 luchadores (Partes 2, v2, v3, v3.1, v6, v7 y v1.1)
 js/stages/stages.js        3 escenarios (Parte 3)
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
 js/tools/bundle.js         Copia de las fuentes para el ZIP (generada)
@@ -248,5 +268,7 @@ js/ui/hud.js, js/ui/menus.js
 | 32 | Gyron-64, Centinela Retro | Robot sobre ruedas · COMBUSTIBLE | 106 | Láser Óptico (se recarga) | Rotor de Brazos (refleja) | Propulsores (vuelo) | Peonza Giro (cargable) |
 | 33 | Monocromo, Hombre LCD | Silueta LCD · ligero · medidor CUBO | 75 | Sartén (comida en arco) | Juez (número 1–9) | Trampolín | Cubo (absorbe 3 y vierte aceite) |
 | 34 | LosGemelos, Dúo Gamer | Multiforma (2 gemelos) | 94 / 88 | Píxel Cargado · Abanico de Cartas | Joy-Bumerán · Carta Veloz | Salto Turbo · Carta Gigante | Cambiar de gemelo |
+| 35 | BigSimio, Simio del Termo | Pesado · termo · pasiva Simio Molesto (110%) | 132 | Racimo Explosivo (cargable) | Cáscara Traicionera (trampa) | Banana Cohete | Pisotón Platanero |
+| 36 | Jochis, Tarotista Gamer | Ligero · mando · pasiva Arcano Mayor (1:30) | 76 | Tirada de Tarot (arcano al azar) | Rueda de la Fortuna | El Carro | La Justicia (counter ×1.3) |
 
 Con el medidor lleno: Aria potencia su siguiente especial ("Crescendo") y Luma invoca al espíritu Fuego Fatuo durante 12 s.

@@ -1,6 +1,6 @@
 /* ==========================================================================
  * NEXUS CLASH — js/fighters/roster.js
- * Plantel completo de 34 luchadores ORIGINALES (v7): estadísticas, rig visual
+ * Plantel completo de 36 luchadores ORIGINALES (v1.1): estadísticas, rig visual
  * procedural (accesorios, siluetas, paletas), pasivas, medidores y sus
  * 4 ataques especiales (Neutral, Lateral, Arriba, Abajo) 100% funcionales.
  * Incluye pistas `ai` para los bots de la Parte 3.
@@ -5128,6 +5128,585 @@
     id: 'gemelos', name: 'LosGemelos', title: 'Dúo Gamer',
     passive: 'Dos gemelos en un slot. Abajo + B alterna entre Copete (gritos y consola, potencia) y Flequillo (laptop y cartas, velocidad).',
     forms: [COPETE, FLEQUILLO], portraitForm: 0
+  });
+
+  /* ======================================================================
+   * v1.1 · BIGSIMIO — Simio del Termo (pesado, lento y con mucho daño)
+   * Normales con su TERMO negro; especiales con BANANAS.
+   * Pasiva "Simio Molesto": desde 110% entra en cólera hasta perder la vida:
+   * partículas de enojo, +15% de velocidad y +15% de daño.
+   * ==================================================================== */
+  const BANANA = '#ffd23a', RAGE_AT = 110, RAGE_MULT = 1.15;
+  const RAGE_STATS = new Set(['walk', 'run', 'dash', 'airSpeed']);
+  function bananaShape(ctx, s, col) {
+    ctx.save();
+    ctx.fillStyle = col || BANANA; ctx.strokeStyle = OUT; ctx.lineWidth = Math.max(1.1, s * 0.09); ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(-s, -s * 0.25);
+    ctx.quadraticCurveTo(0, s * 0.9, s, -s * 0.3);
+    ctx.quadraticCurveTo(0, s * 0.35, -s, -s * 0.25);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = Math.max(0.8, s * 0.06);
+    ctx.beginPath(); ctx.moveTo(-s * 0.55, -s * 0.02); ctx.quadraticCurveTo(0, s * 0.3, s * 0.5, -s * 0.06); ctx.stroke();
+    ctx.fillStyle = '#5a3a1a';
+    ctx.beginPath(); ctx.arc(s, -s * 0.3, s * 0.11, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.arc(-s, -s * 0.25, s * 0.09, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+  function bunchShape(ctx, s) {
+    [-0.55, 0, 0.55].forEach(a => { ctx.save(); ctx.rotate(a - PI / 2); ctx.translate(s * 0.9, 0); ctx.rotate(PI / 2); bananaShape(ctx, s); ctx.restore(); });
+    R.disc(ctx, 0, 0, s * 0.22, '#6a8a2a');
+  }
+  function peelShape(ctx, s) {
+    ctx.save();
+    [-1.05, -0.35, 0.35, 1.05].forEach(a => {
+      ctx.save(); ctx.rotate(a);
+      ctx.fillStyle = BANANA; ctx.strokeStyle = OUT; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(-s * 0.18, 0); ctx.quadraticCurveTo(-s * 0.25, s * 0.7, 0, s * 1.05); ctx.quadraticCurveTo(s * 0.25, s * 0.7, s * 0.18, 0);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#fff6c8'; ctx.beginPath(); ctx.ellipse(0, s * 0.45, s * 0.07, s * 0.3, 0, 0, TAU); ctx.fill();
+      ctx.restore();
+    });
+    ctx.fillStyle = '#5a3a1a'; ctx.fillRect(-s * 0.1, -s * 0.38, s * 0.2, s * 0.4);
+    ctx.restore();
+  }
+  function bananaDraw(ctx, p) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.t * 0.4 * U.sign(p.vx || 1)); bananaShape(ctx, p.r * 1.2); ctx.restore(); }
+  function bunchDraw(ctx, p) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.t * 0.18 * U.sign(p.vx || 1)); bunchShape(ctx, p.r * 0.75); ctx.restore(); }
+  function thermosDraw(ctx, w) {
+    const L = w.len, W = w.w;
+    const g = ctx.createLinearGradient(-W / 2, 0, W / 2, 0);
+    g.addColorStop(0, '#0b0b0d'); g.addColorStop(0.32, '#45454e'); g.addColorStop(0.55, '#16161a'); g.addColorStop(1, '#050506');
+    ctx.fillStyle = g; ctx.strokeStyle = OUT; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.rect(-W / 2, -9, W, L - 1); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#26262c'; ctx.beginPath(); ctx.rect(-W * 0.42, L - 10, W * 0.84, 10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#b9c0c8'; ctx.fillRect(-W / 2, L - 13, W, 2.6); ctx.fillRect(-W / 2, -9, W, 2.2);
+    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(-W * 0.22, -5, W * 0.12, L - 12);
+  }
+  function rageMark(ctx, x, y, k) {
+    ctx.save(); ctx.translate(x, y); ctx.scale(k, k);
+    ctx.strokeStyle = '#ff2a2a'; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      ctx.save(); ctx.rotate(i * PI / 2);
+      ctx.beginPath(); ctx.moveTo(2.5, -9); ctx.quadraticCurveTo(2.5, -2.5, 9, -2.5); ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  /* En cólera se le enrojecen la cara y las manos (el suéter y el cabello no cambian). */
+  function rageOn(f) {
+    f.data.rage = true; f.data.calmPal = f.palette;
+    const red = c => { const m = U.mixRgb(U.hexToRgb(c), { r: 235, g: 60, b: 45 }, 0.45); return '#' + [m.r, m.g, m.b].map(v => v.toString(16).padStart(2, '0')).join(''); };
+    f.palette = Object.assign({}, f.palette, { skin: red(f.palette.skin), head: red(f.palette.head), hand: red(f.palette.hand) });
+  }
+  function rageOff(f) { f.data.rage = false; if (f.data.calmPal) f.palette = f.data.calmPal; f.data.calmPal = null; }
+  fighter({
+    id: 'bigsimio', name: 'BigSimio', title: 'Simio del Termo',
+    passive: 'Simio Molesto: al llegar a 110% se enfurece (partículas de enojo), se mueve un 15% más rápido y pega un 15% más fuerte hasta perder la vida.',
+    palette: { primary: '#f1efe8', secondary: '#2b3240', skin: '#d9a37a', head: '#d9a37a', hand: '#d9a37a', arms: '#f1efe8', legs: '#2b3240', feet: '#1e1e22', accent: BANANA, hair: '#131315', eye: '#1a1208' },
+    stats: { weight: 132, height: 104, width: 50, walk: 2.6, run: 6.0, dash: 6.6, airSpeed: 3.4, gravity: 0.64, fall: 11, fastFall: 16, jump: 12.8, shortHop: 8.4, airJump: 11.8, traction: 0.58 },
+    profile: { style: 'heavy', reach: 1.15, power: 1.2, speed: 0.86 },
+    meter: { max: RAGE_AT, label: 'RABIA', short: 'RABIA', color: '#ff3a2a', text: f => f.data.rage ? 'SIMIO MOLESTO' : 'RABIA' },
+    ai: { recovery: 'up', projectile: 'neutral', range: 90, heavy: true },
+    onLifeReset(f) { if (f.data.rage) rageOff(f); },
+    onUpdate(f) {
+      f.meter = Math.min(RAGE_AT, f.percent);
+      const rage = f.inPlay() && f.state !== ST.RESPAWN && f.percent >= RAGE_AT;
+      if (rage && !f.data.rage) {
+        rageOn(f);
+        f.fx('text', f.x, f.y - f.h - 34, { text: '¡SIMIO MOLESTO!', color: '#ff3a2a', size: 24 });
+        f.fx('ring', f.x, f.y - f.h / 2, { r: 90, color: '#ff3a2a', w: 6 });
+        NX.Audio.play('lethal'); NX.Audio.play('stomp', { pitch: 0.6 }); f.match.camera.shake(9);
+      } else if (!rage && f.data.rage) rageOff(f);
+      if (f.data.rage && !f.hidden) {
+        if (f.tick % 4 === 0) f.match.effects.list.push({ type: 'wisp', x: f.x + U.rand(-f.w * 0.5, f.w * 0.5), y: f.y - U.rand(f.h * 0.3, f.h), vx: U.rand(-0.6, 0.6), vy: -U.rand(1, 2.2), life: 24, max: 24, size: U.rand(4, 8), color: U.pick(['#ff3a2a', '#ff7a3a', '#ffd0c8']) });
+        if (f.tick % 10 === 0) f.fx('sparkle', f.x + U.rand(-24, 24), f.y - f.h - 4, { color: '#ff3a2a' });
+      }
+    },
+    statMod(f, k, v) { return f.data.rage && RAGE_STATS.has(k) ? v * RAGE_MULT : v; },
+    damageMod(f) { return f.data.rage ? RAGE_MULT : 1; },
+    drawOverlay(ctx, f, x, y) {
+      if (!f.data || !f.data.rage || f.hidden) return;
+      const t = f.tick || 0;
+      rageMark(ctx, x + f.facing * f.w * 0.42, y - f.h - 10 + Math.sin(t * 0.2) * 2, 1 + Math.sin(t * 0.35) * 0.15);
+    },
+    rig: {
+      torsoW: 40, hipW: 34, torsoH: 36, torsoRound: 14, headR: 14, neck: 1, armW: 12, upperArm: 19, foreArm: 18, handR: 7,
+      thigh: 16, shin: 15, legW: 13, footL: 15, footH: 8,
+      weapon: { type: 'thermos', len: 32, w: 11, trail: '#b9c0c8' },
+      parts: {
+        head(ctx, a) {
+          const r = a.rig.headR;
+          hairCap(ctx, r, a.pal.hair, { a1: -0.25 });
+          /* Cabello negro "tipo Ben 10": gran copete peinado hacia delante con puntas sobre la frente. */
+          ctx.fillStyle = a.pal.hair; ctx.strokeStyle = OUT; ctx.lineWidth = 1.7; ctx.lineJoin = 'round';
+          ctx.beginPath(); ctx.moveTo(-r * 1.02, -r * 0.1);
+          ctx.quadraticCurveTo(-r * 1.15, -r * 1.25, -r * 0.2, -r * 1.42);
+          ctx.quadraticCurveTo(r * 0.85, -r * 1.5, r * 1.3, -r * 0.72);
+          ctx.lineTo(r * 1.0, -r * 0.62); ctx.lineTo(r * 1.08, -r * 0.18);
+          ctx.lineTo(r * 0.74, -r * 0.46); ctx.lineTo(r * 0.66, -r * 0.08);
+          ctx.lineTo(r * 0.42, -r * 0.44); ctx.lineTo(r * 0.24, -r * 0.2);
+          ctx.quadraticCurveTo(-r * 0.3, -r * 0.6, -r * 0.6, -r * 0.0);
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.strokeStyle = U.shade(a.pal.hair, 0.4); ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 1.0); ctx.quadraticCurveTo(r * 0.1, -r * 1.3, r * 0.95, -r * 0.82); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-r * 0.4, -r * 0.75); ctx.quadraticCurveTo(r * 0.2, -r * 0.95, r * 0.7, -r * 0.6); ctx.stroke();
+          glasses(ctx, r);
+        },
+        torso(ctx, a) {
+          const r = a.rig;
+          /* Suéter blanco de punto: cuello redondo, ochos trenzados y elástico abajo. */
+          ctx.fillStyle = '#dcd8cc'; ctx.strokeStyle = OUT; ctx.lineWidth = 1.4;
+          ctx.beginPath(); ctx.ellipse(r.torsoW * 0.08, -r.torsoH + 2, r.torsoW * 0.26, 4.5, 0, 0, TAU); ctx.fill(); ctx.stroke();
+          ctx.strokeStyle = '#cfcabd'; ctx.lineWidth = 1.6;
+          [-0.18, 0.28].forEach(cx => {
+            ctx.beginPath();
+            for (let y = -r.torsoH + 8, i = 0; y < -8; y += 4, i++) { const x = r.torsoW * cx + (i % 2 ? 2.2 : -2.2); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+            ctx.stroke();
+          });
+          ctx.fillStyle = '#dcd8cc'; ctx.fillRect(-r.hipW / 2, -6, r.hipW, 6);
+          ctx.strokeStyle = '#bdb8aa'; ctx.lineWidth = 1;
+          for (let x = -r.hipW / 2 + 3; x < r.hipW / 2; x += 3.5) { ctx.beginPath(); ctx.moveTo(x, -6); ctx.lineTo(x, 0); ctx.stroke(); }
+        },
+        weapon(ctx, f, w) {
+          if (f.move && /^special/.test(f.move.def.key)) return;
+          thermosDraw(ctx, w);
+        },
+        front(ctx, a) {
+          const mv = a.f.move;
+          if (!mv || !/^special/.test(mv.def.key)) return;
+          const h = a.J.haF, key = mv.def.key;
+          ctx.save(); ctx.translate(h.x, h.y);
+          if (key === 'special_neutral') { const k = Math.min(1, (mv.charge || 0) / 60); if (mv.frame < 15) { ctx.scale(1 + 0.45 * k, 1 + 0.45 * k); bunchShape(ctx, 8); } }
+          else if (key === 'special_side') { if (mv.frame < 11) { ctx.rotate(0.5); ctx.translate(0, -6); peelShape(ctx, 9); } }
+          else if (key === 'special_down') { ctx.rotate(-0.7); ctx.translate(14, 0); bananaShape(ctx, 17); }
+          ctx.restore();
+        }
+      }
+    },
+    specials: {
+      /* Racimo Explosivo: cargable; el racimo cae en arco y estalla en 3 bananas. */
+      neutral: {
+        frames: 42, pose: 'overhead', limb: [], charge: { at: 9, max: 60, key: 'special', mult: 1 },
+        onCharge(f, mv) { if (mv.charge % 10 === 0) f.fx('sparkle', f.x + f.facing * 10, f.y - f.h - 6, { color: BANANA }); },
+        onFrame(f, fr, mv) {
+          if (fr !== 14) return;
+          const k = (mv.charge || 0) / 60;
+          NX.Audio.play('swing', { pitch: 0.7, size: 1 + k });
+          shoot(f, { ox: 22, oy: -f.h * 0.9, speed: 5.5 + 3.5 * k, vy: -6.5 - 1.5 * k, gravity: 0.36, r: 14 + 4 * k, life: 120, dmg: 9 + 9 * k, ang: 50, bkb: 35 + 15 * k, kbg: 62 + 22 * k,
+            effect: 'heavy', color: BANANA, glow: false, passCollide: true, data: { k }, draw: bunchDraw,
+            onDestroy(p, why, m) {
+              if (why === 'out') return;
+              m.effects.spawn('pop', p.x, p.y, { color: BANANA, r: 20 });
+              NX.Audio.play('stomp', { pitch: 1.4 });
+              [-1, 0, 1].forEach(i => p.owner.spawnProjectile({ x: p.x, y: p.y - 8, vx: i * 3.4, vy: i === 0 ? -8 : -6, gravity: 0.45, r: 8, life: 50, dmg: 3 + 2 * p.data.k, ang: 70, bkb: 25, kbg: 40,
+                effect: 'hit', color: BANANA, glow: false, draw: bananaDraw }));
+            } });
+          if (k > 0.9) f.fx('text', f.x, f.y - f.h - 18, { text: '¡RACIMO MÁX!', color: BANANA, size: 20 });
+        }
+      },
+      /* Cáscara Traicionera: deja hasta 2 cáscaras; quien las pisa resbala. */
+      side: {
+        frames: 36, pose: 'shoot', limb: [],
+        onFrame(f, fr) {
+          if (fr !== 11) return;
+          NX.Audio.play('swing', { pitch: 1.3 });
+          const peels = (f.data.peels || []).filter(p => p.active);
+          while (peels.length >= 2) peels.shift().destroy('replace');
+          const peel = shoot(f, { ox: 22, oy: -f.h * 0.55, speed: 6.5, vy: -4.5, gravity: 0.42, r: 9, life: 720, dmg: 5, ang: 60, bkb: 30, kbg: 40,
+            effect: 'hit', color: BANANA, glow: false, passCollide: true, data: {},
+            onGround(q, pl) {
+              q.vx = 0; q.vy = 0; q.gravity = 0; q.stageCollide = false; q.harmless = true;
+              q.data.landed = true; q.data.plat = pl; q.data.ox = q.x - pl.x; q.y = pl.y - q.r - 0.5;
+              NX.Audio.play('land', { pitch: 1.6 });
+            },
+            update(q, m) {
+              if (!q.data.landed) return;
+              const pl = q.data.plat;
+              if (pl.removed) { q.destroy('stage'); return false; }
+              q.x = pl.x + q.data.ox; q.y = pl.y - q.r - 0.5;
+              for (const t of m.fighters) {
+                if (t === q.owner || !t.inPlay() || t.ground !== pl || !t.canBeHit()) continue;
+                if (Math.abs(t.x - q.x) < 16 + t.w * 0.3) {
+                  q.owner.hitTarget(t, { dmg: 7, ang: 88, fkb: 62, bkb: 0, kbg: 0, effect: 'hit' }, { x: q.x, y: q.y });
+                  m.effects.spawn('text', t.x, t.y - t.h - 12, { text: '¡RESBALÓN!', color: BANANA, size: 18 });
+                  NX.Audio.play('spin', { pitch: 1.7 });
+                  q.destroy('trigger'); return false;
+                }
+              }
+            },
+            draw(ctx, q) {
+              ctx.save(); ctx.translate(q.x, q.y + (q.data.landed ? q.r - 4 : 0));
+              if (q.data.landed) ctx.scale(1.1, 0.75); else ctx.rotate(q.t * 0.35);
+              peelShape(ctx, 10); ctx.restore();
+            } });
+          peels.push(peel); f.data.peels = peels;
+        }
+      },
+      /* Banana Cohete: sube montado en una banana gigante (dirigible). */
+      up: {
+        frames: 62, pose: 'rise', limb: [], helplessLag: 22, drift: 0.5,
+        hitboxes: [
+          { f: [6, 9], x: 0, y: -50, r: 32, dmg: 7, ang: 80, bkb: 55, kbg: 45, effect: 'heavy', group: 1 },
+          { f: [13, 25], x: 6, y: -60, r: 26, dmg: 3.5, ang: 78, bkb: 45, kbg: 30, effect: 'hit', group: 2 },
+          { f: [27, 30], x: 10, y: -84, r: 32, dmg: 8, ang: 70, bkb: 50, kbg: 88, effect: 'heavy', group: 3 }],
+        onFrame(f, fr, mv) {
+          if (fr === 5) {
+            NX.Audio.play('explosion', { pitch: 1.7 });
+            f.spawnProjectile({ x: f.x, y: f.y + 4, vx: 0, vy: 0, r: 1, life: 30, dmg: 0, harmless: true, pierce: true, stageCollide: false, reflectable: false, absorbable: false, destructible: false, glow: false, data: { mv },
+              update(p) { const o = p.owner; if (o.move !== p.data.mv) { p.destroy('end'); return false; } p.x = o.x; p.y = o.y + 4; },
+              onDestroy() {},
+              draw(ctx, p) { ctx.save(); ctx.translate(p.x, p.y); ctx.scale(p.owner.facing, 1); ctx.rotate(-0.12); bananaShape(ctx, 38); ctx.restore(); } });
+          }
+          if (fr >= 6 && fr <= 26) {
+            f.vy = -12.5; mv.velY = true;
+            f.vx = U.approach(f.vx, f.input.x * 3.4, 0.4); mv.velX = true;
+            if (fr % 2 === 0) f.fx('flame', f.x - f.facing * 34, f.y + 2, { scale: 1.2 });
+          } else if (fr > 26 && fr <= 32) { f.vy = U.approach(f.vy, 0, 1.6); mv.velY = true; }
+        }
+      },
+      /* Pisotón Platanero: golpe al suelo con una banana gigante y ondas de cáscara. En el aire cae en picado. */
+      down: {
+        frames: 46, pose: 'slam', limb: [],
+        onStart(f, mv) { mv.data.air = !f.ground; if (mv.data.air) f.vy = Math.min(f.vy, -3); },
+        onFrame(f, fr, mv) {
+          if (mv.data.air) {
+            if (fr >= 8) {
+              f.vy = 14; f.vx *= 0.9; mv.velY = true;
+              mv.extraBoxes = [{ x: 0, y: -10, r: 30, dmg: 12, ang: 270, bkb: 30, kbg: 70, effect: 'heavy', meteor: true }];
+            }
+            return;
+          }
+          if (fr === 18) {
+            NX.Audio.play('stomp'); NX.Audio.play('explosion', { pitch: 0.7 }); f.match.camera.shake(10);
+            f.fx('dust', f.x + 40, f.y, { n: 6 }); f.fx('dust', f.x - 40, f.y, { n: 6 });
+            f.fx('debris', f.x, f.y, { n: 6, color: BANANA });
+            if (f.ground) [-1, 1].forEach(d => groundWave(f, d, { r: 14, speed: 7.5, life: 24, dmg: 6, ang: 75, bkb: 45, kbg: 55, color: BANANA }));
+          }
+          mv.extraBoxes = (fr >= 18 && fr <= 21) ? [
+            { x: 36, y: -18, r: 34, dmg: 14, ang: 75, bkb: 50, kbg: 82, effect: 'heavy' },
+            { x: -36, y: -18, r: 34, dmg: 14, ang: 75, bkb: 50, kbg: 82, effect: 'heavy', reverse: true }] : null;
+        },
+        onLand(f, mv) {
+          if (!mv.data.air) return 'continue';
+          mv.data.air = false; mv.extraBoxes = null; mv.hitSets = {}; mv.frame = 17;
+          return 'continue';
+        }
+      }
+    }
+  });
+
+  /* ======================================================================
+   * v1.1 · JOCHIS — Tarotista Gamer (ligero, velocidad media, buen daño)
+   * Normales con su MANDO rosa estilo consola; especiales con cartas de TAROT.
+   * Pasiva "Arcano Mayor": si sobrevive 1:30 sin perder la vida gana +25% de
+   * alcance y +30% de peso hasta que la pierda.
+   * ==================================================================== */
+  const SURVIVE_T = 90 * 60;
+  const ARCANA = {
+    sol: { name: 'EL SOL', col: '#ffb02a' }, luna: { name: 'LA LUNA', col: '#bcd4ff' }, torre: { name: 'LA TORRE', col: '#ffe14a' },
+    estrella: { name: 'LA ESTRELLA', col: '#7ff0ff' }, muerte: { name: 'LA MUERTE', col: '#f0f0f6' }, loco: { name: 'EL LOCO', col: '#7dff8a' },
+    rueda: { name: 'LA RUEDA', col: '#ff8fd0' }, carro: { name: 'EL CARRO', col: '#ffd23a' }, justicia: { name: 'LA JUSTICIA', col: '#ff6fb5' }
+  };
+  const DRAW_TABLE = [['sol', 22], ['luna', 20], ['torre', 18], ['estrella', 14], ['loco', 16], ['muerte', 10]];
+  function pickWeighted(list) {
+    let s = 0; list.forEach(e => { s += e[1]; });
+    let r = Math.random() * s;
+    for (const e of list) { r -= e[1]; if (r < 0) return e[0]; }
+    return list[0][0];
+  }
+  function tarotSymbol(ctx, key, s, col) {
+    ctx.save(); ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = Math.max(0.9, s * 0.16); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    switch (key) {
+      case 'sol':
+        for (let i = 0; i < 8; i++) { const a = i * PI / 4; ctx.beginPath(); ctx.moveTo(Math.cos(a) * s * 0.6, Math.sin(a) * s * 0.6); ctx.lineTo(Math.cos(a) * s, Math.sin(a) * s); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(0, 0, s * 0.45, 0, TAU); ctx.fill(); break;
+      case 'luna':
+        ctx.beginPath(); ctx.arc(0, 0, s * 0.8, PI * 0.35, PI * 1.65); ctx.arc(s * 0.35, 0, s * 0.62, PI * 1.45, PI * 0.55, true); ctx.closePath(); ctx.fill(); break;
+      case 'torre':
+        ctx.fillRect(-s * 0.3, -s * 0.5, s * 0.6, s * 1.3);
+        ctx.beginPath(); ctx.moveTo(s * 0.2, -s); ctx.lineTo(-s * 0.15, -s * 0.35); ctx.lineTo(s * 0.15, -s * 0.35); ctx.lineTo(-s * 0.2, s * 0.2); ctx.stroke(); break;
+      case 'estrella':
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) { const a = -PI / 2 + i * PI / 5, rr = i % 2 ? s * 0.4 : s; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+        ctx.closePath(); ctx.fill(); break;
+      case 'muerte':
+        ctx.beginPath(); ctx.arc(0, -s * 0.15, s * 0.6, 0, TAU); ctx.fill(); ctx.fillRect(-s * 0.35, s * 0.3, s * 0.7, s * 0.4);
+        ctx.fillStyle = '#2a1846'; ctx.beginPath(); ctx.arc(-s * 0.22, -s * 0.15, s * 0.16, 0, TAU); ctx.arc(s * 0.22, -s * 0.15, s * 0.16, 0, TAU); ctx.fill(); break;
+      case 'loco':
+        ctx.beginPath(); ctx.moveTo(-s * 0.8, s * 0.5); ctx.lineTo(-s * 0.45, -s * 0.7); ctx.lineTo(0, s * 0.1); ctx.lineTo(s * 0.45, -s * 0.7); ctx.lineTo(s * 0.8, s * 0.5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.arc(-s * 0.45, -s * 0.78, s * 0.15, 0, TAU); ctx.arc(s * 0.45, -s * 0.78, s * 0.15, 0, TAU); ctx.fill(); break;
+      case 'rueda':
+        ctx.beginPath(); ctx.arc(0, 0, s * 0.8, 0, TAU); ctx.stroke();
+        for (let i = 0; i < 4; i++) { const a = i * PI / 4; ctx.beginPath(); ctx.moveTo(Math.cos(a) * s * 0.8, Math.sin(a) * s * 0.8); ctx.lineTo(-Math.cos(a) * s * 0.8, -Math.sin(a) * s * 0.8); ctx.stroke(); }
+        break;
+      case 'carro':
+        ctx.fillRect(-s * 0.7, -s * 0.5, s * 1.4, s * 0.7);
+        ctx.beginPath(); ctx.arc(-s * 0.4, s * 0.45, s * 0.3, 0, TAU); ctx.arc(s * 0.4, s * 0.45, s * 0.3, 0, TAU); ctx.fill(); break;
+      case 'justicia':
+        ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(0, s * 0.8); ctx.moveTo(-s * 0.8, -s * 0.55); ctx.lineTo(s * 0.8, -s * 0.55); ctx.moveTo(-s * 0.4, s * 0.8); ctx.lineTo(s * 0.4, s * 0.8); ctx.stroke();
+        ctx.beginPath(); ctx.arc(-s * 0.7, -s * 0.1, s * 0.28, 0, PI); ctx.arc(s * 0.7, -s * 0.1, s * 0.28, 0, PI); ctx.fill(); break;
+    }
+    ctx.restore();
+  }
+  function tarotShape(ctx, w, h, key) {
+    const A = ARCANA[key] || ARCANA.sol;
+    ctx.fillStyle = '#2a1846'; ctx.strokeStyle = '#e8c35a'; ctx.lineWidth = Math.max(1.1, w * 0.09);
+    ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = U.rgba('#e8c35a', 0.55); ctx.lineWidth = Math.max(0.6, w * 0.04);
+    ctx.strokeRect(-w * 0.36, -h * 0.4, w * 0.72, h * 0.8);
+    tarotSymbol(ctx, key, w * 0.27, A.col);
+  }
+  function tarotProjDraw(key, spin) {
+    return (ctx, p) => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.t * (spin || 0.35) * U.sign(p.vx || 1));
+      tarotShape(ctx, p.r * 1.5, p.r * 2.2, key); ctx.restore();
+    };
+  }
+  function sunDraw(ctx, p) {
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.t * 0.12);
+    ctx.globalAlpha = 0.3; R.disc(ctx, 0, 0, p.r * 1.7, '#ffb02a', false); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#ff7a1a';
+    for (let i = 0; i < 8; i++) { ctx.rotate(PI / 4); ctx.beginPath(); ctx.moveTo(p.r * 0.8, -4); ctx.lineTo(p.r * 1.45, 0); ctx.lineTo(p.r * 0.8, 4); ctx.fill(); }
+    R.disc(ctx, 0, 0, p.r, '#ffd23a'); R.disc(ctx, 0, 0, p.r * 0.55, '#fff3a8', false);
+    ctx.restore();
+  }
+  function moonDraw(ctx, p) {
+    ctx.save(); ctx.translate(p.x, p.y);
+    ctx.globalAlpha = 0.28; R.disc(ctx, 0, 0, p.r * 1.8, '#9fc4ff', false); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#e8f0ff'; ctx.strokeStyle = OUT; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(0, 0, p.r, PI * 0.35, PI * 1.65); ctx.arc(p.r * 0.45, 0, p.r * 0.78, PI * 1.45, PI * 0.55, true); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  function wheelDraw(ctx, p) {
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.t * 0.4);
+    ctx.globalAlpha = 0.25; R.disc(ctx, 0, 0, p.r * 1.35, '#ff8fd0', false); ctx.globalAlpha = 1;
+    R.disc(ctx, 0, 0, p.r, '#2a1846');
+    ctx.strokeStyle = '#e8c35a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, p.r * 0.92, 0, TAU); ctx.stroke();
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 8; i++) { const a = i * PI / 4; ctx.beginPath(); ctx.moveTo(Math.cos(a) * p.r * 0.25, Math.sin(a) * p.r * 0.25); ctx.lineTo(Math.cos(a) * p.r * 0.9, Math.sin(a) * p.r * 0.9); ctx.stroke(); }
+    R.disc(ctx, 0, 0, p.r * 0.28, '#ff6fb5');
+    ctx.restore();
+  }
+  function padDraw(ctx, w) {
+    /* Mando rosa estilo consola de sobremesa (asas, sticks, cruceta y botones ABXY). */
+    ctx.save(); ctx.translate(0, w.len * 0.55); ctx.rotate(PI / 2);
+    ctx.fillStyle = '#e0559c'; ctx.strokeStyle = OUT; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.rect(-11, -8.5, 7, 3); ctx.rect(4, -8.5, 7, 3); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ff6fb5'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, -6);
+    ctx.quadraticCurveTo(13, -6, 13, 0); ctx.quadraticCurveTo(14, 9, 10, 10); ctx.quadraticCurveTo(7, 10, 5, 5);
+    ctx.lineTo(-5, 5); ctx.quadraticCurveTo(-7, 10, -10, 10); ctx.quadraticCurveTo(-14, 9, -13, 0); ctx.quadraticCurveTo(-13, -6, -8, -6);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(-6, -3.6, 4, 1.2, 0, 0, TAU); ctx.fill();
+    R.disc(ctx, -7.5, -1, 2.5, '#2a2a30', false); R.disc(ctx, -7.5, -1, 1.4, '#48484f', false);
+    R.disc(ctx, 3, 2.6, 2.2, '#2a2a30', false); R.disc(ctx, 3, 2.6, 1.2, '#48484f', false);
+    ctx.fillStyle = '#2a2a30'; ctx.fillRect(-4.6, 1.6, 3.4, 1.1); ctx.fillRect(-3.45, 0.45, 1.1, 3.4);
+    R.disc(ctx, 8, -3.4, 1.2, '#ffd400', false); R.disc(ctx, 8, 1.4, 1.2, '#2fdc5a', false);
+    R.disc(ctx, 5.6, -1, 1.2, '#2f8cff', false); R.disc(ctx, 10.4, -1, 1.2, '#ff2b3a', false);
+    R.disc(ctx, 0, -3, 1.6, '#f5f5f5', false);
+    ctx.restore();
+  }
+  function floatCard(f, key, life) {
+    f.spawnProjectile({ x: f.x, y: f.y - f.h - 34, vx: 0, vy: 0, r: 1, life: life || 34, dmg: 0, harmless: true, pierce: true, stageCollide: false,
+      reflectable: false, absorbable: false, destructible: false, glow: false,
+      update(p) { const o = p.owner; p.x = o.x; p.y = o.y - o.h - 30 - Math.min(10, p.t); },
+      onDestroy() {},
+      draw(ctx, p) {
+        const k = Math.min(1, p.t / 8), fade = Math.min(1, p.life / 8);
+        ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = fade;
+        ctx.save(); ctx.globalAlpha = 0.3 * fade; R.disc(ctx, 0, 0, 26, (ARCANA[key] || ARCANA.sol).col, false); ctx.restore();
+        ctx.scale(Math.max(0.05, k), 1); tarotShape(ctx, 22, 34, key);
+        ctx.restore();
+      } });
+  }
+  const TAROT = {
+    sol(f) {
+      NX.Audio.play('fire', { pitch: 1.1 });
+      shoot(f, { ox: 26, speed: 7.5, r: 16, life: 70, dmg: 12, ang: 45, bkb: 40, kbg: 72, effect: 'fire', color: '#ffb02a', glow: false, draw: sunDraw });
+    },
+    luna(f) {
+      NX.Audio.play('magic', { pitch: 0.8 });
+      shoot(f, { ox: 24, speed: 4.2, r: 12, life: 150, dmg: 8, ang: 60, bkb: 35, kbg: 62, effect: 'magic', color: '#bcd4ff', glow: false,
+        update(p) { if (p.t > 10) steer(p, 0.06, 700); }, draw: moonDraw });
+    },
+    torre(f) {
+      const t = nearestFoe(f, f.x, f.y - f.h / 2, 900);
+      const tx = t ? t.x : f.x + f.facing * 180, ty = t ? t.y - t.h / 2 : f.y - f.h / 2;
+      NX.Audio.play('charge', { pitch: 1.6 });
+      f.spawnProjectile({ x: tx, y: ty, vx: 0, vy: 0, r: 30, life: 26, dmg: 11, ang: 80, bkb: 45, kbg: 74, effect: 'elec', harmless: true, pierce: true, hits: 99,
+        stageCollide: false, reflectable: false, absorbable: false, destructible: false, glow: false, color: '#ffe14a',
+        update(p, m) {
+          if (p.t === 18) {
+            p.harmless = false;
+            m.effects.spawn('bolt', p.x + U.rand(-10, 10), p.y - 320, { x2: p.x, y2: p.y + 24, color: '#ffe14a', w: 6, life: 12 });
+            m.effects.spawn('ring', p.x, p.y, { r: 40, color: '#ffe14a', w: 5 });
+            NX.Audio.play('elec'); m.camera.shake(5);
+          }
+          if (p.t > 21) p.harmless = true;
+        },
+        onDestroy() {},
+        draw(ctx, p) {
+          if (p.t >= 18) return;
+          ctx.save(); ctx.globalAlpha = p.t % 4 < 2 ? 0.55 : 0.25; ctx.strokeStyle = '#ffe14a'; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+          ctx.beginPath(); ctx.moveTo(p.x, p.y - 320); ctx.lineTo(p.x, p.y + 20); ctx.stroke(); ctx.setLineDash([]);
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, TAU); ctx.stroke(); ctx.restore();
+        } });
+    },
+    estrella(f) {
+      NX.Audio.play('heal');
+      const heal = Math.min(8, f.percent);
+      f.percent -= heal;
+      f.fx('text', f.x, f.y - f.h - 12, { text: '-' + Math.round(heal) + '%', color: '#7ff0ff', size: 20 });
+      for (let i = 0; i < 6; i++) f.fx('sparkle', f.x + U.rand(-20, 20), f.y - U.rand(0, f.h), { color: '#7ff0ff' });
+      [-0.25, 0, 0.25].forEach(a => shoot(f, { ox: 24, speed: 0, vx: Math.cos(a) * 9 * f.facing, vy: Math.sin(a) * 9, r: 8, life: 36, dmg: 3, ang: 50, bkb: 25, kbg: 35,
+        effect: 'magic', color: '#7ff0ff', glow: false, draw: starDraw('#7ff0ff', 5) }));
+    },
+    muerte(f, mv) {
+      NX.Audio.play('slash', { pitch: 0.6 }); f.match.camera.shake(6);
+      mv.data.death = true;
+      f.fx('ring', f.x + f.facing * 40, f.y - f.h * 0.5, { r: 46, color: '#f0f0f6', w: 6 });
+    },
+    loco(f) {
+      f.addDamage(3, null); f.flashTimer = 10;
+      f.fx('text', f.x, f.y - f.h - 12, { text: '¡UPS!', color: '#7dff8a', size: 20 });
+      boom(f, f.x + f.facing * 10, f.y - f.h / 2, { r: 44, dmg: 6, ang: 80, bkb: 50, kbg: 45, effect: 'magic' });
+    }
+  };
+  fighter({
+    id: 'jochis', name: 'Jochis', title: 'Tarotista Gamer',
+    passive: 'Arcano Mayor: si sobrevive 1:30 sin perder la vida gana +25% de alcance y +30% de peso hasta que la pierda.',
+    palette: { primary: '#7a4e2c', secondary: '#2c3442', skin: '#e0b088', head: '#e0b088', hand: '#e0b088', arms: '#7a4e2c', legs: '#2c3442', feet: '#f0f0f0', accent: '#ff6fb5', hair: '#141414', eye: '#1a1208' },
+    stats: { weight: 76, height: 68, width: 28, walk: 3.1, run: 7.0, dash: 7.6, airSpeed: 4.0, gravity: 0.6, fall: 10.2, fastFall: 15, jump: 14, shortHop: 9, airJump: 13 },
+    profile: { style: 'sword', reach: 0.9, power: 1.14, speed: 1.0, effect: 'hit' },
+    meter: { max: SURVIVE_T, label: 'AGUANTE', short: 'AGUANTE', color: '#c77dff',
+      text: f => f.data.awake ? 'ARCANO MAYOR' : 'AGUANTE ' + Math.max(0, Math.ceil((SURVIVE_T - (f.data.surv || 0)) / 60)) + 's' },
+    ai: { recovery: 'up', projectile: 'neutral', range: 85, counter: 'down' },
+    onLifeReset(f) { f.data.surv = 0; f.data.awake = false; f.reachMult = 1; },
+    onUpdate(f) {
+      f.meter = Math.min(SURVIVE_T, f.data.surv || 0);
+      if (!f.inPlay() || f.state === ST.RESPAWN || f.state === ST.ENTRY) return;
+      if (!f.data.awake) {
+        f.data.surv = (f.data.surv || 0) + 1;
+        if (f.data.surv >= SURVIVE_T) {
+          f.data.awake = true;
+          f.fx('text', f.x, f.y - f.h - 34, { text: '¡ARCANO MAYOR!', color: '#c77dff', size: 24 });
+          f.fx('ring', f.x, f.y - f.h / 2, { r: 80, color: '#c77dff', w: 6 });
+          NX.Audio.play('chargeFull'); NX.Audio.play('magic', { pitch: 0.7 });
+        }
+        return;
+      }
+      f.reachMult = 1.25;
+      if (!f.hidden && f.tick % 7 === 0) f.fx('sparkle', f.x + U.rand(-f.w, f.w), f.y - U.rand(0, f.h), { color: U.pick(['#c77dff', '#ff8fd0', '#e8c35a']) });
+    },
+    statMod(f, k, v) { return f.data.awake && k === 'weight' ? v * 1.3 : v; },
+    drawOverlay(ctx, f) {
+      if (!f.data || !f.data.awake || f.hidden) return;
+      /* Dos cartas de tarot orbitan a su alrededor mientras dura el Arcano Mayor. */
+      const t = f.tick || 0, cx = f.x, cy = f.y - f.h * 0.55;
+      for (let i = 0; i < 2; i++) {
+        const a = t * 0.06 + i * PI, x = cx + Math.cos(a) * f.w * 1.35, y = cy + Math.sin(a) * f.h * 0.22;
+        ctx.save(); ctx.translate(x, y); ctx.globalAlpha = Math.sin(a) > 0 ? 0.95 : 0.6; ctx.rotate(Math.sin(a) * 0.3);
+        tarotShape(ctx, 10, 15, i ? 'estrella' : 'sol'); ctx.restore();
+      }
+    },
+    rig: {
+      headR: 11, torsoW: 20, hipW: 17, torsoH: 21, torsoRound: 6, armW: 6.5, upperArm: 11, foreArm: 10, handR: 4.5,
+      thigh: 11, shin: 11, legW: 7.5, footL: 9.5, footH: 5.5,
+      weapon: { type: 'controller', len: 22, w: 18, trail: '#ff8fd0' },
+      parts: {
+        head(ctx, a) {
+          const r = a.rig.headR;
+          hairCap(ctx, r, a.pal.hair, { a1: -0.3 });
+          /* Cabello negro corto con mechones sueltos sobre la frente. */
+          ctx.fillStyle = a.pal.hair; ctx.strokeStyle = OUT; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+          ctx.beginPath(); ctx.moveTo(-r * 0.85, -r * 0.6);
+          ctx.quadraticCurveTo(-r * 0.1, -r * 1.3, r * 0.75, -r * 0.92);
+          ctx.quadraticCurveTo(r * 1.05, -r * 0.7, r * 0.95, -r * 0.4);
+          ctx.lineTo(r * 0.72, -r * 0.52); ctx.lineTo(r * 0.58, -r * 0.3); ctx.lineTo(r * 0.42, -r * 0.55); ctx.lineTo(r * 0.22, -r * 0.36); ctx.lineTo(r * 0.05, -r * 0.6);
+          ctx.quadraticCurveTo(-r * 0.4, -r * 0.62, -r * 0.85, -r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke();
+          glasses(ctx, r);
+        },
+        torso(ctx, a) {
+          const r = a.rig;
+          /* Camisa café con cuello, botones y bolsillo. */
+          R.poly(ctx, [[-r.torsoW * 0.22, -r.torsoH], [r.torsoW * 0.06, -r.torsoH * 0.72], [r.torsoW * 0.06, -r.torsoH]], '#9a6a40');
+          R.poly(ctx, [[r.torsoW * 0.34, -r.torsoH], [r.torsoW * 0.06, -r.torsoH * 0.72], [r.torsoW * 0.06, -r.torsoH]], '#9a6a40');
+          ctx.strokeStyle = '#5a3820'; ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.moveTo(r.torsoW * 0.06, -r.torsoH * 0.72); ctx.lineTo(r.torsoW * 0.06, -2); ctx.stroke();
+          for (let i = 0; i < 3; i++) R.disc(ctx, r.torsoW * 0.12, -r.torsoH * (0.6 - i * 0.2), 1, '#e8d8c0', false);
+          ctx.strokeRect(r.torsoW * 0.18, -r.torsoH * 0.66, r.torsoW * 0.2, r.torsoH * 0.2);
+        },
+        weapon(ctx, f, w) {
+          if (f.move && /^special/.test(f.move.def.key)) return;
+          padDraw(ctx, w);
+        },
+        front(ctx, a) {
+          const mv = a.f.move;
+          if (!mv || !/^special/.test(mv.def.key)) return;
+          const k = mv.def.key, h = a.J.haF;
+          const key = k === 'special_down' ? 'justicia' : k === 'special_side' ? 'rueda' : k.indexOf('special_up') === 0 ? 'carro' : (mv.data.card || 'sol');
+          if (k === 'special_side' && mv.frame >= 11) return;
+          ctx.save(); ctx.translate(h.x, h.y); ctx.rotate(-0.3); ctx.translate(0, -8);
+          tarotShape(ctx, 11, 16, key); ctx.restore();
+        }
+      }
+    },
+    specials: {
+      /* Tirada de Tarot: saca un arcano al azar (Sol, Luna, Torre, Estrella, Loco o Muerte). */
+      neutral: {
+        frames: 40, pose: 'cast', limb: [],
+        onStart(f, mv) { mv.data.card = pickWeighted(DRAW_TABLE); },
+        onFrame(f, fr, mv) {
+          const c = mv.data.card, A = ARCANA[c];
+          if (fr === 5) { floatCard(f, c, 34); f.fx('text', f.x, f.y - f.h - 62, { text: A.name, color: A.col, size: 18 }); NX.Audio.play('magic', { pitch: 1.5 }); }
+          if (fr === 14) TAROT[c](f, mv);
+          mv.extraBoxes = (mv.data.death && fr >= 14 && fr <= 17) ? [
+            { x: 40, y: -34, r: 30, dmg: 17, ang: 40, bkb: 45, kbg: 98, effect: 'dark' },
+            { x: 18, y: -50, r: 20, dmg: 15, ang: 45, bkb: 45, kbg: 94, effect: 'dark' }] : null;
+        }
+      },
+      /* Rueda de la Fortuna: rueda giratoria de varios golpes que frena y estalla. */
+      side: {
+        frames: 36, pose: 'shoot', limb: [],
+        canUse(f) { return !(f.data.wheel && f.data.wheel.active); },
+        onFrame(f, fr) {
+          if (fr !== 11) return;
+          NX.Audio.play('spin', { pitch: 1.5 });
+          f.data.wheel = shoot(f, { ox: 26, speed: 9.5, r: 15, life: 100, dmg: 2.4, ang: 60, bkb: 22, kbg: 15, effect: 'magic', pierce: true, hits: 99, rehit: 9,
+            stageCollide: false, reflectable: true, color: '#ff8fd0', glow: false, draw: wheelDraw,
+            update(p, m) {
+              p.vx *= 0.955;
+              if (p.t === 64) {
+                p.dmg = 7; p.bkb = 45; p.kbg = 82; p.ang = 50; p.r = 26; p.rehit = 0; p.hitSet.clear(); p.life = 6;
+                m.effects.spawn('ring', p.x, p.y, { r: 46, color: '#ff8fd0', w: 6 }); NX.Audio.play('magic', { pitch: 1.2 });
+              }
+            } });
+        }
+      },
+      /* El Carro: sube en diagonal montado en una carta gigante. */
+      up: {
+        frames: 56, pose: 'rise', limb: [], helplessLag: 20, drift: 0.6,
+        hitboxes: [
+          { f: [6, 10], x: 4, y: -34, r: 24, dmg: 5, ang: 78, bkb: 45, kbg: 35, effect: 'magic', group: 1 },
+          { f: [13, 17], x: 4, y: -34, r: 24, dmg: 3, ang: 80, bkb: 40, kbg: 25, effect: 'magic', group: 2 },
+          { f: [21, 24], x: 6, y: -44, r: 26, dmg: 6, ang: 65, bkb: 50, kbg: 82, effect: 'magic', group: 3 }],
+        onStart(f, mv) { const ix = f.input.x; mv.data.dx = Math.abs(ix) > 0.3 ? U.sign(ix) : 0; if (mv.data.dx) f.facing = mv.data.dx; },
+        onFrame(f, fr, mv) {
+          if (fr === 5) {
+            NX.Audio.play('magic', { pitch: 1.7 });
+            f.spawnProjectile({ x: f.x, y: f.y + 6, vx: 0, vy: 0, r: 1, life: 24, dmg: 0, harmless: true, pierce: true, stageCollide: false, reflectable: false, absorbable: false, destructible: false, glow: false, data: { mv },
+              update(p) { const o = p.owner; if (o.move !== p.data.mv) { p.destroy('end'); return false; } p.x = o.x; p.y = o.y + 6; },
+              onDestroy() {},
+              draw(ctx, p) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(PI / 2 + Math.sin(p.t * 0.4) * 0.08); tarotShape(ctx, 18, 46, 'carro'); ctx.restore(); } });
+          }
+          if (fr >= 6 && fr <= 24) {
+            f.vy = -12.5; f.vx = mv.data.dx * 4.2 + f.input.x * 1.4; mv.velX = mv.velY = true;
+            if (fr % 2 === 0) f.fx('sparkle', f.x - f.facing * 10, f.y + 6, { color: '#ffd23a' });
+          }
+        }
+      },
+      /* La Justicia: contraataque que devuelve el golpe ×1.3. */
+      down: Object.assign(counterMove({ mult: 1.3, min: 9, kbg: 95, color: '#ff6fb5', text: '¡JUSTICIA!' }), { limb: [] })
+    }
   });
 
   NX.ROSTER = ROSTER;

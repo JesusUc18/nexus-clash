@@ -224,7 +224,7 @@
       this.burn = null; this.pendingStun = 0; this.pendingBury = 0; this.stunTimer = 0; this.buryTimer = 0;
       this.flashTimer = 0; this.flashArmor = 0; this.airJumpAnim = 0; this.pendingTapJump = 0;
       this.lastAttacker = null; this.lastAttackerTimer = 0; this.shaking = false; this.trail = [];
-      this.hidden = false; this.drawScale = 1; this.pummelCD = 0; this.hudShake = 0;
+      this.hidden = false; this.drawScale = 1; this.reachMult = 1; this.pummelCD = 0; this.hudShake = 0;
       if (this.def && this.def.onLifeReset) this.def.onLifeReset(this);
     }
 
@@ -295,7 +295,7 @@
     isShielding() { return this.state === ST.SHIELD || this.state === ST.SHIELDSTUN; }
     shieldRadius() { return this.h * 0.52 * (0.32 + 0.68 * Math.max(0, this.shieldHP) / PHYS.SHIELD_MAX); }
     shieldCenter() { return { x: this.x, y: this.y - this.h * 0.5 }; }
-    hbScale() { return (this.drawScale || 1) * (this.sizeMult || 1); }
+    hbScale() { return (this.drawScale || 1) * (this.sizeMult || 1) * (this.reachMult || 1); }
     /* v8 · Multiplicadores (jefe de la Horda): tamaño, peso, daño y resistencia. */
     applyBoost(o) {
       this.sizeMult = o.size || 1; this.weightMult = o.weight || 1; this.dmgMult = o.dmg || 1; this.resistMult = o.resist || 1;

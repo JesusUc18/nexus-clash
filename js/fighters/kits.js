@@ -345,7 +345,12 @@
     gemelos_copete: { fx: 'wind', col: '#bfe3ff', jab: ['jabCombo', { fin: 'palm' }], ftilt: 'ftiltPalm', utilt: 'utiltBurst', dtilt: 'dtiltPoke', dashattack: 'dashBurst',
       fsmash: 'fsmashBlast', usmash: 'usmashPillar', dsmash: 'dsmashSlam', nair: 'nairBurst', fair: ['airBurst', { dir: 'f' }], bair: ['airBurst', { dir: 'b' }], uair: ['airBurst', { dir: 'u' }], dair: ['airBurst', { dir: 'd' }] },
     gemelos_flequillo: { jab: 'jabSword2', ftilt: 'ftiltChop', utilt: 'utiltSword', dtilt: 'dtiltSlash', dashattack: 'dashSlash',
-      fsmash: ['fsmashHammer', { fx: 'heavy' }], usmash: 'usmashArc', dsmash: 'dsmashSlash', nair: 'nairSlash', fair: 'fairArc', bair: 'bairSlash', uair: 'uairArc', dair: 'dairStab' }
+      fsmash: ['fsmashHammer', { fx: 'heavy' }], usmash: 'usmashArc', dsmash: 'dsmashSlash', nair: 'nairSlash', fair: 'fairArc', bair: 'bairSlash', uair: 'uairArc', dair: 'dairStab' },
+    /* v1.1: BigSimio (termazos pesados con su termo negro) y Jochis (golpes con su mando rosa). */
+    bigsimio: { fx: 'heavy', col: '#ffd23a', jab: 'jabSword2', ftilt: ['ftiltChop', { size: 1.1 }], utilt: 'utiltSword', dtilt: 'dtiltSlash', dashattack: 'dashSlash',
+      fsmash: ['fsmashHammer', { dmg: 1.06 }], usmash: 'usmashArc', dsmash: ['dsmashSlam', { limb: 'w' }], nair: 'nairSlash', fair: ['fairArc', { size: 1.1 }], bair: 'bairSlash', uair: 'uairArc', dair: ['dairSlam', { limb: 'w' }] },
+    jochis: { fx: 'hit', col: '#ff8fd0', jab: 'jabSword2', ftilt: 'ftiltSlash', utilt: 'utiltSword', dtilt: 'dtiltSlash', dashattack: ['dashSpin', { limb: 'w' }],
+      fsmash: 'fsmashSword', usmash: 'usmashArc', dsmash: 'dsmashSlash', nair: 'nairSlash', fair: 'fairArc', bair: 'bairSlash', uair: 'uairArc', dair: 'dairStab' }
   };
   /* Aria: su smash hacia arriba es una estocada vertical (no un arco). */
   KITS.aria.usmash = 'usmashThrustUp';

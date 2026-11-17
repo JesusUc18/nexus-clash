@@ -90,7 +90,7 @@
         <div class="logo">
           <div class="logo-emblem"><span></span><span></span><span></span></div>
           <div class="logo-a">NEXUS</div><div class="logo-b">CLASH</div>
-          <div class="logo-sub">ULTIMATE ARENA <span class="ver">V1.0</span></div>
+          <div class="logo-sub">ULTIMATE ARENA <span class="ver">V1.1</span></div>
         </div>
         <div class="press"><span class="kb-only">PULSA <b>ENTER</b> O HAZ CLIC PARA EMPEZAR</span><span class="touch-only"><b>TOCA</b> LA PANTALLA PARA EMPEZAR</span></div>
         <div class="title-roster"><div class="tr-track"></div></div>
