@@ -1,10 +1,27 @@
-# NEXUS CLASH · Ultimate Arena — v5
+# NEXUS CLASH · Ultimate Arena — v6
 
 **Jugar en el navegador:** https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript ES6+, sin imágenes externas.
-Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 30 luchadores originales, 5 escenarios competitivos
+Reglamento por defecto: **3 vidas · 7:00 · sin objetos** (configurable en REGLAS). 32 luchadores originales, 5 escenarios competitivos
 y bots de nivel 1 a 9.
+
+## Novedades v6 — 2 luchadores nuevos (32 en total)
+- **Corvin, Estratega Arcano** — táctico con tomo y espada rúnica (kit tipo Robin). Sus hechizos gastan
+  **MANÁ**, que se regenera solo:
+  - **Trueno** (neutral): mantén B para cargar 4 niveles — Rayo, Rayo+ (estalla), Megarrayo (atraviesa) y
+    Gigarrayo (golpes múltiples y explosión final). **Escudo** guarda la carga.
+  - **Fuego Arcano** (lateral): bola de fuego que deja un **pilar de llamas** en el suelo.
+  - **Ventisca Doble** (arriba): dos cuchillas de viento hacia abajo que lo impulsan dos veces.
+  - **Sangría** (abajo): agarre mágico que daña al rival y **le cura** a él.
+  - Smashes y aéreos con la espada eléctrica.
+- **Gyron-64, Centinela Retro** — robot de juguete sin piernas que rueda sobre su base (kit tipo R.O.B.):
+  - **Láser Óptico** (neutral): se recarga solo (los ojos se iluminan); a carga completa rebota en el
+    escenario. Inclina ↑/↓ para apuntar.
+  - **Rotor de Brazos** (lateral): giro de golpes múltiples que **refleja proyectiles** y en el aire lo eleva.
+  - **Propulsores** (arriba): vuela mientras mantengas B y quede **COMBUSTIBLE**; se recarga en el suelo.
+  - **Peonza Giro** (abajo): cárgala y suéltala; rueda por el suelo, rebota en paredes y rivales.
+- El renderizador admite luchadores sin piernas (`rig.legs: false`).
 
 ## Novedades v5 — teléfono y tablet
 - **Detección automática del dispositivo.** En laptop/PC se juega con teclado o gamepad como siempre; en
@@ -141,7 +158,7 @@ js/engine/camera.js        Cámara dinámica
 js/engine/match.js         Reglas, KOs, muerte súbita, colores alternativos
 js/engine/ai.js            Bots (Parte 3)
 js/fighters/kits.js        Biblioteca de ataques normales y kit de cada luchador (v4)
-js/fighters/roster.js      30 luchadores (Partes 2, v2, v3 y v3.1)
+js/fighters/roster.js      32 luchadores (Partes 2, v2, v3, v3.1 y v6)
 js/stages/stages.js        3 escenarios (Parte 3)
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
 js/tools/bundle.js         Copia de las fuentes para el ZIP (generada)
@@ -181,5 +198,7 @@ js/ui/hud.js, js/ui/menus.js
 | 28 | Ilyra, Princesa Enmascarada | Esgrima · daño uniforme | 90 | Rompeescudos (cargable) | Danza de Hojas (4 golpes) | Tajo del Delfín | Contraataque ×1.2 |
 | 29 | Kestra, Cazadora Orbital | Zoner · cañón · agarre de rayo | 108 | Disparo Cargado (almacenable) | Misil / Súper Misil | Barrena en Espiral | Bomba de esfera |
 | 30 | Tamba, Titán de la Selva | Superpesado · carga | 127 | Puñetazo Gigante (almacenable) | Cabezazo (entierra) | Kong Giratorio | Palmada al suelo |
+| 31 | Corvin, Estratega Arcano | Táctico · medidor MANÁ | 95 | Trueno (4 niveles, almacenable) | Fuego Arcano (pilar de llamas) | Ventisca Doble | Sangría (roba vida) |
+| 32 | Gyron-64, Centinela Retro | Robot sobre ruedas · COMBUSTIBLE | 106 | Láser Óptico (se recarga) | Rotor de Brazos (refleja) | Propulsores (vuelo) | Peonza Giro (cargable) |
 
 Con el medidor lleno: Aria potencia su siguiente especial ("Crescendo") y Luma invoca al espíritu Fuego Fatuo durante 12 s.

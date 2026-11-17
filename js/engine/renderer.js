@@ -14,7 +14,7 @@
 
   /* ------------------------------ RIG BASE -------------------------------- */
   const RIG_DEFAULT = {
-    body: 'humanoid',            // 'humanoid' | 'blob'
+    body: 'humanoid',            // 'humanoid' | 'blob'  (legs: false = sin piernas, p. ej. base con ruedas)
     headR: 12, headW: 1, headH: 1, neck: 3,
     torsoH: 27, torsoW: 22, hipW: 18, torsoRound: 7, shoulderY: 4,
     upperArm: 13, foreArm: 12, armW: 7, handR: 5,
@@ -474,8 +474,10 @@
     } else {
       limb(ctx, [J.shB, J.elB, J.haB], rig.armW, backShade(armCol));
       disc(ctx, J.haB.x, J.haB.y, rig.handR, backShade(hand));
-      limb(ctx, [J.hipB, J.knB, J.ftB], rig.legW, backShade(legCol));
-      ellipse(ctx, J.ftB.x + rig.footL * 0.3, J.ftB.y, rig.footL * 0.62, rig.footH * 0.62, -J.shinB * 0.25, backShade(foot));
+      if (rig.legs !== false) {
+        limb(ctx, [J.hipB, J.knB, J.ftB], rig.legW, backShade(legCol));
+        ellipse(ctx, J.ftB.x + rig.footL * 0.3, J.ftB.y, rig.footL * 0.62, rig.footH * 0.62, -J.shinB * 0.25, backShade(foot));
+      }
     }
     if (P.tail) P.tail(ctx, ctxArgs);
 
@@ -501,7 +503,7 @@
     /* Pierna delantera. */
     if (rig.body === 'blob') {
       ellipse(ctx, J.ftF.x + 3, J.ftF.y - 2, rig.footL * 0.65, rig.footH * 0.75, J.shinF * -0.3, foot);
-    } else {
+    } else if (rig.legs !== false) {
       limb(ctx, [J.hipF, J.knF, J.ftF], rig.legW, legCol);
       ellipse(ctx, J.ftF.x + rig.footL * 0.3, J.ftF.y, rig.footL * 0.65, rig.footH * 0.65, -J.shinF * 0.25, foot);
     }

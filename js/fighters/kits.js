@@ -333,7 +333,12 @@
     kestra: { col: '#b6ff3a', jab: ['jabCombo', { fin: 'palm' }], ftilt: 'ftiltKick', utilt: 'utiltKick', dtilt: ['dtiltPoke', { fx: 'fire' }], dashattack: 'dashShoulder',
       fsmash: ['fsmashBlast', { fx: 'fire' }], usmash: ['usmashMulti', { fx: 'fire' }], dsmash: 'dsmashSweep', nair: 'nairSex', fair: ['fairDrill', { kind: 'punch', limb: 'hF', fx: 'fire' }], bair: 'bairKick', uair: ['uairMulti', { limb: ['fF', 'fB'] }], dair: ['dairSlam', { fx: 'fire' }] },
     tamba: { fx: 'heavy', jab: 'jabHeavy', ftilt: ['ftiltChop', { limb: 'hF' }], utilt: 'utiltArc', dtilt: 'dtiltSlap', dashattack: 'dashKick',
-      fsmash: 'fsmashClap', usmash: 'usmashClap', dsmash: 'dsmashSlam', nair: 'nairSpin', fair: 'fairSpike', bair: 'bairKick', uair: 'uairHead', dair: 'dairStomp' }
+      fsmash: 'fsmashClap', usmash: 'usmashClap', dsmash: 'dsmashSlam', nair: 'nairSpin', fair: 'fairSpike', bair: 'bairKick', uair: 'uairHead', dair: 'dairStomp' },
+    /* v6: Corvin (espada rúnica eléctrica en smashes y aéreos) y Gyron-64 (brazos, láser y propulsores). */
+    corvin: { col: '#ffe14a', jab: 'jabSword2', ftilt: 'ftiltSlash', utilt: ['utiltBurst', { fx: 'fire' }], dtilt: 'dtiltSlash', dashattack: 'dashSlash',
+      fsmash: ['fsmashSword', { fx: 'elec' }], usmash: ['usmashArc', { fx: 'elec' }], dsmash: ['dsmashSlash', { fx: 'elec' }], nair: ['nairSlash', { fx: 'elec' }], fair: ['fairArc', { fx: 'elec' }], bair: ['bairSlash', { fx: 'elec' }], uair: ['uairArc', { fx: 'elec' }], dair: ['dairStab', { fx: 'elec' }] },
+    gyron: { col: '#ff7a2a', jab: ['jabRapid', { kind: 'punch' }], ftilt: 'ftiltPunch', utilt: 'utiltArc', dtilt: 'dtiltPoke', dashattack: 'dashShoulder',
+      fsmash: ['fsmashBlast', { fx: 'fire' }], usmash: ['usmashPillar', { fx: 'fire' }], dsmash: 'dsmashSweep', nair: 'nairSpin', fair: 'fairPunch', bair: ['airBurst', { dir: 'b', fx: 'fire' }], uair: 'uairMulti', dair: ['airBurst', { dir: 'd', fx: 'fire' }] }
   };
   /* Aria: su smash hacia arriba es una estocada vertical (no un arco). */
   KITS.aria.usmash = 'usmashThrustUp';
