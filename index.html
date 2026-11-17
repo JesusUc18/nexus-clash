@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS CLASH · Ultimate Arena</title>
+  <meta name="description" content="Juego de lucha de plataformas 2D en HTML5 Canvas. 3 stocks, 7 minutos, sin objetos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="game"></canvas>
+    <div id="hud" class="hidden"></div>
+    <div id="announcer"></div>
+    <div id="screens" class="screens"></div>
+    <div id="transition"><div class="slab a"></div><div class="slab b"></div><div class="slab c"></div></div>
+  </div>
+
+  <!-- Núcleo del motor (Parte 1) -->
+  <script src="js/engine/physics.js"></script>
+  <script src="js/engine/audio.js"></script>
+  <script src="js/engine/input.js"></script>
+  <script src="js/engine/combat.js"></script>
+  <script src="js/engine/renderer.js"></script>
+  <script src="js/engine/fighter.js"></script>
+  <script src="js/engine/camera.js"></script>
+  <script src="js/engine/match.js"></script>
+  <!-- Contenido (Parte 2: luchadores · Parte 3: escenarios, IA y empaquetador ZIP) -->
+  <script src="js/stages/stages.js" onerror="this.remove()"></script>
+  <script src="js/fighters/kits.js" onerror="this.remove()"></script>
+  <script src="js/fighters/roster.js" onerror="this.remove()"></script>
+  <script src="js/engine/ai.js" onerror="this.remove()"></script>
+  <script src="js/tools/packager.js" onerror="this.remove()"></script>
+  <!-- Interfaz y arranque -->
+  <script src="js/ui/hud.js"></script>
+  <script src="js/ui/menus.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
