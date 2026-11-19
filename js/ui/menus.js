@@ -139,10 +139,14 @@
       const bH = mk('tile-horde', 'HORDA', `10 oleadas de rivales al azar · Contra reloj${best ? ' · Récord ' + fmtClock(best.frames) : ''}`, () => this.show('select', { mode: 'horde' }));
       const b2 = mk('tile-black', 'BATALLA CAMPAL', 'Tú contra 3 CPUs · Todos contra todos', () => this.show('select', { mode: 'ffa' }));
       const bP = mk('tile-practice', 'PRÁCTICA', 'Tú contra un muñeco quieto · Prueba combos a gusto', () => this.show('select', { mode: 'practice' }));
+      /* Mosaico de NOVEDADES: muestra la versión actual y avisa si aún no se ha visto. */
+      const log0 = (NX.CHANGELOG || [])[0];
+      const bN = mk('tile-news', 'NOVEDADES', log0 ? `V${log0.version} · ${log0.title}` : 'Cambios de cada versión', () => this.showNews());
+      if (NX.News && NX.News.isNew()) bN.appendChild(el('span', 'tile-new', 'NUEVO'));
       const S = NX.Settings;
       const bR = mk('tile-white tile-rules', 'REGLAS', `${S.stocks} ${S.stocks === 1 ? 'vida' : 'vidas'} · ${fmtMin(S.minutes)} · audio · Tier List`, () => this.show('rules', { back: 'main' }));
       const b3 = mk('tile-white', 'CONTROLES', 'Teclado, gamepad y táctil', () => this.show('controls'));
-      list.push(b1, bH, b2, bP, bR, b3);
+      list.push(b1, bH, b2, bP, bN, bR, b3);
       if (NX.Packager) {
         const z = el('button', 'mbtn zip-mini', '⬇ .ZIP <small>🔒</small>');
         z.title = 'Descargar el juego (.zip protegido con contraseña)';
@@ -213,6 +217,7 @@
       if (!this.modal) return;
       this.modal.el.remove(); this.modal = null;
       if (NX.News) NX.News.markSeen();
+      document.querySelectorAll('.tile-new').forEach(b => b.remove());
       if (!silent) NX.Audio.play('menuBack');
     },
 
