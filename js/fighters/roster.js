@@ -3034,8 +3034,8 @@
     passive: 'Escudo Torre: bloquea proyectiles frontales mientras está quieta o camina.',
     palette: { primary: '#8c96a4', secondary: '#3a2a5a', skin: '#d8b090', head: '#8c96a4', hand: '#5a626e', arms: '#8c96a4', legs: '#5a626e', feet: '#3a3f4a', accent: '#d4a93a', visor: '#141218', belt: '#3a2a5a' },
     stats: { weight: 112, height: 92, width: 42, walk: 2.6, run: 5.8, dash: 6.4, airSpeed: 3.4, gravity: 0.6, fall: 10.2, jump: 12.8, airJump: 11.8 },
-    profile: { style: 'sword', reach: 1.2, power: 1.08, speed: 0.92 },
-    ai: { recovery: 'up', projectile: 'neutral', range: 110, heavy: true },
+    profile: { style: 'sword', reach: 1.32, power: 1.08, speed: 0.92 },   // V1.2.1: alcance 1.2 → 1.32 (+10%)
+    ai: { recovery: 'up', projectile: 'neutral', range: 122, heavy: true },
     canBeHit(f, box) {
       if (!box || box.kind !== 'proj' || !f.ground) return true;
       const s = f.state;
@@ -4035,7 +4035,7 @@
           f.data.stored = 0;
           NX.Audio.play(k > 0.6 ? 'beam' : 'laser', { pitch: 1.4 - k * 0.6 });
           shoot(f, {
-            ox: 40, speed: 8 + 3 * k, r: 7 + 15 * k, dmg: 5 + 23 * k, ang: 40, bkb: 25 + 25 * k, kbg: 45 + 40 * k,
+            ox: 40, speed: 8 + 3 * k, r: 7 + 15 * k, dmg: 5 + 19 * k,   /* V1.2.1: máx. 28% → 24% */ ang: 40, bkb: 25 + 25 * k, kbg: 45 + 40 * k,
             effect: 'fire', life: 90, color: '#b6ff3a', trail: k > 0.5 ? 8 : 0, draw: plasmaDraw('#b6ff3a', '#4aff9a')
           });
           if (!f.ground) f.vx -= f.facing * 2 * k;
@@ -4988,7 +4988,8 @@
           if (fr !== 12) return;
           const k = mv.charge / 60;
           NX.Audio.play(k > 0.6 ? 'beam' : 'laser', { pitch: 1.5 - k * 0.5 });
-          shoot(f, { ox: 34, speed: 7 + 3 * k, r: 8 + 10 * k, life: 80, dmg: 5 + 14 * k, ang: 40, bkb: 25 + 25 * k, kbg: 40 + 45 * k,
+          /* V1.2.1: menos alcance (vida 80 → 52 fotogramas, ~35% menos distancia). */
+          shoot(f, { ox: 34, speed: 7 + 3 * k, r: 8 + 10 * k, life: 52, dmg: 5 + 14 * k, ang: 40, bkb: 25 + 25 * k, kbg: 40 + 45 * k,
             effect: 'magic', color: '#5ae0ff', glow: false, draw: pixelDraw });
           if (k > 0.9) { f.match.camera.shake(5); f.fx('text', f.x, f.y - f.h - 16, { text: '¡COMBO MÁX!', color: '#5ae0ff', size: 18 }); }
         }
@@ -5133,10 +5134,10 @@
   /* ======================================================================
    * v1.1 · BIGSIMIO — Simio del Termo (pesado, lento y con mucho daño)
    * Normales con su TERMO negro; especiales con BANANAS.
-   * Pasiva "Simio Molesto": desde 110% entra en cólera hasta perder la vida:
+   * Pasiva "Simio Molesto": desde 100% entra en cólera hasta perder la vida:
    * partículas de enojo, +15% de velocidad y +15% de daño.
    * ==================================================================== */
-  const BANANA = '#ffd23a', RAGE_AT = 110, RAGE_MULT = 1.15;
+  const BANANA = '#ffd23a', RAGE_AT = 100, RAGE_MULT = 1.15;   // V1.2.1: la furia se activa al 100% (antes 110%)
   const RAGE_STATS = new Set(['walk', 'run', 'dash', 'airSpeed']);
   function bananaShape(ctx, s, col) {
     ctx.save();
@@ -5200,7 +5201,7 @@
   function rageOff(f) { f.data.rage = false; if (f.data.calmPal) f.palette = f.data.calmPal; f.data.calmPal = null; }
   fighter({
     id: 'bigsimio', name: 'BigSimio', title: 'Simio del Termo',
-    passive: 'Simio Molesto: al llegar a 110% se enfurece (partículas de enojo), se mueve un 15% más rápido y pega un 15% más fuerte hasta perder la vida.',
+    passive: 'Simio Molesto: al llegar a 100% se enfurece (partículas de enojo), se mueve un 15% más rápido y pega un 15% más fuerte hasta perder la vida.',
     palette: { primary: '#f1efe8', secondary: '#2b3240', skin: '#d9a37a', head: '#d9a37a', hand: '#d9a37a', arms: '#f1efe8', legs: '#2b3240', feet: '#1e1e22', accent: BANANA, hair: '#131315', eye: '#1a1208' },
     stats: { weight: 132, height: 104, width: 50, walk: 2.6, run: 6.0, dash: 6.6, airSpeed: 3.4, gravity: 0.64, fall: 11, fastFall: 16, jump: 12.8, shortHop: 8.4, airJump: 11.8, traction: 0.58 },
     profile: { style: 'heavy', reach: 1.15, power: 1.2, speed: 0.86 },
@@ -5397,10 +5398,10 @@
   /* ======================================================================
    * v1.1 · JOCHIS — Tarotista Gamer (ligero, velocidad media, buen daño)
    * Normales con su MANDO rosa estilo consola; especiales con cartas de TAROT.
-   * Pasiva "Arcano Mayor": si sobrevive 1:30 sin perder la vida gana +25% de
+   * Pasiva "Arcano Mayor": si sobrevive 1:00 sin perder la vida gana +25% de
    * alcance y +30% de peso hasta que la pierda.
    * ==================================================================== */
-  const SURVIVE_T = 90 * 60;
+  const SURVIVE_T = 60 * 60;   // V1.2.1: 1:30 → 1:00
   const ARCANA = {
     sol: { name: 'EL SOL', col: '#ffb02a' }, luna: { name: 'LA LUNA', col: '#bcd4ff' }, torre: { name: 'LA TORRE', col: '#ffe14a' },
     estrella: { name: 'LA ESTRELLA', col: '#7ff0ff' }, muerte: { name: 'LA MUERTE', col: '#f0f0f6' }, loco: { name: 'EL LOCO', col: '#7dff8a' },
@@ -5573,7 +5574,7 @@
   };
   fighter({
     id: 'jochis', name: 'Jochis', title: 'Tarotista Gamer',
-    passive: 'Arcano Mayor: si sobrevive 1:30 sin perder la vida gana +25% de alcance y +30% de peso hasta que la pierda.',
+    passive: 'Arcano Mayor: si sobrevive 1:00 sin perder la vida gana +25% de alcance y +30% de peso hasta que la pierda.',
     palette: { primary: '#7a4e2c', secondary: '#2c3442', skin: '#e0b088', head: '#e0b088', hand: '#e0b088', arms: '#7a4e2c', legs: '#2c3442', feet: '#f0f0f0', accent: '#ff6fb5', hair: '#141414', eye: '#1a1208' },
     stats: { weight: 76, height: 68, width: 28, walk: 3.1, run: 7.0, dash: 7.6, airSpeed: 4.0, gravity: 0.6, fall: 10.2, fastFall: 15, jump: 14, shortHop: 9, airJump: 13 },
     profile: { style: 'sword', reach: 0.9, power: 1.14, speed: 1.0, effect: 'hit' },

@@ -34,18 +34,18 @@
   /* Por qué está cada luchador en su puesto (pros y contras). */
   const WHY = {
     tamba: 'Pesado pero rápido para su tamaño, con gran alcance. Su Carga del titán convierte cualquier agarre en un KO.',
-    bigsimio: 'De los que más pegan y de los más pesados del plantel. Desde 110% se enfurece (+15% velocidad y daño) y remata aún antes.',
+    bigsimio: 'De los que más pegan y de los más pesados del plantel. Desde 100% se enfurece (+15% velocidad y daño) y remata aún antes.',
     brakk: 'El mejor DPS entre los pesados: golpes rápidos y fuertes. Su Impulso de Combo premia la presión constante.',
     ilyra: 'Espada veloz con el mismo daño en toda la hoja y contraataque: castiga cualquier error del rival.',
     haldor: 'Mandoble con alcance y potencia enormes; mata muy pronto. A cambio, sus golpes salen lentos.',
     eclipse: 'Dos luchadoras en una: Sol para rematar, Luna para presionar, y Previsión para esquivar en el momento justo.',
-    torva: 'Pesada, con gran alcance, y su Escudo Torre frena proyectiles de frente. Muy difícil de sacar del escenario.',
+    torva: 'Pesada, con el mayor alcance de las espadas, y su Escudo Torre frena proyectiles de frente. Muy difícil de sacar del escenario.',
     gorrak: 'El más pesado y el de más daño por golpe; además recibe 10% menos. Su punto débil: ataques muy lentos al arrancar.',
     valkyr: 'Sólida en todo: peso medio-alto, buen daño y dos reflectores que anulan a los que atacan a distancia.',
     ironclad: 'Un tanque con 3 saltos aéreos: aguanta muchísimo y casi siempre vuelve al escenario.',
     aria: 'Espada equilibrada con proyectil y contraataque. Con la Resonancia llena, el siguiente especial pega más.',
     zephyr: 'La carrera más rápida del juego y ataques que salen pronto. Es ligera, así que sale volando antes.',
-    jochis: 'El mejor DPS de todo el plantel (golpes rápidos y fuertes). Muy ligero, hasta que el Arcano Mayor le da +30% de peso.',
+    jochis: 'El mejor DPS de todo el plantel (golpes rápidos y fuertes). Muy ligero, hasta que al minuto el Arcano Mayor le da +30% de peso.',
     morgrath: 'El mayor alcance del plantel: controla el espacio con la guadaña. Es ligero y vuela pronto.',
     hexa: 'Espada larga, 3 saltos y veneno: presiona y se recupera de maravilla. Su daño directo es medio.',
     volgur: 'Pesado, con 4 saltos aéreos y golpes muy fuertes, aunque sus ataques arrancan lentos.',
@@ -132,7 +132,7 @@
   ];
 
   NX.TierList = {
-    version: '1.2', tiers: TIERS, why: WHY, order: ORDER, bars: BARS,
+    version: '1.2.1', tiers: TIERS, why: WHY, order: ORDER, bars: BARS,
     tierOf,
     stats(id) { return compute()[id] || null; },
     reset() { cache = null; }

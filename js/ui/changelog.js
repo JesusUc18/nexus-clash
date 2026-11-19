@@ -10,9 +10,19 @@
 (function (NX) {
   'use strict';
 
-  NX.VERSION = '1.2';
+  NX.VERSION = '1.2.1';
 
   NX.CHANGELOG = [
+    {
+      version: '1.2.1', date: 'Noviembre 2026', title: 'Ajustes de balance',
+      items: [
+        ['ajuste', '<b>Jochis</b>: el Arcano Mayor se activa al sobrevivir <b>1:00</b> sin perder la vida (antes 1:30).'],
+        ['ajuste', '<b>BigSimio</b>: Simio Molesto se activa al <b>100%</b> (antes 110%).'],
+        ['ajuste', '<b>Torva</b>: <b>+10% de alcance</b> en sus golpes normales.'],
+        ['ajuste', '<b>Kestra</b>: el disparo cargado al máximo hace <b>24%</b> (antes 28%).'],
+        ['ajuste', '<b>LosGemelos · Copete</b>: el Píxel Cargado llega <b>~35% menos lejos</b>.']
+      ]
+    },
     {
       version: '1.2', date: 'Noviembre 2026', title: 'Tier List y modo Práctica',
       items: [

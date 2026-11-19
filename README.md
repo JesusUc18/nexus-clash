@@ -1,4 +1,4 @@
-# NEXUS CLASH · Ultimate Arena — V1.2
+# NEXUS CLASH · Ultimate Arena — V1.2.1
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
@@ -9,6 +9,13 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.2.1 — Ajustes de balance
+- **Jochis**: Arcano Mayor al sobrevivir **1:00** (antes 1:30).
+- **BigSimio**: Simio Molesto desde **100%** (antes 110%).
+- **Torva**: **+10% de alcance** en los normales (perfil 1.2 → 1.32).
+- **Kestra**: disparo cargado al máximo **24%** (antes 28%).
+- **LosGemelos · Copete**: el Píxel Cargado viaja **~35% menos** (vida del proyectil 80 → 52 fotogramas).
 
 ## V1.2 — Tier List oficial, modo Práctica y panel de novedades
 - **PRÁCTICA** (menú principal): elige tu luchador y el del muñeco; el muñeco **no se mueve ni ataca** (no tiene
@@ -304,7 +311,7 @@ js/ui/hud.js, js/ui/menus.js
 | 32 | Gyron-64, Centinela Retro | Robot sobre ruedas · COMBUSTIBLE | 106 | Láser Óptico (se recarga) | Rotor de Brazos (refleja) | Propulsores (vuelo) | Peonza Giro (cargable) |
 | 33 | Monocromo, Hombre LCD | Silueta LCD · ligero · medidor CUBO | 75 | Sartén (comida en arco) | Juez (número 1–9) | Trampolín | Cubo (absorbe 3 y vierte aceite) |
 | 34 | LosGemelos, Dúo Gamer | Multiforma (2 gemelos) | 94 / 88 | Píxel Cargado · Abanico de Cartas | Joy-Bumerán · Carta Veloz | Salto Turbo · Carta Gigante | Cambiar de gemelo |
-| 35 | BigSimio, Simio del Termo | Pesado · termo · pasiva Simio Molesto (110%) | 132 | Racimo Explosivo (cargable) | Cáscara Traicionera (trampa) | Banana Cohete | Pisotón Platanero |
-| 36 | Jochis, Tarotista Gamer | Ligero · mando · pasiva Arcano Mayor (1:30) | 76 | Tirada de Tarot (arcano al azar) | Rueda de la Fortuna | El Carro | La Justicia (counter ×1.3) |
+| 35 | BigSimio, Simio del Termo | Pesado · termo · pasiva Simio Molesto (100%) | 132 | Racimo Explosivo (cargable) | Cáscara Traicionera (trampa) | Banana Cohete | Pisotón Platanero |
+| 36 | Jochis, Tarotista Gamer | Ligero · mando · pasiva Arcano Mayor (1:00) | 76 | Tirada de Tarot (arcano al azar) | Rueda de la Fortuna | El Carro | La Justicia (counter ×1.3) |
 
 Con el medidor lleno: Aria potencia su siguiente especial ("Crescendo") y Luma invoca al espíritu Fuego Fatuo durante 12 s.
