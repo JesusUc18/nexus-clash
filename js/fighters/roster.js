@@ -1720,7 +1720,7 @@
    * ==================================================================== */
   fighter({
     id: 'morgrath', name: 'Morgrath', title: 'Segador Espectral',
-    passive: 'Alcance de guadaña: los normales llegan más lejos que nadie.',
+    passive: 'Alcance de guadaña: los normales llegan más lejos que casi nadie (solo Torva lo supera).',
     palette: { primary: '#2a2633', secondary: '#151219', skin: '#c9d1c8', head: '#c9d1c8', hand: '#c9d1c8', accent: '#7aff9a', eye: '#7aff9a', feet: '#151219', legs: '#1d1a24', arms: '#2a2633' },
     stats: { weight: 82, height: 92, width: 30, run: 6.6, airSpeed: 3.8, gravity: 0.5, fall: 9, jump: 13.2, airJump: 12.2 },
     profile: { style: 'sword', reach: 1.3, power: 1, speed: 0.95, effect: 'dark' },

@@ -20,7 +20,8 @@
         ['ajuste', '<b>BigSimio</b>: Simio Molesto se activa al <b>100%</b> (antes 110%).'],
         ['ajuste', '<b>Torva</b>: <b>+10% de alcance</b> en sus golpes normales.'],
         ['ajuste', '<b>Kestra</b>: el disparo cargado al máximo hace <b>24%</b> (antes 28%).'],
-        ['ajuste', '<b>LosGemelos · Copete</b>: el Píxel Cargado llega <b>~35% menos lejos</b>.']
+        ['ajuste', '<b>LosGemelos · Copete</b>: el Píxel Cargado llega <b>~35% menos lejos</b>.'],
+        ['cambio', '<b>Tier List recalculada</b>: Jochis sube a <b>A+</b>, LosGemelos baja a <b>A−</b>, Torva encabeza <b>S−</b>, BigSimio encabeza <b>S+</b> y Kestra queda al final de <b>B−</b>.']
       ]
     },
     {

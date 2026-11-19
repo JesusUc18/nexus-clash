@@ -16,6 +16,8 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
 - **Torva**: **+10% de alcance** en los normales (perfil 1.2 → 1.32).
 - **Kestra**: disparo cargado al máximo **24%** (antes 28%).
 - **LosGemelos · Copete**: el Píxel Cargado viaja **~35% menos** (vida del proyectil 80 → 52 fotogramas).
+- **Tier List recalculada**: Jochis A → **A+**, LosGemelos A → **A−**, Torva pasa a encabezar S−, BigSimio encabeza S+
+  y Kestra queda al final de B− (la tabla de la V1.2 ya muestra la clasificación actual).
 
 ## V1.2 — Tier List oficial, modo Práctica y panel de novedades
 - **PRÁCTICA** (menú principal): elige tu luchador y el del muñeco; el muñeco **no se mueve ni ataca** (no tiene
@@ -30,13 +32,13 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
 
   | Tier | Luchadores |
   |------|------------|
-  | S+ | Tamba · BigSimio · Brakk |
-  | S− | Ilyra · Haldor · Sol y Luna · Torva |
-  | A+ | Gorrak · Valkyr-7 · Ironclad · Aria Solenne |
-  | A  | Zephyr · Jochis · Morgrath · Hexa · Volgur · LosGemelos |
-  | A− | Ritmo · Corvin · Kaito Ren · Kael |
-  | B+ | Grizzla · Sylra · Chronia · Rook · Nia |
-  | B− | Gyron-64 · Kestra · Luma · Jett |
+  | S+ | BigSimio · Tamba · Brakk |
+  | S− | Torva · Ilyra · Haldor · Sol y Luna |
+  | A+ | Gorrak · Valkyr-7 · Jochis · Ironclad · Aria Solenne |
+  | A  | Zephyr · Morgrath · Hexa · Volgur |
+  | A− | Ritmo · LosGemelos · Corvin · Kaito Ren · Kael |
+  | B+ | Grizzla · Sylra · Rook · Chronia · Nia |
+  | B− | Gyron-64 · Luma · Jett · Kestra |
   | C+ | Vespera · Volta |
   | C− | Monocromo |
   | D  | Kumo · Nyx |
