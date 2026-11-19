@@ -1,14 +1,48 @@
-# NEXUS CLASH · Ultimate Arena — V1.1
+# NEXUS CLASH · Ultimate Arena — V1.2
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript, sin imágenes externas para los personajes.
 Funciona en **laptop/PC** (teclado o gamepad) y en **teléfono o tablet** (controles táctiles), sin instalar nada.
-**36 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal** y **Horda**, y bots
+**36 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal**, **Horda** y **Práctica**, y bots
 de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configurable en REGLAS).
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.2 — Tier List oficial, modo Práctica y panel de novedades
+- **PRÁCTICA** (menú principal): elige tu luchador y el del muñeco; el muñeco **no se mueve ni ataca** (no tiene
+  IA). Vidas y tiempo infinitos. El HUD muestra el **combo** en curso (golpes y daño), el último y el mejor; al
+  terminar un combo de 2 golpes o más aparece "COMBO ×N · X%" sobre el muñeco. Se cuenta como combo cada golpe
+  que llega mientras el muñeco sigue aturdido por el anterior. En la pausa: **REINICIAR POSICIONES (0%)** y
+  **CAMBIAR LUCHADORES**.
+- **TIER LIST** (REGLAS → TIER LIST): los 36 luchadores clasificados de **S+** a **E**, agrupados por letra como
+  las tier lists clásicas. Se armó con las estadísticas reales del motor más el valor del kit:
+  DPS (daño ÷ fotogramas de arranque) 22% · daño 14% · velocidad de reacción 10% · peso 16% · movilidad 12% ·
+  alcance 8% · kit (proyectiles, reflectores, contraataques, recuperación y pasiva) 18%.
+
+  | Tier | Luchadores |
+  |------|------------|
+  | S+ | Tamba · BigSimio · Brakk |
+  | S− | Ilyra · Haldor · Sol y Luna · Torva |
+  | A+ | Gorrak · Valkyr-7 · Ironclad · Aria Solenne |
+  | A  | Zephyr · Jochis · Morgrath · Hexa · Volgur · LosGemelos |
+  | A− | Ritmo · Corvin · Kaito Ren · Kael |
+  | B+ | Grizzla · Sylra · Chronia · Rook · Nia |
+  | B− | Gyron-64 · Kestra · Luma · Jett |
+  | C+ | Vespera · Volta |
+  | C− | Monocromo |
+  | D  | Kumo · Nyx |
+  | E  | Medu |
+- Cada luchador tiene una **ficha**: barras de DAÑO, REACCIÓN, PESO, MOVILIDAD y ALCANCE (calculadas en vivo
+  desde sus movimientos), su pasiva y por qué está en ese puesto. El botón **LUCHAR CON…** abre 1 VS 1 con ese
+  luchador ya elegido.
+- **NOVEDADES**: al entrar al menú principal tras una actualización aparece un panel con los cambios de la
+  versión (y pestañas con las anteriores). Sale una sola vez por versión; se puede volver a abrir en
+  REGLAS → NOVEDADES.
+- Para publicar una versión nueva: cambia `NX.VERSION` y añade la entrada al principio de `NX.CHANGELOG` en
+  `js/ui/changelog.js`. La clasificación está en `js/ui/tierlist.js` (un luchador nuevo que aún no esté en la
+  lista aparece en una fila "NUEVOS").
 
 ## V1.1 — BigSimio y Jochis (36 en total)
 - **BigSimio, Simio del Termo** — pesado, lento y con mucho daño. Grande, con suéter blanco, lentes y cabello
@@ -228,6 +262,8 @@ js/fighters/roster.js      36 luchadores (Partes 2, v2, v3, v3.1, v6, v7 y v1.1)
 js/stages/stages.js        3 escenarios (Parte 3)
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
 js/tools/bundle.js         Copia de las fuentes para el ZIP (generada)
+js/ui/changelog.js         Versión actual y panel de NOVEDADES (V1.2)
+js/ui/tierlist.js          Tier List oficial y barras de estadísticas (V1.2)
 js/ui/hud.js, js/ui/menus.js
 ```
 

@@ -70,8 +70,10 @@
         if (ev === 'pause' || ev === 'escape') this.game.togglePause();
         return;
       }
+      if (this.modal) { this.modalInput(ev); return; }
       if (!this.screen || this.locked) return;
       if (this.screen === 'select') { this.selectInput(ev); return; }
+      if (this.screen === 'tierlist') { this.tierInput(ev); return; }
       if (this.screen === 'title') { if (ev === 'confirm') this.titleGo(); return; }
       if (this.screen === 'rules') { this.rulesInput(ev); return; }
       if (this.screen === 'pause' && (ev === 'pause' || ev === 'escape')) { this.game.togglePause(); return; }
@@ -90,7 +92,7 @@
         <div class="logo">
           <div class="logo-emblem"><span></span><span></span><span></span></div>
           <div class="logo-a">NEXUS</div><div class="logo-b">CLASH</div>
-          <div class="logo-sub">ULTIMATE ARENA <span class="ver">V1.1</span></div>
+          <div class="logo-sub">ULTIMATE ARENA <span class="ver">V${NX.VERSION || '1.2'}</span></div>
         </div>
         <div class="press"><span class="kb-only">PULSA <b>ENTER</b> O HAZ CLIC PARA EMPEZAR</span><span class="touch-only"><b>TOCA</b> LA PANTALLA PARA EMPEZAR</span></div>
         <div class="title-roster"><div class="tr-track"></div></div>
@@ -122,7 +124,7 @@
       const s = el('div', 'scr scr-main');
       s.innerHTML = `
         <div class="main-head"><div class="mh-k">MENÚ PRINCIPAL</div><div class="mh-rules">${rulesHTML()}</div></div>
-        <div class="main-tiles v8"></div>
+        <div class="main-tiles v8 v12"></div>
         <div class="main-foot"><span class="kb-only">WASD / Flechas mover · Espacio saltar · J ataque · U smash · K especial · L escudo · I agarre</span><span class="touch-only">Joystick a la izquierda · A ataque · B especial · ▲ salto · S smash · ◆ escudo · ✊ agarre</span></div>`;
       const tiles = s.querySelector('.main-tiles');
       const mk = (cls, k, d, act) => {
@@ -136,10 +138,11 @@
       const best = hordeBest();
       const bH = mk('tile-horde', 'HORDA', `10 oleadas de rivales al azar · Contra reloj${best ? ' · Récord ' + fmtClock(best.frames) : ''}`, () => this.show('select', { mode: 'horde' }));
       const b2 = mk('tile-black', 'BATALLA CAMPAL', 'Tú contra 3 CPUs · Todos contra todos', () => this.show('select', { mode: 'ffa' }));
+      const bP = mk('tile-practice', 'PRÁCTICA', 'Tú contra un muñeco quieto · Prueba combos a gusto', () => this.show('select', { mode: 'practice' }));
       const S = NX.Settings;
-      const bR = mk('tile-white tile-rules', 'REGLAS', `${S.stocks} ${S.stocks === 1 ? 'vida' : 'vidas'} · ${fmtMin(S.minutes)} · audio`, () => this.show('rules', { back: 'main' }));
+      const bR = mk('tile-white tile-rules', 'REGLAS', `${S.stocks} ${S.stocks === 1 ? 'vida' : 'vidas'} · ${fmtMin(S.minutes)} · audio · Tier List`, () => this.show('rules', { back: 'main' }));
       const b3 = mk('tile-white', 'CONTROLES', 'Teclado, gamepad y táctil', () => this.show('controls'));
-      list.push(b1, bH, b2, bR, b3);
+      list.push(b1, bH, b2, bP, bR, b3);
       if (NX.Packager) {
         const z = el('button', 'mbtn zip-mini', '⬇ .ZIP <small>🔒</small>');
         z.title = 'Descargar el juego (.zip protegido con contraseña)';
@@ -149,7 +152,7 @@
         list.push(z);
       }
       if (missing.length) {
-        b1.disabled = b2.disabled = bH.disabled = true;
+        b1.disabled = b2.disabled = bH.disabled = bP.disabled = true;
         const m = el('div', 'missing', `<b>PROYECTO INCOMPLETO</b> · Faltan módulos: ${missing.join(' · ')}`);
         s.appendChild(m);
       }
@@ -157,6 +160,60 @@
       this.setFocusables(list);
       if (b1.disabled) { this.focusIdx = 2; this.refreshFocus(); }
       this.onBack = () => { NX.Audio.play('menuBack'); this.show('title'); };
+      /* V1.2 · El panel de novedades aparece solo la primera vez de cada versión. */
+      if (NX.News && NX.News.isNew()) setTimeout(() => { if (this.screen === 'main' && !this.modal) this.showNews(); }, 450);
+    },
+
+    /* --------------------------- V1.2 · NOVEDADES ------------------------ */
+    showNews(vIdx) {
+      if (this.modal) this.closeModal(true);
+      const log = NX.CHANGELOG || [];
+      if (!log.length) return;
+      let cur = U.clamp(vIdx || 0, 0, log.length - 1);
+      const TAG = { nuevo: 'NUEVO', cambio: 'CAMBIO', ajuste: 'AJUSTE', arreglo: 'ARREGLO' };
+      const ov = el('div', 'nx-modal');
+      ov.innerHTML = `<div class="news-box" role="dialog" aria-modal="true" aria-label="Novedades">
+          <div class="news-head"><small>NOVEDADES</small><b class="news-v"></b><span class="news-t"></span></div>
+          <div class="news-tabs"></div>
+          <ul class="news-list"></ul>
+          <div class="news-btns"><button class="mbtn news-tier">VER TIER LIST</button><button class="mbtn btn-red news-ok">¡A JUGAR!</button></div>
+        </div>`;
+      const tabs = ov.querySelector('.news-tabs');
+      const render = () => {
+        const e = log[cur];
+        ov.querySelector('.news-v').textContent = /^\d/.test(e.version) ? 'V' + e.version : e.version.toUpperCase();
+        ov.querySelector('.news-t').textContent = e.title + (e.date ? ' · ' + e.date : '');
+        ov.querySelector('.news-list').innerHTML = e.items.map(([t, txt]) => `<li><span class="news-tag tag-${t}">${TAG[t] || t.toUpperCase()}</span><span>${txt}</span></li>`).join('');
+        tabs.querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === cur));
+      };
+      log.forEach((e, i) => {
+        const b = el('button', 'news-tab', /^\d/.test(e.version) ? 'V' + e.version : e.version);
+        b.addEventListener('click', () => { cur = i; NX.Audio.play('menuMove'); render(); });
+        tabs.appendChild(b);
+      });
+      const btnTier = ov.querySelector('.news-tier'), btnOk = ov.querySelector('.news-ok');
+      btnOk.addEventListener('click', () => { NX.Audio.play('menuSelect'); this.closeModal(); });
+      btnTier.addEventListener('click', () => { NX.Audio.play('menuSelect'); this.closeModal(); this.show('tierlist', { back: this.screen === 'rules' ? 'rules' : 'main' }); });
+      ov.addEventListener('pointerdown', e => { if (e.target === ov) this.closeModal(); });
+      document.body.appendChild(ov);
+      this.modal = { el: ov, btns: [btnTier, btnOk], idx: 1, step: d => { cur = (cur + d + log.length) % log.length; NX.Audio.play('menuMove'); render(); } };
+      render(); this.refreshModal();
+      NX.Audio.play('ready');
+    },
+    refreshModal() { const M = this.modal; if (M) M.btns.forEach((b, i) => b.classList.toggle('focus', i === M.idx)); },
+    modalInput(ev) {
+      const M = this.modal;
+      if (ev === 'left' || ev === 'right') { M.idx = (M.idx + 1) % M.btns.length; NX.Audio.play('menuMove'); this.refreshModal(); }
+      else if (ev === 'up') M.step(-1);
+      else if (ev === 'down') M.step(1);
+      else if (ev === 'confirm') M.btns[M.idx].click();
+      else if (ev === 'back' || ev === 'escape' || ev === 'pause') this.closeModal();
+    },
+    closeModal(silent) {
+      if (!this.modal) return;
+      this.modal.el.remove(); this.modal = null;
+      if (NX.News) NX.News.markSeen();
+      if (!silent) NX.Audio.play('menuBack');
     },
 
     /* ------------------------------ CONTROLES ---------------------------- */
@@ -200,7 +257,7 @@
 
     /* ------------------------------ REGLAS ------------------------------- */
     build_rules(data) {
-      this.rulesData = data || { back: 'main' };
+      if (!data || !data.keep) this.rulesData = data || { back: 'main' };
       const s = el('div', 'scr scr-rules');
       s.innerHTML = `
         <div class="sel-header"><div class="sel-title">REGLAS</div><div class="sel-mode">SIN OBJETOS · COMPETITIVO</div><div class="sel-rules"></div></div>
@@ -217,24 +274,28 @@
         { label: 'MÚSICA', desc: 'Pistas sintetizadas', val: () => (S.music ? 'SÍ' : 'NO'), change: () => { S.music = !S.music; NX.Audio.setMusic(S.music); } },
         { label: 'NARRADOR', desc: 'Voz del anunciador', val: () => (S.narrator ? 'SÍ' : 'NO'), change: () => { S.narrator = !S.narrator; NX.Audio.setNarrator(S.narrator); } },
         { label: 'CONTROLES TÁCTILES', desc: 'Auto: se activan en teléfono/tablet o al tocar la pantalla', val: () => (NX.Touch ? NX.Touch.modeLabel() : 'NO'), change: d => { if (NX.Touch) NX.Touch.cycleMode(d); } },
-        { label: 'RESTABLECER', desc: 'Reglamento competitivo: 3 vidas · 7:00', val: () => '↺', change: () => { S.stocks = 3; S.minutes = 7; } }
+        { label: 'RESTABLECER', desc: 'Reglamento competitivo: 3 vidas · 7:00', val: () => '↺', change: () => { S.stocks = 3; S.minutes = 7; } },
+        /* V1.2 · accesos a la Tier List y al panel de novedades. */
+        { link: true, cls: 'rule-tier', label: 'TIER LIST', desc: `Los ${(NX.ROSTER || []).length} luchadores, del más fuerte al más débil`, val: () => 'VER', change: () => this.show('tierlist', { back: 'rules' }) },
+        { link: true, cls: 'rule-news', label: 'NOVEDADES', desc: `Qué trae la versión ${NX.VERSION || ''} y las anteriores`, val: () => 'VER', change: () => this.showNews() }
       ];
       this.ruleRows = rows.map((r, i) => {
-        const row = el('div', 'rule-row');
+        const row = el('div', 'rule-row' + (r.link ? ' rule-link ' + r.cls : ''));
         row.innerHTML = `<div class="rule-l"><b>${r.label}</b><small>${r.desc}</small></div>
-          <div class="rule-ctrl"><button class="rule-btn" data-d="-1">◄</button><span class="rule-val"></span><button class="rule-btn" data-d="1">►</button></div>`;
+          <div class="rule-ctrl">${r.link ? '<span class="rule-val"></span><button class="rule-btn" data-d="1">►</button>' : '<button class="rule-btn" data-d="-1">◄</button><span class="rule-val"></span><button class="rule-btn" data-d="1">►</button>'}</div>`;
         row.querySelectorAll('.rule-btn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); this.ruleIdx = i; this.changeRule(Number(b.dataset.d)); }));
         row.addEventListener('click', () => { this.ruleIdx = i; this.changeRule(1); });
         row.addEventListener('mouseenter', () => { this.ruleIdx = i; this.refreshRules(); });
         list.appendChild(row);
         return { r, row, v: row.querySelector('.rule-val') };
       });
-      this.ruleIdx = 0;
+      this.ruleIdx = U.clamp((data && data.focus) || 0, 0, rows.length - 1);
       s.querySelector('.back-mini').addEventListener('click', () => this.rulesBack());
       this.refreshRules();
     },
     changeRule(d) {
       const R = this.ruleRows[this.ruleIdx];
+      if (R.r.link) { if (d > 0) { NX.Audio.play('menuSelect'); R.r.change(); } return; }
       R.r.change(d);
       NX.saveSettings();
       NX.Audio.play('menuMove');
@@ -260,6 +321,140 @@
       else this.show('main');
     },
 
+    /* ---------------------------- V1.2 · TIER LIST ----------------------- */
+    build_tierlist(data) {
+      this.tierData = data || { back: 'main' };
+      const TL = NX.TierList;
+      const s = el('div', 'scr scr-tier');
+      s.innerHTML = `
+        <div class="sel-header"><div class="sel-title">TIER LIST</div><div class="sel-mode">OFICIAL · V${TL.version}</div>
+          <div class="tl-legend">Daño · Reacción · Peso · Movilidad · Alcance · Kit</div></div>
+        <div class="tl-wrap">
+          <div class="tl-board"></div>
+          <aside class="tl-detail">
+            <div class="tl-badge"></div>
+            <canvas class="tl-art" width="240" height="260"></canvas>
+            <div class="tl-name"></div><div class="tl-title"></div>
+            <div class="tl-bars"></div>
+            <p class="tl-why"></p>
+            <p class="tl-passive"></p>
+            <button class="mbtn btn-red tl-play"></button>
+          </aside>
+        </div>
+        <div class="tl-help"><span class="kb-only">Flechas elegir · Enter luchar con él · Esc volver</span><span class="touch-only">Toca un luchador para ver su ficha</span></div>
+        <button class="back-mini">◄ VOLVER <span class="kb-only">(Esc)</span></button>`;
+      this.root.appendChild(s);
+      this.tierEl = s;
+      const board = s.querySelector('.tl-board');
+      const roster = NX.ROSTER || [];
+      this.tierRows = [];
+      this.tierCells = [];
+      /* Agrupa las sub-filas (+ · −) bajo una sola letra, como en las tier lists clásicas. */
+      const groups = [];
+      TL.tiers.forEach(t => {
+        const ids = t.ids.filter(id => roster.some(r => r.id === id));
+        if (!ids.length) return;
+        let g = groups[groups.length - 1];
+        if (!g || g.tier !== t.tier) groups.push(g = { tier: t.tier, color: t.color, subs: [] });
+        g.subs.push({ sub: t.sub, ids });
+      });
+      /* Luchadores nuevos que aún no estén en la lista: se muestran aparte. */
+      const listed = new Set(TL.order);
+      const extra = roster.filter(r => !listed.has(r.id)).map(r => r.id);
+      if (extra.length) groups.push({ tier: '?', color: '#8c8c96', subs: [{ sub: 'NUEVOS', ids: extra }] });
+      groups.forEach(g => {
+        const ge = el('div', 'tl-group');
+        ge.style.setProperty('--tc', g.color);
+        ge.appendChild(el('div', 'tl-letter', g.tier));
+        const subs = el('div', 'tl-subs');
+        g.subs.forEach(sb => {
+          const row = el('div', 'tl-row');
+          row.appendChild(el('div', 'tl-sub' + (sb.sub.length > 1 ? ' tl-sub-word' : ''), sb.sub === '·' ? '•' : sb.sub));
+          const faces = el('div', 'tl-faces');
+          const rowCells = sb.ids.map(id => {
+            const d = NX.getFighter(id);
+            const b = el('button', 'tl-face');
+            b.style.setProperty('--fc', NX.Render.resolveDef(d).palette.primary);
+            const cv = el('canvas', 'tl-face-art'); cv.width = 96; cv.height = 96;
+            NX.Render.drawPortrait(cv, d);
+            b.append(cv, el('span', 'tl-face-name', d.name));
+            const idx = this.tierCells.length;
+            b.addEventListener('click', () => { if (this.tierIdx === idx) return; this.tierSelect(idx, true); NX.Audio.play('menuMove'); });
+            faces.appendChild(b);
+            this.tierCells.push({ b, id, row: this.tierRows.length });
+            return idx;
+          });
+          row.appendChild(faces);
+          subs.appendChild(row);
+          this.tierRows.push(rowCells);
+        });
+        ge.appendChild(subs);
+        board.appendChild(ge);
+      });
+      s.querySelector('.tl-play').addEventListener('click', () => this.tierPlay());
+      s.querySelector('.back-mini').addEventListener('click', () => this.tierBack());
+      this.onBack = () => this.tierBack();
+      const start = data && data.pick ? this.tierCells.findIndex(c => c.id === data.pick) : 0;
+      this.tierSelect(Math.max(0, start), true);
+    },
+    tierSelect(idx, noScroll) {
+      const cells = this.tierCells;
+      if (!cells || !cells.length) return;
+      this.tierIdx = U.clamp(idx, 0, cells.length - 1);
+      const C = cells[this.tierIdx], TL = NX.TierList, s = this.tierEl;
+      cells.forEach((c, i) => c.b.classList.toggle('on', i === this.tierIdx));
+      if (!noScroll) C.b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      const d = NX.getFighter(C.id), t = TL.tierOf(C.id), st = TL.stats(C.id);
+      const det = s.querySelector('.tl-detail');
+      det.style.setProperty('--tc', t ? t.color : '#8c8c96');
+      det.style.setProperty('--fc', NX.Render.resolveDef(d).palette.primary);
+      s.querySelector('.tl-badge').textContent = t ? t.label : '?';
+      s.querySelector('.tl-name').textContent = d.name.toUpperCase();
+      s.querySelector('.tl-title').textContent = d.title || '';
+      s.querySelector('.tl-bars').innerHTML = st ? TL.bars.map(B => {
+        const v = st[B.k];
+        return `<div class="tl-bar"><span>${B.label}</span><i><em style="width:${(v * 10).toFixed(0)}%"></em></i><b>${v.toFixed(1)}</b></div>`;
+      }).join('') : '';
+      s.querySelector('.tl-why').textContent = TL.why[C.id] || 'Luchador nuevo: aún no tiene puesto en la Tier List.';
+      const passive = d.passive || (d.forms ? d.forms.map(x => x.name).join(' ⇄ ') : '');
+      s.querySelector('.tl-passive').innerHTML = passive ? '<b>PASIVA</b> ' + passive.replace(/</g, '&lt;') : '';
+      s.querySelector('.tl-play').textContent = 'LUCHAR CON ' + d.name.toUpperCase() + ' ►';
+      this.anim = [{ canvas: s.querySelector('.tl-art'), def: d, full: true, state: NX.ST.IDLE }];
+    },
+    tierInput(ev) {
+      const C = this.tierCells[this.tierIdx];
+      if (!C) { if (ev === 'back' || ev === 'escape') this.tierBack(); return; }
+      const rows = this.tierRows;
+      const vert = d => {
+        const r = U.clamp(C.row + d, 0, rows.length - 1);
+        if (r === C.row) return;
+        const pos = rows[C.row].indexOf(this.tierIdx);
+        this.tierSelect(rows[r][Math.min(pos, rows[r].length - 1)]);
+        NX.Audio.play('menuMove');
+      };
+      switch (ev) {
+        case 'left': this.tierSelect((this.tierIdx - 1 + this.tierCells.length) % this.tierCells.length); NX.Audio.play('menuMove'); break;
+        case 'right': this.tierSelect((this.tierIdx + 1) % this.tierCells.length); NX.Audio.play('menuMove'); break;
+        case 'up': vert(-1); break;
+        case 'down': vert(1); break;
+        case 'confirm': this.tierPlay(); break;
+        case 'back': case 'escape': this.tierBack(); break;
+        default: break;
+      }
+    },
+    tierPlay() {
+      const C = this.tierCells[this.tierIdx];
+      if (!C || this.locked) return;
+      NX.Audio.play('menuSelect');
+      this.show('select', { mode: '1v1', pick: C.id });
+    },
+    tierBack() {
+      NX.Audio.play('menuBack');
+      const d = this.tierData || {};
+      if (d.back === 'rules') this.show('rules', { keep: true, focus: this.ruleRows ? this.ruleRows.findIndex(R => R.r.cls === 'rule-tier') : 0 });
+      else this.show('main');
+    },
+
     /* ------------------------ SELECCIÓN DE PERSONAJES -------------------- */
     build_select(data) {
       const mode = data.mode;
@@ -272,17 +467,19 @@
       };
       for (let i = 0; i < nCpu; i++) {
         const pp = prev && prev.players[i + 1];
-        this.sel.slots.push({ human: false, fighterId: pp ? pp.fighterId : U.pick(roster).id, level: pp ? pp.level : 5, color: NX.SLOT_COLORS[i + 1], tag: 'CPU' + (nCpu > 1 ? (i + 2) : '') });
+        this.sel.slots.push({ human: false, fighterId: pp ? pp.fighterId : U.pick(roster).id, level: mode === 'practice' ? 0 : (pp ? pp.level : 5), color: NX.SLOT_COLORS[i + 1], tag: mode === 'practice' ? 'MUÑECO' : 'CPU' + (nCpu > 1 ? (i + 2) : '') });
       }
       if (data.keep && this.selMemo) this.selMemo.forEach((m, i) => { if (this.sel.slots[i]) { this.sel.slots[i].fighterId = m.fighterId; if (!this.sel.slots[i].human) this.sel.slots[i].level = m.level; } });
+      /* V1.2 · "LUCHAR CON…" desde la Tier List: P1 llega con el luchador ya elegido. */
+      if (data.pick && NX.getFighter(data.pick)) this.sel.slots[0].fighterId = data.pick;
       if (this.sel.slots[0].fighterId) this.sel.cursor = Math.max(0, roster.findIndex(r => r.id === this.sel.slots[0].fighterId));
 
       const s = el('div', 'scr scr-select');
       s.innerHTML = `
         <div class="sel-header">
           <div class="sel-title">ELIGE A TU LUCHADOR</div>
-          <div class="sel-mode">${mode === 'ffa' ? 'BATALLA CAMPAL · 4 JUGADORES' : mode === 'horde' ? 'HORDA · 10 OLEADAS · CONTRA RELOJ' : '1 VS 1 · COMPETITIVO'}</div>
-          <div class="sel-rules">${rulesHTML()}</div>
+          <div class="sel-mode">${mode === 'ffa' ? 'BATALLA CAMPAL · 4 JUGADORES' : mode === 'horde' ? 'HORDA · 10 OLEADAS · CONTRA RELOJ' : mode === 'practice' ? 'PRÁCTICA · MUÑECO QUIETO · SIN LÍMITES' : '1 VS 1 · COMPETITIVO'}</div>
+          <div class="sel-rules">${mode === 'practice' ? '<span class="chip chip-practice">VIDAS <b>∞</b></span><span class="chip">TIEMPO <b>∞</b></span>' : rulesHTML()}</div>
           <button class="rules-btn">⚙ REGLAS <small class="kb-only">(R)</small></button>
         </div>
         <div class="sel-grid"></div>
@@ -320,7 +517,12 @@
         c.appendChild(el('div', 'card-passive', ''));
         const ctrl = el('div', 'card-ctrl');
         if (slot.human) ctrl.innerHTML = '<span>JUGADOR</span>';
-        else {
+        else if (mode === 'practice') {
+          ctrl.innerHTML = '<span>QUIETO · SIN IA</span>';
+          const r = el('button', 'rand-btn', 'ALEATORIO');
+          r.addEventListener('click', e => { e.stopPropagation(); this.assign(i, U.pick(roster).id); });
+          c.appendChild(r);
+        } else {
           ctrl.innerHTML = `<button class="lv-btn" data-d="-1" aria-label="Bajar nivel">−</button><span class="lv">NIVEL <b>${slot.level}</b></span><button class="lv-btn" data-d="1" aria-label="Subir nivel">+</button>`;
           ctrl.querySelectorAll('.lv-btn').forEach(b => b.addEventListener('click', e => {
             e.stopPropagation(); slot.level = U.clamp(slot.level + Number(b.dataset.d), 1, 9);
@@ -544,10 +746,20 @@
       const s = el('div', 'scr scr-pause');
       const R = this.game.match ? this.game.match.rules : NX.Settings;
       const H = this.game.match && this.game.match.horde;
-      s.innerHTML = `<div class="pause-k">PAUSA</div><div class="pause-rules">${H ? `<span class="chip chip-horde">HORDA</span><span class="chip">OLEADA <b>${H.wave}</b>/${H.total}</span><span class="chip">VIDAS <b>∞</b></span>` : `<span class="chip"><b>${R.stocks}</b> VIDAS</span><span class="chip"><b>${fmtMin(R.minutes)}</b></span><span class="chip chip-red">SIN OBJETOS</span>`}</div>`;
+      const PR = this.game.match && this.game.match.practice;
+      const chips = H ? `<span class="chip chip-horde">HORDA</span><span class="chip">OLEADA <b>${H.wave}</b>/${H.total}</span><span class="chip">VIDAS <b>∞</b></span>`
+        : PR ? `<span class="chip chip-practice">PRÁCTICA</span><span class="chip">MEJOR COMBO <b>${PR.best ? PR.best.toFixed(1) + '%' : '—'}</b></span><span class="chip">VIDAS <b>∞</b></span>`
+        : `<span class="chip"><b>${R.stocks}</b> VIDAS</span><span class="chip"><b>${fmtMin(R.minutes)}</b></span><span class="chip chip-red">SIN OBJETOS</span>`;
+      s.innerHTML = `<div class="pause-k">PAUSA</div><div class="pause-rules">${chips}</div>`;
       const btns = el('div', 'pause-btns');
       const mk = (t, fn) => { const b = el('button', 'mbtn', t); b.addEventListener('click', () => { NX.Audio.play('menuSelect'); fn(); }); btns.appendChild(b); return b; };
-      const list = [
+      /* V1.2 · Práctica: reiniciar posiciones y daño sin recargar el escenario. */
+      const list = PR ? [
+        mk('CONTINUAR', () => this.game.togglePause()),
+        mk('REINICIAR POSICIONES (0%)', () => { this.game.match.resetPractice(); this.game.togglePause(); }),
+        mk('CAMBIAR LUCHADORES', () => { this.game.togglePause(true); this.game.quitToMenu('select', { mode: 'practice' }); }),
+        mk('SALIR AL MENÚ', () => { this.game.togglePause(true); this.game.quitToMenu(); })
+      ] : [
         mk('CONTINUAR', () => this.game.togglePause()),
         mk(H ? 'REINICIAR HORDA' : 'REINICIAR COMBATE', () => { this.game.togglePause(true); this.game.startMatch(this.game.setup); }),
         mk('SALIR AL MENÚ', () => { this.game.togglePause(true); this.game.quitToMenu(); })

@@ -56,7 +56,7 @@
   class Match {
     constructor(cfg) {
       this.cfg = cfg; this.mode = cfg.mode;
-      const r = cfg.mode === 'horde' ? { stocks: 1, minutes: 0 } : (cfg.rules || {});
+      const r = cfg.mode === 'horde' || cfg.mode === 'practice' ? { stocks: 1, minutes: 0 } : (cfg.rules || {});
       this.rules = {
         stocks: U.clamp(r.stocks || RULES.stocks, 1, 99),
         minutes: r.minutes == null ? 7 : r.minutes
@@ -94,9 +94,16 @@
         this.fighters.push(f);
         let ctrl = null;
         if (p.human) ctrl = new NX.Input.HumanController(f);
-        else if (NX.BotController) ctrl = new NX.BotController(f, p.level, this);
+        /* V1.2 · PRÁCTICA: el bot no tiene controlador, así que se queda quieto. */
+        else if (NX.BotController && cfg.mode !== 'practice') ctrl = new NX.BotController(f, p.level, this);
         this.controllers.push(ctrl);
       });
+      /* V1.2 · PRÁCTICA: vidas y tiempo infinitos y contador de combos sobre el muñeco. */
+      this.practice = null;
+      if (cfg.mode === 'practice') {
+        this.fighters.forEach(f => { f.infiniteStocks = true; });
+        this.practice = { hits: 0, dmg: 0, best: 0, bestHits: 0, last: 0, lastHits: 0, pct: 0, stunned: false };
+      }
       /* v8 · HORDA: el jugador tiene vidas infinitas; cada rival, una sola. */
       this.horde = null;
       if (cfg.mode === 'horde') {
@@ -218,13 +225,56 @@
       this.phaseTime++;
       switch (this.phase) {
         case 'countdown': this.updateCountdown(); this.simulate(false); break;
-        case 'play': this.simulate(true); this.updateTimer(); if (this.horde) this.updateHorde(); break;
+        case 'play': this.simulate(true); this.updateTimer(); if (this.horde) this.updateHorde(); if (this.practice) this.updatePractice(); break;
         case 'time': this.updateTimeUp(); break;
         case 'sdintro': this.updateSuddenIntro(); this.simulate(false); break;
         case 'sudden': this.simulate(true); this.updateSudden(); break;
         case 'game': this.simulate(true); if (this.horde) this.updateHorde(); if (this.phaseTime > 140) this.finish(); break;
         default: break;
       }
+    }
+    /* ========================== V1.2 · PRÁCTICA ========================= */
+    practiceDummy() { return this.fighters.find(f => !f.isHuman) || this.fighters[1]; }
+    updatePractice() {
+      const P = this.practice, d = this.practiceDummy();
+      if (!d) return;
+      const stunned = d.state !== NX.ST.DEAD && (d.hitstun > 0 || d.hitlag > 0 || d.state === NX.ST.HITSTUN || d.state === NX.ST.GRABBED);
+      const gained = d.percent - P.pct;
+      const struck = gained > 0.001 && (d.hitlag > 0 || d.hitstun > 0 || d.state === NX.ST.GRABBED);
+      if (struck) {
+        /* Si el muñeco seguía aturdido por el golpe anterior, es combo. */
+        if (P.stunned && P.hits > 0) { P.hits++; P.dmg += gained; }
+        else { P.hits = 1; P.dmg = gained; }
+        this.emit('practice', P);
+      } else if (gained > 0.001 && P.hits > 0) { P.dmg += gained; this.emit('practice', P); }   // veneno/quemadura dentro del combo
+      else if (!stunned && P.stunned && P.hits > 0) this.endCombo(d);
+      P.pct = d.percent;
+      P.stunned = stunned || struck;
+    }
+    endCombo(d) {
+      const P = this.practice;
+      P.last = P.dmg; P.lastHits = P.hits;
+      if (P.dmg > P.best) { P.best = P.dmg; P.bestHits = P.hits; }
+      if (P.hits >= 2) this.effects.spawn('text', d.x, d.y - d.h - 30, { text: `COMBO ×${P.hits} · ${P.dmg.toFixed(1)}%`, color: '#ffd23a', size: 22 });
+      P.hits = 0; P.dmg = 0;
+      this.emit('practice', P);
+    }
+    /* Pone a los dos en su posición inicial con 0%. */
+    resetPractice() {
+      if (!this.practice) return;
+      const n = this.fighters.length;
+      this.projectiles = []; this.ledgeOwner.clear();
+      this.fighters.forEach((f, i) => {
+        f.breakHolds(); f.releaseLedgeOwnership();
+        f.resetLife(); f.hidden = false; f.eliminated = false; f.stocks = 1;
+        this.placeAtSpawn(f, i, n);
+        f.state = NX.ST.IDLE; f.stateTime = 0;
+        f.input.clearBuffers();
+      });
+      Object.assign(this.practice, { hits: 0, dmg: 0, pct: 0, stunned: false });
+      this.effects.spawn('flash', 0, 0, { color: '#fff', alpha: 0.25, life: 8 });
+      NX.Audio.play('respawn');
+      this.emit('practice', this.practice);
     }
     updateScreenFx() { for (const s of this.effects.screen) s.life--; this.effects.screen = this.effects.screen.filter(s => s.life > 0); }
 
@@ -369,6 +419,7 @@
         else if (this.phase !== 'game') this.hordeCleared(f, px, py);
         return;
       }
+      if (this.practice) { f.stocks = 1; return; }
       if (f.stocks <= 0) {
         f.eliminated = true; f.eliminatedAt = this.frame; this.koOrder.push(f);
         this.emit('eliminated', f);
@@ -388,6 +439,11 @@
       f.respawnPlat = { x: f.x, y: f.y };
       f.input.clearBuffers();
       if (f.slotDef.onRespawn) f.slotDef.onRespawn(f);
+      /* V1.2 · Práctica: el muñeco vuelve directo a su sitio, sin plataforma. */
+      if (this.practice && !f.isHuman) {
+        this.placeAtSpawn(f, this.fighters.indexOf(f), this.fighters.length);
+        f.state = NX.ST.IDLE; f.stateTime = 0; f.respawnPlat = null; f.invincible = 40;
+      }
       NX.Audio.play('respawn');
       this.emit('respawn', f);
     }

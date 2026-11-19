@@ -95,12 +95,12 @@
       }
     },
 
-    quitToMenu() {
+    quitToMenu(screen, data) {
       this.match = null; this.state = 'menu'; this.paused = false;
       NX.HUD.hide();
       if (NX.Touch) NX.Touch.setActive(false);
       NX.Audio.playMusic('menu');
-      NX.Menus.show('main');
+      NX.Menus.show(screen || 'main', data);
     },
 
     showResults() {

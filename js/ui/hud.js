@@ -63,6 +63,8 @@
       match.fighters.forEach(f => { const P = this.makePanel(f); this.panelsEl.appendChild(P.p); this.panels.push(P); });
       this.rulesEl.classList.toggle('horde', !!match.horde);
       if (match.horde) this.setWave(match.horde.wave, match.horde.total);
+      this.rulesEl.classList.toggle('practice', !!match.practice);
+      if (match.practice) { this.setPractice(match.practice); match.on('practice', P => this.setPractice(P)); }
       this.lastTimer = '';
       this.bigEl.innerHTML = '';
       this.annEl.innerHTML = '';
@@ -122,6 +124,13 @@
     },
     setWave(w, total) {
       this.rulesEl.innerHTML = `HORDA <i></i> OLEADA <b>${w}</b>/${total}${w >= total ? ' <i></i> <b class="boss-tag">JEFE</b>' : ''}`;
+    },
+
+    /* V1.2 · Práctica: golpes y daño del combo actual, el último y el mejor. */
+    setPractice(P) {
+      const live = P.hits > 0;
+      this.rulesEl.innerHTML = `PRÁCTICA <i></i> ${live ? `COMBO <b>×${P.hits}</b> <b>${P.dmg.toFixed(1)}%</b>` : `ÚLTIMO <b>${P.last ? P.last.toFixed(1) + '%' : '—'}</b>`} <i></i> MEJOR <b>${P.best ? P.best.toFixed(1) + '%' : '—'}</b>${P.bestHits > 1 ? ` (×${P.bestHits})` : ''}`;
+      this.rulesEl.classList.toggle('live', live);
     },
 
     rebuildStocks() {
