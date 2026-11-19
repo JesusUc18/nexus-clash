@@ -10,9 +10,19 @@
 (function (NX) {
   'use strict';
 
-  NX.VERSION = '1.2.1';
+  NX.VERSION = '1.3';
 
   NX.CHANGELOG = [
+    {
+      version: '1.3', date: 'Noviembre 2026', title: 'Luchadores rediseñados',
+      items: [
+        ['nuevo', '<b>Los 36 luchadores rediseñados</b>: volumen con luz y sombra, brazos y piernas que se afinan, cuello y una sombra en el suelo que sigue sus saltos.'],
+        ['nuevo', '<b>Ojos nuevos</b> con iris, brillos y párpado: ahora <b>parpadean</b>. Manos, zapatos con suela y hebillas con más detalle.'],
+        ['nuevo', '<b>Detalles propios</b> para cada uno: el reloj de Chronia marca la hora real, el suéter de BigSimio es de punto, las botas de Jett echan fuego, Volta suelta chispas y Medu, burbujas.'],
+        ['cambio', '<b>Armas</b> más trabajadas: espadas con pomo, vendas, canal y destello; martillo metálico y bastón con gema brillante.'],
+        ['cambio', 'Monocromo conserva su silueta plana de pantalla LCD.']
+      ]
+    },
     {
       version: '1.2.1', date: 'Noviembre 2026', title: 'Ajustes de balance',
       items: [

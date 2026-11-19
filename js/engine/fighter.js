@@ -1251,6 +1251,7 @@
     /* ------------------------------ DIBUJO -------------------------------- */
     draw(ctx) {
       if (this.state === ST.DEAD) return;
+      this.drawGroundShadow(ctx);
       NX.Render.drawFighter(ctx, this);
       if (this.isShielding()) {
         const c = this.shieldCenter(), r = this.shieldRadius();
@@ -1274,6 +1275,24 @@
         for (let i = 0; i < 2; i++) { const rr = r * (0.45 + ((this.tick * 0.03 + i * 0.5) % 1) * 0.55); ctx.beginPath(); ctx.arc(c.x, c.y, rr, 0, U.TAU); ctx.stroke(); }
         ctx.restore();
       }
+    }
+
+    /* V1.3 · Sombra de contacto en el suelo: se encoge y se aclara al subir. */
+    drawGroundShadow(ctx) {
+      if (this.hidden || !this.match || this.state === ST.RESPAWN) return;
+      const g = this.ground || this.match.findGroundBelow(this.x, this.y - 2);
+      if (!g || g.removed) return;
+      const hgt = Math.max(0, g.y - this.y);
+      const k = 1 - Math.min(1, hgt / 420);
+      if (k <= 0.02) return;
+      const s = (this.drawScale || 1) * (0.55 + 0.45 * k);
+      ctx.save();
+      ctx.globalAlpha = 0.3 * k;
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.ellipse(this.x, g.y + 1, this.w * 0.85 * s, 5.5 * s, 0, 0, U.TAU); ctx.fill();
+      ctx.globalAlpha = 0.18 * k;
+      ctx.beginPath(); ctx.ellipse(this.x, g.y + 1, this.w * 1.25 * s, 8 * s, 0, 0, U.TAU); ctx.fill();
+      ctx.restore();
     }
 
     drawTag(ctx, zoom) {

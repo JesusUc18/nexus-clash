@@ -1,4 +1,4 @@
-# NEXUS CLASH · Ultimate Arena — V1.2.1
+# NEXUS CLASH · Ultimate Arena — V1.3
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
@@ -9,6 +9,17 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.3 — Luchadores rediseñados
+- **Motor de dibujo** (`js/engine/renderer.js`): extremidades con volumen (sombra y brillo según una luz arriba-adelante) que se
+  afinan del hombro a la mano y del muslo al pie; cuello; torso y cabeza con degradados de luz; manos con brillo; zapatos con
+  suela; hebilla en los cinturones; rubor en caras de piel; armas con pomo, vendas, guarda curva, canal y destello.
+- **Ojos** con iris, pupila, dos brillos y párpado; **parpadean** cada pocos segundos.
+- **Sombra de contacto** bajo cada luchador que se encoge y se aclara al saltar (`js/engine/fighter.js`).
+- **Detalles por luchador** (`js/fighters/details.js`): texturas, costuras, remaches, emblemas, brillos de pelo y lentes y
+  efectos animados (el reloj de Chronia marca la hora real, las botas de Jett echan fuego, chispas de Volta, burbujas de Medu…).
+  Monocromo se mantiene plano (silueta LCD; `rig.flat` o `def.lcd` desactivan el sombreado).
+- Sin cambios de estadísticas: la Tier List sigue igual.
 
 ## V1.2.1 — Ajustes de balance
 - **Jochis**: Arcano Mayor al sobrevivir **1:00** (antes 1:30).
@@ -267,6 +278,7 @@ js/engine/camera.js        Cámara dinámica
 js/engine/match.js         Reglas, KOs, muerte súbita, colores alternativos
 js/engine/ai.js            Bots (Parte 3)
 js/fighters/kits.js        Biblioteca de ataques normales y kit de cada luchador (v4)
+js/fighters/details.js     Capas de detalle visual de cada luchador (V1.3)
 js/fighters/roster.js      36 luchadores (Partes 2, v2, v3, v3.1, v6, v7 y v1.1)
 js/stages/stages.js        3 escenarios (Parte 3)
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
