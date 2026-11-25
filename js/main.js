@@ -39,7 +39,7 @@
     /* Comprueba que los módulos de las Partes 2 y 3 estén cargados. */
     missingModules() {
       const out = [];
-      if (!NX.ROSTER || NX.ROSTER.length < 2) out.push('Luchadores · js/fighters/roster.js (Parte 2)');
+      if (!NX.ROSTER || NX.ROSTER.length < 2) out.push('Luchadores · js/fighters/lib.js + js/fighters/roster/');
       if (!NX.STAGES || !NX.STAGES.length) out.push('Escenarios · js/stages/stages.js (Parte 3)');
       if (!NX.BotController) out.push('IA de bots · js/engine/ai.js (Parte 3)');
       return out;

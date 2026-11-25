@@ -60,8 +60,8 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
 - **NOVEDADES**: al entrar al menú principal tras una actualización aparece un panel con los cambios de la
   versión (y pestañas con las anteriores). Sale una sola vez por versión; se puede volver a abrir en
   REGLAS → NOVEDADES.
-- Para publicar una versión nueva: cambia `NX.VERSION` y añade la entrada al principio de `NX.CHANGELOG` en
-  `js/ui/changelog.js`. La clasificación está en `js/ui/tierlist.js` (un luchador nuevo que aún no esté en la
+- Para publicar una versión nueva: cambia `NX.VERSION`, añade la entrada al principio de `NX.CHANGELOG` en
+  `js/ui/changelog.js` y ejecuta `npm run build` (ver **Desarrollo**). La clasificación está en `js/ui/tierlist.js` (un luchador nuevo que aún no esté en la
   lista aparece en una fila "NUEVOS").
 
 ## V1.1 — BigSimio y Jochis (36 en total)
@@ -279,14 +279,37 @@ js/engine/match.js         Reglas, KOs, muerte súbita, colores alternativos
 js/engine/ai.js            Bots (Parte 3)
 js/fighters/kits.js        Biblioteca de ataques normales y kit de cada luchador (v4)
 js/fighters/details.js     Capas de detalle visual de cada luchador (V1.3)
-js/fighters/roster.js      36 luchadores (Partes 2, v2, v3, v3.1, v6, v7 y v1.1)
-js/stages/stages.js        3 escenarios (Parte 3)
+js/fighters/lib.js         Utilidades compartidas del plantel (proyectiles, accesorios, contraataque, cambio de forma)
+js/fighters/roster/NN-id.js  Un archivo por luchador (01-gorrak.js … 36-jochis.js)
+js/stages/stages.js        5 escenarios
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
-js/tools/bundle.js         Copia de las fuentes para el ZIP (generada)
+js/tools/bundle.js         Copia de las fuentes para el ZIP (generada por `npm run build`)
 js/ui/changelog.js         Versión actual y panel de NOVEDADES (V1.2)
 js/ui/tierlist.js          Tier List oficial y barras de estadísticas (V1.2)
 js/ui/hud.js, js/ui/menus.js
+tools/                     Herramientas de desarrollo en Node (no se cargan en el juego)
 ```
+
+## Desarrollo
+El juego no tiene paso de compilación: GitHub Pages sirve los archivos tal cual y también se puede abrir con doble
+clic en `index.html`. Las herramientas de `tools/` solo necesitan **Node 18+** (sin `npm install`):
+
+| Comando | Qué hace |
+|---|---|
+| `npm test` | Sintaxis, integridad del plantel/Tier List/changelog, una partida de bots por luchador en cada modo y la **huella dorada** |
+| `npm run build` | Copia `NX.VERSION` a los títulos de `index.html`, añade `?v=<hash>` a cada script/estilo (evita mezclar archivos viejos en caché tras publicar) y regenera `js/tools/bundle.js` |
+| `npm run golden:update` | Acepta como nueva referencia el comportamiento actual (solo tras un cambio de balance **intencionado**) |
+| `npm run serve` | Servidor local en `http://localhost:8000` |
+
+- **Huella dorada** (`tools/golden.mjs`): 46 partidas de bots con semilla fija; si un cambio altera el resultado de
+  alguna, la prueba falla. Una refactorización no debe cambiarla; un ajuste de balance sí, y entonces se actualiza.
+- **Simulador** (`tools/sim.mjs`): carga el motor real en Node sin navegador (`node tools/sim.mjs`).
+- **CI** (`.github/workflows/ci.yml`): en cada push a `main` y en cada pull request comprueba que `index.html` y
+  `bundle.js` estén al día y ejecuta `npm test`.
+- **Luchador nuevo**: crea `js/fighters/roster/37-id.js` (copia uno parecido), añade su `<script>` en `index.html`
+  después del 36, ponlo en `js/ui/tierlist.js` y ejecuta `npm run build && npm test`.
+- **Versión nueva**: cambia `NX.VERSION`, añade la entrada a `NX.CHANGELOG` (`js/ui/changelog.js`) y ejecuta
+  `npm run build`.
 
 ## Plantel
 | # | Luchador | Arquetipo | Peso | Neutral | Lateral | Arriba | Abajo |

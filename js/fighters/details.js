@@ -1,7 +1,7 @@
 /* ==========================================================================
  * NEXUS CLASH — js/fighters/details.js  (V1.3 · apartado visual)
  * Capas de detalle por luchador: texturas, costuras, remaches, emblemas,
- * brillos y accesorios. Se dibujan encima de las partes de roster.js
+ * brillos y accesorios. Se dibujan encima de las partes de js/fighters/roster/
  * mediante los ganchos de renderer.js (def.details):
  *   limbsBack · brazo/pierna traseros  (espacio del luchador, J = articulaciones)
  *   torso     · espacio del torso (origen en la cadera, y negativa hacia arriba)

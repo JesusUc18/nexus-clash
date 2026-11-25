@@ -1,0 +1,14 @@
+{
+  "name": "nexus-clash",
+  "version": "1.3.0",
+  "private": true,
+  "description": "Juego de lucha de plataformas 2D en HTML5 Canvas (sitio estático para GitHub Pages).",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node tools/test.mjs",
+    "golden:update": "node tools/golden.mjs --write",
+    "serve": "python3 -m http.server 8000"
+  },
+  "engines": { "node": ">=18" }
+}

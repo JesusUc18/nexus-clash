@@ -5,6 +5,8 @@
  * - Sin conexión, usa un compresor ZIP propio (método STORE + CRC32).
  * - Las fuentes salen de js/tools/bundle.js (funciona con file://); si el
  *   juego se sirve por http(s) se leen los archivos actuales con fetch.
+ * - bundle.js lo genera `npm run build` (tools/build.mjs). Los binarios
+ *   (íconos, imagen de vista previa) van en base64: { b64: '...' }.
  * ========================================================================== */
 (function (NX) {
   'use strict';
@@ -26,18 +28,35 @@
     return NX.BUNDLE;
   }
 
+  function toBase64(bytes) {
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  function toBytes(v) {
+    if (typeof v === 'string') return new TextEncoder().encode(v);
+    if (v instanceof Uint8Array) return v;
+    const bin = atob(v.b64), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
   /* bundle.js se regenera a partir de su propio contenido: el ZIP siempre
    * incluye un empaquetador funcional. */
   function bundleSource(files, version) {
-    return '/* NEXUS CLASH — js/tools/bundle.js (generado automáticamente: copia de todas las fuentes para el botón ZIP) */\n' +
-      'window.NX = window.NX || {};\nNX.BUNDLE = ' + JSON.stringify({ version, files }) + ';\n';
+    const plain = {};
+    for (const k in files) plain[k] = files[k] instanceof Uint8Array ? { b64: toBase64(files[k]) } : files[k];
+    return '/* NEXUS CLASH — js/tools/bundle.js (generado por tools/build.mjs: copia de todas las fuentes para el botón ZIP) */\n' +
+      'window.NX = window.NX || {};\nNX.BUNDLE = ' + JSON.stringify({ version, files: plain }) + ';\n';
   }
 
   async function freshFiles(files) {
     if (!/^https?:$/.test(location.protocol)) return files;
     const out = Object.assign({}, files);
     await Promise.all(Object.keys(files).map(async p => {
-      try { const r = await fetch(p, { cache: 'no-store' }); if (r.ok) out[p] = await r.text(); } catch (e) { /* se conserva la copia del bundle */ }
+      try {
+        const r = await fetch(p, { cache: 'no-store' });
+        if (r.ok) out[p] = typeof files[p] === 'string' ? await r.text() : new Uint8Array(await r.arrayBuffer());
+      } catch (e) { /* se conserva la copia del bundle */ }
     }));
     return out;
   }
@@ -57,8 +76,8 @@
     const now = new Date();
     const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
     const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
-    for (const [name, text] of entries) {
-      const nameB = enc.encode(name), data = enc.encode(text), crc = crc32(data);
+    for (const [name, content] of entries) {
+      const nameB = enc.encode(name), data = toBytes(content), crc = crc32(data);
       const lh = new DataView(new ArrayBuffer(30));
       lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
       lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
@@ -173,7 +192,7 @@
         if (!window.JSZip) await loadScript(JSZIP_URL);
         const zip = new window.JSZip();
         const root = zip.folder('nexus-clash');
-        names.forEach(n => root.file(n, all[n]));
+        names.forEach(n => root.file(n, typeof all[n] === 'string' ? all[n] : toBytes(all[n])));
         blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
       } catch (e) {
         method = 'STORE (sin conexión)';
