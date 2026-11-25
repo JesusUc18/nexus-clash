@@ -279,6 +279,11 @@
         { label: 'MÚSICA', desc: 'Pistas sintetizadas', val: () => (S.music ? 'SÍ' : 'NO'), change: () => { S.music = !S.music; NX.Audio.setMusic(S.music); } },
         { label: 'NARRADOR', desc: 'Voz del anunciador', val: () => (S.narrator ? 'SÍ' : 'NO'), change: () => { S.narrator = !S.narrator; NX.Audio.setNarrator(S.narrator); } },
         { label: 'CONTROLES TÁCTILES', desc: 'Auto: se activan en teléfono/tablet o al tocar la pantalla', val: () => (NX.Touch ? NX.Touch.modeLabel() : 'NO'), change: d => { if (NX.Touch) NX.Touch.cycleMode(d); } },
+        /* Solo en pantallas táctiles: tamaño de los botones y vibración. */
+        ...(NX.Touch && (NX.Device.mobile || NX.Device.touchCapable) ? [
+          { label: 'BOTONES TÁCTILES', desc: 'Tamaño de los botones y del joystick en combate', val: () => NX.Touch.sizeLabel(), change: d => NX.Touch.cycleSize(d) },
+          { label: 'VIBRACIÓN', desc: 'Vibra un poco al pulsar los botones táctiles', val: () => (S.haptics !== false ? 'SÍ' : 'NO'), change: () => { S.haptics = S.haptics === false; if (S.haptics) NX.Touch.haptic(20); } }
+        ] : []),
         { label: 'RESTABLECER', desc: 'Reglamento competitivo: 3 vidas · 7:00', val: () => '↺', change: () => { S.stocks = 3; S.minutes = 7; } },
         /* V1.2 · accesos a la Tier List y al panel de novedades. */
         { link: true, cls: 'rule-tier', label: 'TIER LIST', desc: `Los ${(NX.ROSTER || []).length} luchadores, del más fuerte al más débil`, val: () => 'VER', change: () => this.show('tierlist', { back: 'rules' }) },
@@ -467,7 +472,7 @@
       const prev = this.game.setup && this.game.setup.mode === mode ? this.game.setup : null;
       const nCpu = mode === 'ffa' ? 3 : mode === 'horde' ? 0 : 1;
       this.sel = {
-        mode, cursor: 0, dragging: null,
+        mode, cursor: 0, dragging: null, active: 0,
         slots: [{ human: true, fighterId: prev ? prev.players[0].fighterId : null, level: 0, color: NX.SLOT_COLORS[0], tag: 'P1' }]
       };
       for (let i = 0; i < nCpu; i++) {
@@ -496,7 +501,7 @@
       this.selEl = s;
       const grid = s.querySelector('.sel-grid');
       grid.style.setProperty('--cols', roster.length > 24 ? Math.ceil(roster.length / 3) : roster.length > 16 ? Math.ceil(roster.length / 2) : 8);
-      grid.style.setProperty('--cols-short', Math.ceil(roster.length / 2));
+      grid.style.setProperty('--cols-short', Math.ceil(roster.length / (roster.length > 24 ? 3 : 2)));   // teléfono en horizontal: 3 filas, casillas táctiles más grandes
       this.cells = roster.map((d, i) => {
         const c = el('div', 'cell');
         c.dataset.idx = i;
@@ -506,7 +511,14 @@
         NX.Render.drawPortrait(cv, d);
         c.append(cv, el('div', 'cell-name', d.name.toUpperCase()), el('div', 'cell-num', String(i + 1).padStart(2, '0')));
         c.addEventListener('mouseenter', () => { if (!this.sel.slots[0].fighterId || this.sel.dragging) { this.sel.cursor = i; this.updateSelect(); } });
-        c.addEventListener('click', () => { if (this.sel.justDropped) return; this.sel.cursor = i; this.assign(0, d.id); });
+        /* Tocar un retrato lo asigna al jugador activo (P1, o el CPU cuya tarjeta se tocó antes). */
+        c.addEventListener('click', () => {
+          if (this.sel.justDropped) return;
+          const a = this.sel.active;
+          if (a === 0) this.sel.cursor = i;
+          this.sel.active = 0;
+          this.assign(a, d.id);
+        });
         grid.appendChild(c);
         return c;
       });
@@ -515,7 +527,12 @@
         const c = el('div', 'card' + (slot.human ? ' human' : ' cpu'));
         c.style.setProperty('--pc', slot.color);
         const art = el('canvas', 'card-art'); art.width = 240; art.height = 260;
-        c.innerHTML = `<div class="card-tag">${slot.tag}</div>`;
+        c.innerHTML = `<div class="card-tag">${slot.tag}</div>` + (slot.human ? '' : '<div class="card-pick"></div>');
+        if (!slot.human) c.addEventListener('click', () => {
+          this.sel.active = this.sel.active === i ? 0 : i;
+          NX.Audio.play(this.sel.active ? 'menuSelect' : 'menuBack');
+          this.updateSelect();
+        });
         c.appendChild(art);
         c.appendChild(el('div', 'card-name', '—'));
         c.appendChild(el('div', 'card-title', ''));
@@ -581,6 +598,7 @@
       });
       this.sel.slots.forEach((slot, i) => {
         const card = this.cards[i];
+        card.c.classList.toggle('picking', this.sel.active === i);
         const id = slot.fighterId || (i === 0 ? roster[this.sel.cursor].id : null);
         const d = id ? NX.getFighter(id) : null;
         card.c.classList.toggle('empty', !slot.fighterId);
@@ -680,7 +698,8 @@
           else if (S.slots.every(s => s.fighterId)) this.selectDone();
           break;
         case 'back': case 'escape':
-          if (p1.fighterId) { p1.fighterId = null; NX.Audio.play('menuBack'); this.updateSelect(); this.layoutTokens(); }
+          if (S.active) { S.active = 0; NX.Audio.play('menuBack'); this.updateSelect(); }
+          else if (p1.fighterId) { p1.fighterId = null; NX.Audio.play('menuBack'); this.updateSelect(); this.layoutTokens(); }
           else { NX.Audio.play('menuBack'); this.show('main'); }
           break;
         default: break;

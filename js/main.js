@@ -9,7 +9,7 @@
   const STEP = 1000 / 60;
 
   /* Ajustes persistentes (vidas, tiempo, música, narrador). */
-  const DEFAULT_SETTINGS = { stocks: 3, minutes: 7, music: true, narrator: true, touch: 'auto' };
+  const DEFAULT_SETTINGS = { stocks: 3, minutes: 7, music: true, narrator: true, touch: 'auto', touchSize: 'm', haptics: true };
   NX.Settings = Object.assign({}, DEFAULT_SETTINGS);
   try { const raw = window.localStorage && localStorage.getItem('nexusclash.settings'); if (raw) Object.assign(NX.Settings, JSON.parse(raw)); } catch (e) { /* almacenamiento no disponible */ }
   NX.saveSettings = function () { try { localStorage.setItem('nexusclash.settings', JSON.stringify(NX.Settings)); } catch (e) { /* almacenamiento no disponible */ } };

@@ -1,4 +1,4 @@
-# NEXUS CLASH · Ultimate Arena — V1.3
+# NEXUS CLASH · Ultimate Arena — V1.3.1
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
@@ -9,6 +9,15 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.3.1 — Mejor en el teléfono
+- **Selección táctil del CPU**: toca la tarjeta de un CPU (CAMBIAR ▸) y luego un retrato; ya no hace falta arrastrar la ficha.
+- **REGLAS → BOTONES TÁCTILES** (pequeños / normales / grandes, también el joystick) y **VIBRACIÓN** (sí/no). Solo
+  aparecen en dispositivos táctiles.
+- En teléfono en horizontal la cuadrícula de luchadores usa 3 filas (casillas ~50% más grandes, nombres completos).
+- Arreglos: franja blanca en la portada, retratos del HUD cortados por arriba, VOLVER encima de las opciones de REGLAS,
+  barras de desplazamiento blancas del sistema.
+- Los estilos móviles nuevos están en una sola sección al final de `css/styles.css` (**MÓVIL**).
 
 ## V1.3 — Luchadores rediseñados
 - **Motor de dibujo** (`js/engine/renderer.js`): extremidades con volumen (sombra y brillo según una luz arriba-adelante) que se

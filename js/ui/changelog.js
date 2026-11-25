@@ -10,9 +10,19 @@
 (function (NX) {
   'use strict';
 
-  NX.VERSION = '1.3';
+  NX.VERSION = '1.3.1';
 
   NX.CHANGELOG = [
+    {
+      version: '1.3.1', date: 'Noviembre 2026', title: 'Mejor en el teléfono',
+      items: [
+        ['nuevo', '<b>Elige el luchador de cada CPU con el dedo</b>: toca su tarjeta (CAMBIAR ▸) y luego un retrato. Ya no hace falta arrastrar la ficha.'],
+        ['nuevo', '<b>BOTONES TÁCTILES</b> en REGLAS: pequeños, normales o grandes (también el joystick). Y <b>VIBRACIÓN</b> sí/no.'],
+        ['cambio', 'En teléfono la selección de luchadores usa <b>3 filas</b>: retratos más grandes, fáciles de tocar y con el nombre completo.'],
+        ['arreglo', 'Ya no aparece una <b>franja blanca</b> en el borde izquierdo de la portada.'],
+        ['arreglo', 'En el combate los retratos del marcador ya no se cortan por arriba; en REGLAS el botón VOLVER ya no tapa las opciones.']
+      ]
+    },
     {
       version: '1.3', date: 'Noviembre 2026', title: 'Luchadores rediseñados',
       items: [

@@ -20,7 +20,8 @@ body.muted::after { content: '🔇 MUTE (M)'; position: fixed; left: 14px; botto
 
 /* ------------------------------ TRANSICIÓN ------------------------------ */
 #transition { position: fixed; inset: 0; pointer-events: none; z-index: 80; overflow: hidden; }
-#transition .slab { position: absolute; top: -20%; height: 140%; width: 60%; transform: skewX(var(--skew)) translateX(-180%); }
+#transition .slab { position: absolute; top: -20%; height: 140%; width: 60%; transform: skewX(var(--skew)) translateX(-220%); visibility: hidden; }
+#transition.go .slab { visibility: visible; }
 #transition .slab.a { background: var(--red); left: -10%; }
 #transition .slab.b { background: var(--black); left: 25%; }
 #transition .slab.c { background: var(--white); left: 60%; }
@@ -317,7 +318,7 @@ html, body { touch-action: manipulation; -webkit-tap-highlight-color: transparen
 body.touch-mode .kb-only { display: none !important; }
 body:not(.touch-mode) .touch-only { display: none !important; }
 
-#touch { --B: clamp(48px, 14vmin, 78px); --pad: 14px; position: fixed; inset: 0; z-index: 35; pointer-events: none; display: none; }
+#touch { --B: calc(clamp(48px, 14vmin, 78px) * var(--ts, 1)); --pad: 14px; position: fixed; inset: 0; z-index: 35; pointer-events: none; display: none; }
 #touch.on { display: block; }
 #touch .t-zone { position: absolute; bottom: 0; touch-action: none; }
 #touch .t-left { left: 0; width: 45%; height: 72%; pointer-events: auto; }
@@ -760,3 +761,49 @@ body.touch-mode .hud-tag { font-size: 11px; }
 .hud-rules.practice i { background: #2fe0d8; }
 .hud-rules.practice.live b { color: var(--gold); }
 body.touch-mode .hud-rules.practice { display: block; top: auto; bottom: calc(10px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) skewX(var(--skew)); font-size: 12px; white-space: nowrap; }
+
+/* ==========================================================================
+ * MÓVIL (V1.3.1) — una sola sección para teléfono y tablet.
+ * ========================================================================== */
+/* Barras de desplazamiento discretas y del color del juego (no la barra blanca del sistema). */
+* { scrollbar-width: thin; scrollbar-color: #e8141f88 transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #e8141f88; border-radius: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Selección: tocar la tarjeta de un CPU y luego un retrato le asigna ese luchador. */
+.card.cpu { cursor: pointer; }
+.card-pick { position: absolute; top: 44px; right: 9%; z-index: 3; font: 800 11px var(--f-body); letter-spacing: 1.5px; color: #fffc; background: #000b; border: 1px solid #fff4; padding: 2px 8px; transform: skewX(var(--skew)); pointer-events: none; }
+.card-pick::before { content: 'CAMBIAR ▸'; }
+.card.picking { animation: pickGlow 0.9s ease-in-out infinite; }
+.card.picking .card-pick { color: #000; background: var(--gold); border-color: #fff; }
+.card.picking .card-pick::before { content: 'TOCA UN RETRATO ▲'; }
+@keyframes pickGlow { 50% { filter: brightness(1.35) drop-shadow(0 0 10px var(--pc)); } }
+body:not(.touch-mode) .card-pick { display: none; }
+body:not(.touch-mode) .card.picking .card-pick { display: block; }
+
+/* Teléfono en horizontal (altura baja). */
+@media (max-height: 500px) {
+  /* Cuadrícula de 3 filas: casillas ~50% más grandes y nombres legibles. */
+  .sel-grid { gap: 3px 4px; padding-top: 5px; padding-bottom: 3px; }
+  .cell-num { display: none; }
+  .cell-name { font-size: 10px; padding: 1px 6% 2px; letter-spacing: .5px; }
+  .sel-cards { padding-top: 4px; }
+  .card-tag { font-size: 20px; top: 4px; }
+  .card-pick { top: 32px; font-size: 9px; padding: 1px 6px; }
+  .card-passive { display: none; }
+  .card-name { font-size: clamp(15px, 2.6vw, 24px); letter-spacing: 0; white-space: nowrap; }
+  .token { width: 32px; height: 32px; margin: -16px 0 0 -16px; font-size: 11px; border-width: 3px; }
+  .token.human { width: 38px; height: 38px; margin: -19px 0 0 -19px; font-size: 14px; }
+  @keyframes bob { 50% { margin-top: -24px; } }
+  /* El botón VOLVER no tapa la última fila de las listas desplazables. */
+  .rules-wrap { padding-bottom: 16px; }
+  /* En REGLAS, VOLVER pasa a la franja libre de la cabecera y deja de flotar sobre la lista. */
+  .scr-rules .back-mini { top: 12px; bottom: auto; left: auto; right: calc(3vw + env(safe-area-inset-right)); }
+  .ctrl-wrap { padding-bottom: 72px; }
+}
+
+/* HUD táctil: el retrato no se sale por arriba de la pantalla. */
+body.touch-mode .hud-portrait { width: auto; height: 100%; max-width: 46%; bottom: 2px; }
+body.touch-mode .hud-panels { top: calc(8px + env(safe-area-inset-top)); }
+

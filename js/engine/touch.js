@@ -41,6 +41,15 @@
   let enabled = false;          // modo táctil decidido (auto/manual)
 
   function mode() { return (NX.Settings && NX.Settings.touch) || 'auto'; }
+
+  /* Tamaño de los botones (REGLAS → BOTONES TÁCTILES) y vibración al pulsar. */
+  const SIZES = [['s', 'PEQUEÑOS', 0.84], ['m', 'NORMALES', 1], ['l', 'GRANDES', 1.18]];
+  function sizeEntry() { const k = (NX.Settings && NX.Settings.touchSize) || 'm'; return SIZES.find(z => z[0] === k) || SIZES[1]; }
+  function applySize() { if (root) root.style.setProperty('--ts', sizeEntry()[2]); }
+  function haptic(ms) {
+    if (NX.Settings && NX.Settings.haptics === false) return;
+    if (navigator.vibrate) try { navigator.vibrate(ms); } catch (_) { /* sin vibración */ }
+  }
   function computeEnabled() {
     const m = mode();
     if (m === 'on') return true;
@@ -87,6 +96,7 @@
       <div class="t-zone t-right">${BUTTONS.map(b => `<div class="tbtn ${b[3]}" data-a="${b[0]}"><b>${b[1]}</b><small>${b[2]}</small></div>`).join('')}</div>
       <button class="t-pause" aria-label="Pausa"><i></i><i></i></button>`;
     document.getElementById('app').appendChild(root);
+    applySize();
     base = root.querySelector('.t-stick'); knob = root.querySelector('.t-knob');
     pauseBtn = root.querySelector('.t-pause');
 
@@ -108,7 +118,7 @@
         e.preventDefault(); e.stopPropagation();
         try { b.setPointerCapture(e.pointerId); } catch (_) { /* puntero ya liberado */ }
         ids.add(e.pointerId); held[a] = ids.size; tapped[a] = true; b.classList.add('down');
-        if (navigator.vibrate) try { navigator.vibrate(8); } catch (_) { /* sin vibración */ }
+        haptic(8);
       };
       const up = e => {
         ids.delete(e.pointerId); held[a] = ids.size;
@@ -220,6 +230,13 @@
       NX.Settings.touch = order[(i + d + order.length) % order.length];
       refresh();
     },
+    haptic,
+    cycleSize(d) {
+      const i = SIZES.indexOf(sizeEntry());
+      NX.Settings.touchSize = SIZES[(i + d + SIZES.length) % SIZES.length][0];
+      applySize();
+    },
+    sizeLabel() { return sizeEntry()[1]; },
     modeLabel() { const m = mode(); return m === 'on' ? 'SÍ' : m === 'off' ? 'NO' : 'AUTO · ' + (enabled ? 'TÁCTIL' : 'TECLADO'); }
   };
 
