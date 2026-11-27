@@ -350,7 +350,13 @@
     bigsimio: { fx: 'heavy', col: '#ffd23a', jab: 'jabSword2', ftilt: ['ftiltChop', { size: 1.1 }], utilt: 'utiltSword', dtilt: 'dtiltSlash', dashattack: 'dashSlash',
       fsmash: ['fsmashHammer', { dmg: 1.06 }], usmash: 'usmashArc', dsmash: ['dsmashSlam', { limb: 'w' }], nair: 'nairSlash', fair: ['fairArc', { size: 1.1 }], bair: 'bairSlash', uair: 'uairArc', dair: ['dairSlam', { limb: 'w' }] },
     jochis: { fx: 'hit', col: '#ff8fd0', jab: 'jabSword2', ftilt: 'ftiltSlash', utilt: 'utiltSword', dtilt: 'dtiltSlash', dashattack: ['dashSpin', { limb: 'w' }],
-      fsmash: 'fsmashSword', usmash: 'usmashArc', dsmash: 'dsmashSlash', nair: 'nairSlash', fair: 'fairArc', bair: 'bairSlash', uair: 'uairArc', dair: 'dairStab' }
+      fsmash: 'fsmashSword', usmash: 'usmashArc', dsmash: 'dsmashSlash', nair: 'nairSlash', fair: 'fairArc', bair: 'bairSlash', uair: 'uairArc', dair: 'dairStab' },
+    /* V1.4: Nyra (mordiscos y coletazos de su dragón; la estela la dibuja su propio render, de ahí limb: []). */
+    nyra: { fx: 'slash', col: '#ff8a2a', limb: [], jab: ['jabCombo', { fin: 'haymaker', heavy: true }], ftilt: 'ftiltChop', utilt: 'utiltArc', dtilt: 'dtiltSlap', dashattack: 'dashShoulder',
+      fsmash: 'fsmashHammer', usmash: 'usmashClap', dsmash: ['dsmashSlam', { fx: 'heavy' }], nair: 'nairBody', fair: 'fairSpike', bair: 'bairSpin', uair: 'uairMulti', dair: ['dairSlam', { fx: 'heavy' }] },
+    /* V1.4: Draco (telequinesis: golpea con el cubo, el mando y el libro que orbitan a su alrededor; los dibuja su parte `front`). */
+    draco: { fx: 'magic', col: '#b48cff', limb: [], jab: ['jabCombo', { fin: 'palm' }], ftilt: 'ftiltPalm', utilt: 'utiltBurst', dtilt: 'dtiltPoke', dashattack: 'dashBurst',
+      fsmash: 'fsmashBlast', usmash: 'usmashPillar', dsmash: ['dsmashSlam', { fx: 'magic' }], nair: 'nairBurst', fair: ['airBurst', { dir: 'f' }], bair: ['airBurst', { dir: 'b' }], uair: ['airBurst', { dir: 'u' }], dair: ['airBurst', { dir: 'd' }] }
   };
   /* Aria: su smash hacia arriba es una estocada vertical (no un arco). */
   KITS.aria.usmash = 'usmashThrustUp';
@@ -427,7 +433,7 @@
   function build(def) {
     const kit = KITS[def.id];
     if (!kit) return null;
-    const base = { fx: kit.fx, col: kit.col };
+    const base = { fx: kit.fx, col: kit.col, limb: kit.limb };
     const out = {};
     for (const key in kit) {
       if (!MOVE_KEYS.has(key)) continue;

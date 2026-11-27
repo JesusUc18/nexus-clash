@@ -1,14 +1,35 @@
-# NEXUS CLASH · Ultimate Arena — V1.3.1
+# NEXUS CLASH · Ultimate Arena — V1.4
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript, sin imágenes externas para los personajes.
 Funciona en **laptop/PC** (teclado o gamepad) y en **teléfono o tablet** (controles táctiles), sin instalar nada.
-**36 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal**, **Horda** y **Práctica**, y bots
+**38 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal**, **Horda** y **Práctica**, y bots
 de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configurable en REGLAS).
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.4 — Nyra y Draco
+- **Nyra** (luchadora 37, `js/fighters/roster/37-nyra.js`): siempre montada en su dragón. Lenta (la que menos reacción y
+  movilidad tiene) y pesada (124), pero con el 2.º mayor daño del plantel. Normales = mordiscos del dragón (la
+  cabeza va a donde está el golpe) y coletazos hacia atrás.
+- Especiales de **aliento de fuego** (gastan el medidor **FUEGO**): Bola de Fuego (largo alcance, se apunta con ↑/↓),
+  Llamarada (lanzallamas mientras mantengas B), Vuelo del Dragón (aletazo dirigible con estallido de fuego) y
+  Lluvia de Brasas (brasa en arco que deja un charco de fuego). Sin fuego solo echa humo.
+- Pasiva **Fragua Interior**: el FUEGO se recarga solo (0,45/fotograma en el suelo, 0,22 en el aire).
+- **4 saltos** aéreos y **planeo**: mantén SALTO mientras cae (caída lenta y más control aéreo, hasta 2,5 s por salto).
+- Se dibuja con su propio `render` (dragón con alas, cola y cuernos + jinete de cabello negro rizado).
+- **Draco** (luchador 38, `js/fighters/roster/38-draco.js`): camisa blanca, pantalón café claro, zapatos blancos,
+  cabello rizado y lentes. No camina: **flota**. Un cubo mágico, un mando y un libro orbitan a su alrededor y los usa
+  con **telequinesis** en todos sus normales (mando en los ligeros, libro en los smashes, cubo en los aéreos).
+  - **B**: cambia de tamaño en ciclo normal → **grande** (+35% tamaño, +30% peso, +20% daño, −12% velocidad) →
+    **pequeño** (−30% tamaño, −25% peso, −15% daño, +15% velocidad) → normal. Vuelve a normal al perder una vida.
+  - **Lado**: lanza el cubo como **mina**; quien la pisa recibe 8% y queda **enredado 1,5 s**.
+  - **Arriba**: se convierte en una **bola de energía** inmune que sale disparada hacia arriba (dirigible) y golpea varias veces.
+  - **Abajo**: **1 s** con lentes negros; si le pegan **cuerpo a cuerpo**, aparece **Mina** (personaje original) y le da una
+    cachetada al rival (×1,4 del golpe, mínimo 10%). Los proyectiles no activan el contraataque.
+- **Tier List**: Nyra entra encabezando A+ y Draco al final de A−; nadie más cambia de puesto.
 
 ## V1.3.1 — Mejor en el teléfono
 - **Selección táctil del CPU**: toca la tarjeta de un CPU (CAMBIAR ▸) y luego un retrato; ya no hace falta arrastrar la ficha.
@@ -45,7 +66,7 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
   terminar un combo de 2 golpes o más aparece "COMBO ×N · X%" sobre el muñeco. Se cuenta como combo cada golpe
   que llega mientras el muñeco sigue aturdido por el anterior. En la pausa: **REINICIAR POSICIONES (0%)** y
   **CAMBIAR LUCHADORES**.
-- **TIER LIST** (REGLAS → TIER LIST): los 36 luchadores clasificados de **S+** a **E**, agrupados por letra como
+- **TIER LIST** (REGLAS → TIER LIST): los 38 luchadores clasificados de **S+** a **E**, agrupados por letra como
   las tier lists clásicas. Se armó con las estadísticas reales del motor más el valor del kit:
   DPS (daño ÷ fotogramas de arranque) 22% · daño 14% · velocidad de reacción 10% · peso 16% · movilidad 12% ·
   alcance 8% · kit (proyectiles, reflectores, contraataques, recuperación y pasiva) 18%.
@@ -54,9 +75,9 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
   |------|------------|
   | S+ | BigSimio · Tamba · Brakk |
   | S− | Torva · Ilyra · Haldor · Sol y Luna |
-  | A+ | Gorrak · Valkyr-7 · Jochis · Ironclad · Aria Solenne |
+  | A+ | Nyra · Gorrak · Valkyr-7 · Jochis · Ironclad · Aria Solenne |
   | A  | Zephyr · Morgrath · Hexa · Volgur |
-  | A− | Ritmo · LosGemelos · Corvin · Kaito Ren · Kael |
+  | A− | Ritmo · LosGemelos · Corvin · Kaito Ren · Kael · Draco |
   | B+ | Grizzla · Sylra · Rook · Chronia · Nia |
   | B− | Gyron-64 · Luma · Jett · Kestra |
   | C+ | Vespera · Volta |
@@ -289,7 +310,7 @@ js/engine/ai.js            Bots (Parte 3)
 js/fighters/kits.js        Biblioteca de ataques normales y kit de cada luchador (v4)
 js/fighters/details.js     Capas de detalle visual de cada luchador (V1.3)
 js/fighters/lib.js         Utilidades compartidas del plantel (proyectiles, accesorios, contraataque, cambio de forma)
-js/fighters/roster/NN-id.js  Un archivo por luchador (01-gorrak.js … 36-jochis.js)
+js/fighters/roster/NN-id.js  Un archivo por luchador (01-gorrak.js … 38-draco.js)
 js/stages/stages.js        5 escenarios
 js/tools/packager.js       Botón de descarga ZIP (Parte 3)
 js/tools/bundle.js         Copia de las fuentes para el ZIP (generada por `npm run build`)
@@ -359,5 +380,7 @@ clic en `index.html`. Las herramientas de `tools/` solo necesitan **Node 18+** (
 | 34 | LosGemelos, Dúo Gamer | Multiforma (2 gemelos) | 94 / 88 | Píxel Cargado · Abanico de Cartas | Joy-Bumerán · Carta Veloz | Salto Turbo · Carta Gigante | Cambiar de gemelo |
 | 35 | BigSimio, Simio del Termo | Pesado · termo · pasiva Simio Molesto (100%) | 132 | Racimo Explosivo (cargable) | Cáscara Traicionera (trampa) | Banana Cohete | Pisotón Platanero |
 | 36 | Jochis, Tarotista Gamer | Ligero · mando · pasiva Arcano Mayor (1:00) | 76 | Tirada de Tarot (arcano al azar) | Rueda de la Fortuna | El Carro | La Justicia (counter ×1.3) |
+| 37 | Nyra, Jinete de Dragón | Pesada y lenta · 4 saltos · planeo · medidor FUEGO que se recarga solo | 124 | Bola de Fuego (largo alcance) | Llamarada (mantén B) | Vuelo del Dragón | Lluvia de Brasas (charco de fuego) |
+| 38 | Draco, Telequinético | Flota · telequinesis (cubo, mando y libro) · 3 tamaños | 90 | Cambio de tamaño (normal → grande → pequeño) | Cubo mina (atrapa 1,5 s) | Bola de energía (inmune) | Lentes negros: contraataque de Mina |
 
 Con el medidor lleno: Aria potencia su siguiente especial ("Crescendo") y Luma invoca al espíritu Fuego Fatuo durante 12 s.

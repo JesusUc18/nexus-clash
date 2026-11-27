@@ -1,6 +1,6 @@
 /* ==========================================================================
  * NEXUS CLASH — js/ui/tierlist.js  (V1.2)
- * Tier List oficial de los 36 luchadores.
+ * Tier List oficial de los 38 luchadores.
  *  - TIERS: clasificación de S+ a E. Se decidió combinando las estadísticas
  *    reales del juego (las mismas que usa el motor) con el valor del kit:
  *      · DPS (daño por golpe ÷ fotogramas de arranque)   22%
@@ -19,12 +19,16 @@
 
   const TIERS = [
     /* V1.2.1: recalculada tras los ajustes de balance (Jochis sube a A+, LosGemelos baja a A−,
-     * Torva encabeza S−, BigSimio encabeza S+ y Kestra pasa al final de B−). */
+     * Torva encabeza S−, BigSimio encabeza S+ y Kestra pasa al final de B−).
+     * V1.4: entra Nyra encabezando A+ (2.º mayor daño del plantel, pesada y con la mejor
+     * recuperación, pero la más lenta en reacción y movilidad) y Draco al final de A− (daño y
+     * velocidad medios y ligero, pero con recuperación inmune, contraataque, trampa y tamaños).
+     * Nadie más cambia de puesto. */
     { tier: 'S', sub: '+', color: '#ff2d3c', ids: ['bigsimio', 'tamba', 'brakk'] },
     { tier: 'S', sub: '−', color: '#ff2d3c', ids: ['torva', 'ilyra', 'haldor', 'eclipse'] },
-    { tier: 'A', sub: '+', color: '#ff8a1f', ids: ['gorrak', 'valkyr', 'jochis', 'ironclad', 'aria'] },
+    { tier: 'A', sub: '+', color: '#ff8a1f', ids: ['nyra', 'gorrak', 'valkyr', 'jochis', 'ironclad', 'aria'] },
     { tier: 'A', sub: '·', color: '#ff8a1f', ids: ['zephyr', 'morgrath', 'hexa', 'volgur'] },
-    { tier: 'A', sub: '−', color: '#ff8a1f', ids: ['ritmo', 'gemelos', 'corvin', 'kaito', 'kael'] },
+    { tier: 'A', sub: '−', color: '#ff8a1f', ids: ['ritmo', 'gemelos', 'corvin', 'kaito', 'kael', 'draco'] },
     { tier: 'B', sub: '+', color: '#ffc21a', ids: ['grizzla', 'sylra', 'rook', 'chronia', 'nia'] },
     { tier: 'B', sub: '−', color: '#ffc21a', ids: ['gyron', 'luma', 'jett', 'kestra'] },
     { tier: 'C', sub: '+', color: '#35c84a', ids: ['vespera', 'volta'] },
@@ -42,6 +46,7 @@
     haldor: 'Mandoble con alcance y potencia enormes; mata muy pronto. A cambio, sus golpes salen lentos.',
     eclipse: 'Dos luchadoras en una: Sol para rematar, Luna para presionar, y Previsión para esquivar en el momento justo.',
     torva: 'Pesada, con el mayor alcance del plantel tras su mejora, y su Escudo Torre frena proyectiles de frente. Muy difícil de sacar del escenario.',
+    nyra: 'Su dragón pega casi tanto como Gorrak, pesa mucho y con 4 saltos, planeo y Vuelo del Dragón casi nunca cae. Su fuego controla todo el escenario, pero es la más lenta al atacar y al moverse.',
     gorrak: 'El más pesado y el de más daño por golpe; además recibe 10% menos. Su punto débil: ataques muy lentos al arrancar.',
     valkyr: 'Sólida en todo: peso medio-alto, buen daño y dos reflectores que anulan a los que atacan a distancia.',
     ironclad: 'Un tanque con 3 saltos aéreos: aguanta muchísimo y casi siempre vuelve al escenario.',
@@ -55,6 +60,7 @@
     ritmo: 'Muy rápido y móvil; tras esquivar pega un 20% más. Recompensa a quien sabe leer al rival.',
     corvin: 'El kit más completo (maná, Trueno cargable, robo de vida), pero es el que más lento se mueve.',
     kaito: 'Ataques de los más rápidos del juego y un contraataque fiable; le falta fuerza para rematar.',
+    draco: 'Kit de lo más versátil: crece para pegar y aguantar más, encoge para ir rápido, atrapa con su cubo mina, Mina castiga a quien lo ataque de cerca y su bola de energía es inmune. Sus golpes son de daño medio y es ligero.',
     kael: 'Orbe almacenable y buen daño a distancia. Es muy ligero: cuidado con los pesados.',
     grizzla: 'Agarres y lanzamientos brutales y mucho peso. Sin proyectil, la mantienen lejos con facilidad.',
     sylra: 'Zarzales que castigan el suelo y buena velocidad; daño y peso promedio.',
@@ -134,7 +140,7 @@
   ];
 
   NX.TierList = {
-    version: '1.2.1', tiers: TIERS, why: WHY, order: ORDER, bars: BARS,
+    version: '1.4', tiers: TIERS, why: WHY, order: ORDER, bars: BARS,
     tierOf,
     stats(id) { return compute()[id] || null; },
     reset() { cache = null; }

@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b0b0f">
-  <title>NEXUS CLASH · Ultimate Arena V1.3.1</title>
-  <meta name="description" content="Juego de lucha de plataformas 2D gratis en el navegador: 36 luchadores, 5 escenarios, modos Horda y Práctica, Tier List oficial y controles táctiles para teléfono.">
+  <title>NEXUS CLASH · Ultimate Arena V1.4</title>
+  <meta name="description" content="Juego de lucha de plataformas 2D gratis en el navegador: 38 luchadores, 5 escenarios, modos Horda y Práctica, Tier List oficial y controles táctiles para teléfono.">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -17,21 +17,21 @@
   <!-- Vista previa al compartir el enlace (WhatsApp, Discord, X, Facebook…) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Nexus Clash">
-  <meta property="og:title" content="NEXUS CLASH · Ultimate Arena V1.3.1">
-  <meta property="og:description" content="36 luchadores, modo Horda y controles táctiles. Juega gratis en el navegador, en tu lap o en tu teléfono.">
+  <meta property="og:title" content="NEXUS CLASH · Ultimate Arena V1.4">
+  <meta property="og:description" content="38 luchadores, modo Horda y controles táctiles. Juega gratis en el navegador, en tu lap o en tu teléfono.">
   <meta property="og:url" content="https://jesusuc18.github.io/nexus-clash/">
   <meta property="og:image" content="https://jesusuc18.github.io/nexus-clash/assets/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="es_MX">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NEXUS CLASH · Ultimate Arena V1.3.1">
-  <meta name="twitter:description" content="36 luchadores, modo Horda y controles táctiles. Juega gratis en el navegador.">
+  <meta name="twitter:title" content="NEXUS CLASH · Ultimate Arena V1.4">
+  <meta name="twitter:description" content="38 luchadores, modo Horda y controles táctiles. Juega gratis en el navegador.">
   <meta name="twitter:image" content="https://jesusuc18.github.io/nexus-clash/assets/og.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=a6cf6c7f">
+  <link rel="stylesheet" href="css/styles.css?v=6fae988b">
 </head>
 <body>
   <div id="app">
@@ -46,61 +46,63 @@
   <script src="js/engine/physics.js?v=58dd69bf"></script>
   <script src="js/engine/audio.js?v=e8f24bfe"></script>
   <script src="js/engine/input.js?v=12a5dff9"></script>
-  <script src="js/engine/touch.js?v=7fd3e0db"></script>
+  <script src="js/engine/touch.js?v=8c64d850"></script>
   <script src="js/engine/combat.js?v=6611361c"></script>
-  <script src="js/engine/renderer.js?v=9f65ba43"></script>
+  <script src="js/engine/renderer.js?v=1f3c839a"></script>
   <script src="js/engine/fighter.js?v=213ad8e6"></script>
-  <script src="js/engine/camera.js?v=835249c3"></script>
+  <script src="js/engine/camera.js?v=1fee5438"></script>
   <script src="js/engine/match.js?v=6895c5a8"></script>
   <!-- Contenido (Parte 2: luchadores · Parte 3: escenarios, IA y empaquetador ZIP) -->
   <script src="js/stages/stages.js?v=46519094" onerror="this.remove()"></script>
-  <script src="js/fighters/kits.js?v=7f44ab65" onerror="this.remove()"></script>
-  <script src="js/fighters/lib.js?v=3a0e6fca"></script>
+  <script src="js/fighters/kits.js?v=6ee6854b" onerror="this.remove()"></script>
+  <script src="js/fighters/lib.js?v=0d1a129e"></script>
   <!-- Plantel: un archivo por luchador (el orden define el orden de la selección) -->
-  <script src="js/fighters/roster/01-gorrak.js?v=3ea243dc"></script>
-  <script src="js/fighters/roster/02-vespera.js?v=9d228887"></script>
-  <script src="js/fighters/roster/03-ironclad.js?v=ec2a3e7e"></script>
-  <script src="js/fighters/roster/04-rook.js?v=b6b14512"></script>
-  <script src="js/fighters/roster/05-kaito.js?v=40741db8"></script>
-  <script src="js/fighters/roster/06-sylra.js?v=7f608a8d"></script>
-  <script src="js/fighters/roster/07-nyx.js?v=308c74bb"></script>
-  <script src="js/fighters/roster/08-medu.js?v=959d1416"></script>
-  <script src="js/fighters/roster/09-valkyr.js?v=e6ea44e5"></script>
-  <script src="js/fighters/roster/10-jett.js?v=3b90e8f5"></script>
-  <script src="js/fighters/roster/11-grizzla.js?v=a886a18e"></script>
-  <script src="js/fighters/roster/12-zephyr.js?v=ae836fa2"></script>
-  <script src="js/fighters/roster/13-aria.js?v=5731f268"></script>
-  <script src="js/fighters/roster/14-morgrath.js?v=f248576a"></script>
-  <script src="js/fighters/roster/15-brakk.js?v=b5c73b89"></script>
-  <script src="js/fighters/roster/16-luma.js?v=c1060c92"></script>
-  <script src="js/fighters/roster/17-kael.js?v=13ec3b8c"></script>
-  <script src="js/fighters/roster/18-volgur.js?v=39c4d025"></script>
-  <script src="js/fighters/roster/19-chronia.js?v=175f4004"></script>
-  <script src="js/fighters/roster/20-hexa.js?v=a1e57b0a"></script>
-  <script src="js/fighters/roster/21-kumo.js?v=38eb5069"></script>
-  <script src="js/fighters/roster/22-ritmo.js?v=411d1a03"></script>
-  <script src="js/fighters/roster/23-volta.js?v=93f3bf28"></script>
-  <script src="js/fighters/roster/24-torva.js?v=f8d26807"></script>
-  <script src="js/fighters/roster/25-nia.js?v=59978a79"></script>
-  <script src="js/fighters/roster/26-eclipse.js?v=1d0af2dd"></script>
-  <script src="js/fighters/roster/27-haldor.js?v=577b88d6"></script>
-  <script src="js/fighters/roster/28-ilyra.js?v=529243a2"></script>
-  <script src="js/fighters/roster/29-kestra.js?v=e10a903c"></script>
-  <script src="js/fighters/roster/30-tamba.js?v=5f532671"></script>
-  <script src="js/fighters/roster/31-corvin.js?v=0820d6de"></script>
-  <script src="js/fighters/roster/32-gyron.js?v=6092ced1"></script>
-  <script src="js/fighters/roster/33-monocromo.js?v=195efaa9"></script>
-  <script src="js/fighters/roster/34-gemelos.js?v=ed8cea65"></script>
-  <script src="js/fighters/roster/35-bigsimio.js?v=8604c96c"></script>
-  <script src="js/fighters/roster/36-jochis.js?v=dec37e87"></script>
-  <script src="js/fighters/details.js?v=c0cfb9ff" onerror="this.remove()"></script>
+  <script src="js/fighters/roster/01-gorrak.js?v=c9498b9b"></script>
+  <script src="js/fighters/roster/02-vespera.js?v=1de18d2b"></script>
+  <script src="js/fighters/roster/03-ironclad.js?v=8e7daf97"></script>
+  <script src="js/fighters/roster/04-rook.js?v=ecab9526"></script>
+  <script src="js/fighters/roster/05-kaito.js?v=bd2ba518"></script>
+  <script src="js/fighters/roster/06-sylra.js?v=d755cf55"></script>
+  <script src="js/fighters/roster/07-nyx.js?v=f2412b03"></script>
+  <script src="js/fighters/roster/08-medu.js?v=3a790308"></script>
+  <script src="js/fighters/roster/09-valkyr.js?v=cadaf40b"></script>
+  <script src="js/fighters/roster/10-jett.js?v=cb802e1a"></script>
+  <script src="js/fighters/roster/11-grizzla.js?v=eb3ab24a"></script>
+  <script src="js/fighters/roster/12-zephyr.js?v=1592e119"></script>
+  <script src="js/fighters/roster/13-aria.js?v=9f7da71c"></script>
+  <script src="js/fighters/roster/14-morgrath.js?v=84df71ce"></script>
+  <script src="js/fighters/roster/15-brakk.js?v=52f2f224"></script>
+  <script src="js/fighters/roster/16-luma.js?v=7fd621bc"></script>
+  <script src="js/fighters/roster/17-kael.js?v=5573d200"></script>
+  <script src="js/fighters/roster/18-volgur.js?v=a297a810"></script>
+  <script src="js/fighters/roster/19-chronia.js?v=08d19cb6"></script>
+  <script src="js/fighters/roster/20-hexa.js?v=39dc9c7b"></script>
+  <script src="js/fighters/roster/21-kumo.js?v=aaf2d3e8"></script>
+  <script src="js/fighters/roster/22-ritmo.js?v=17e52648"></script>
+  <script src="js/fighters/roster/23-volta.js?v=b9a808b7"></script>
+  <script src="js/fighters/roster/24-torva.js?v=adeceacd"></script>
+  <script src="js/fighters/roster/25-nia.js?v=d12d39f2"></script>
+  <script src="js/fighters/roster/26-eclipse.js?v=adf504db"></script>
+  <script src="js/fighters/roster/27-haldor.js?v=7714fd8d"></script>
+  <script src="js/fighters/roster/28-ilyra.js?v=1d950fc0"></script>
+  <script src="js/fighters/roster/29-kestra.js?v=f95e8fa6"></script>
+  <script src="js/fighters/roster/30-tamba.js?v=1359b58a"></script>
+  <script src="js/fighters/roster/31-corvin.js?v=8bbcf098"></script>
+  <script src="js/fighters/roster/32-gyron.js?v=bd36114b"></script>
+  <script src="js/fighters/roster/33-monocromo.js?v=a897570d"></script>
+  <script src="js/fighters/roster/34-gemelos.js?v=dbffbbd0"></script>
+  <script src="js/fighters/roster/35-bigsimio.js?v=c4d86b8a"></script>
+  <script src="js/fighters/roster/36-jochis.js?v=498e72a7"></script>
+  <script src="js/fighters/roster/37-nyra.js?v=017b3176"></script>
+  <script src="js/fighters/roster/38-draco.js?v=7668c2d0"></script>
+  <script src="js/fighters/details.js?v=c276afc7" onerror="this.remove()"></script>
   <script src="js/engine/ai.js?v=b727d26d" onerror="this.remove()"></script>
-  <script src="js/tools/packager.js?v=12d291de" onerror="this.remove()"></script>
+  <script src="js/tools/packager.js?v=25cffad4" onerror="this.remove()"></script>
   <!-- Interfaz y arranque -->
-  <script src="js/ui/changelog.js?v=c9eb2770"></script>
-  <script src="js/ui/tierlist.js?v=e0070e60"></script>
+  <script src="js/ui/changelog.js?v=2eb6a7f0"></script>
+  <script src="js/ui/tierlist.js?v=545b2811"></script>
   <script src="js/ui/hud.js?v=356a05e1"></script>
-  <script src="js/ui/menus.js?v=8a9485f5"></script>
-  <script src="js/main.js?v=06c79f74"></script>
+  <script src="js/ui/menus.js?v=04ff8879"></script>
+  <script src="js/main.js?v=3c143b5b"></script>
 </body>
 </html>

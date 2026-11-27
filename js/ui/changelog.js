@@ -10,9 +10,21 @@
 (function (NX) {
   'use strict';
 
-  NX.VERSION = '1.3.1';
+  NX.VERSION = '1.4';
 
   NX.CHANGELOG = [
+    {
+      version: '1.4', date: 'Noviembre 2026', title: 'Nyra y Draco',
+      items: [
+        ['nuevo', '<b>Nyra, Jinete de Dragón</b> (luchadora 37): siempre montada en su dragón. Lenta y pesada, pero de las que más pegan: sus normales son <b>mordiscos</b> y coletazos del dragón.'],
+        ['nuevo', 'Sus especiales son <b>aliento de fuego</b>: Bola de Fuego de largo alcance, Llamarada (mantén B), Lluvia de Brasas (deja un charco de fuego) y Vuelo del Dragón.'],
+        ['nuevo', 'Pasiva <b>Fragua Interior</b>: el medidor de <b>FUEGO</b> se recarga solo, más rápido en el suelo.'],
+        ['nuevo', '<b>4 saltos</b> aéreos y <b>planeo</b>: mantén SALTO mientras cae (hasta 2,5 s).'],
+        ['nuevo', '<b>Draco, Telequinético</b> (luchador 38): no camina, <b>flota</b>. Un cubo mágico, un mando y un libro orbitan a su alrededor y golpea con ellos usando <b>telequinesis</b>.'],
+        ['nuevo', 'Draco · <b>B</b> cambia su tamaño (normal → grande → pequeño). <b>Lado</b>: cubo mina que atrapa 1,5 s. <b>Arriba</b>: bola de energía inmune. <b>Abajo</b>: lentes negros 1 s; si le pegan de cerca, <b>Mina</b> le da una cachetada al rival.'],
+        ['cambio', '<b>Tier List</b>: Nyra entra encabezando <b>A+</b> y Draco al final de <b>A−</b>.']
+      ]
+    },
     {
       version: '1.3.1', date: 'Noviembre 2026', title: 'Mejor en el teléfono',
       items: [
