@@ -21,6 +21,10 @@ const BINARY = /\.(png|jpe?g|gif|webp|ico)$/i;
 const CHECK = process.argv.includes('--check');
 
 const read = p => fs.readFileSync(path.join(ROOT, p));
+/* Los saltos de línea se normalizan a LF: en Windows git deja CRLF en la copia de trabajo
+ * (core.autocrlf) y en la CI de Linux son LF; así hashes y bundle salen iguales en ambos. */
+const lf = buf => Buffer.from(buf.toString('utf8').replace(/\r\n/g, '\n'));
+const readText = p => lf(read(p)).toString();
 const hash = buf => crypto.createHash('sha1').update(buf).digest('hex').slice(0, 8);
 
 function version() {
@@ -35,7 +39,7 @@ function buildIndex(src, ver) {
   out = out.replace(/(<script[^>]*\ssrc="|<link[^>]*\shref=")([^"?#:]+\.(?:js|css))(?:\?v=[\w.]*)?"/g, (all, pre, p) => {
     const file = path.join(ROOT, p);
     if (!fs.existsSync(file)) throw new Error('index.html enlaza un archivo que no existe: ' + p);
-    return `${pre}${p}?v=${hash(fs.readFileSync(file))}"`;
+    return `${pre}${p}?v=${hash(lf(fs.readFileSync(file)))}"`;
   });
   return out;
 }
@@ -51,18 +55,18 @@ function projectFiles() {
 function buildBundle(ver, indexSrc) {
   const files = {};
   for (const p of projectFiles()) {
-    const buf = p === 'index.html' ? Buffer.from(indexSrc) : read(p);
-    files[p] = BINARY.test(p) ? { b64: buf.toString('base64') } : buf.toString('utf8');
+    if (BINARY.test(p)) { files[p] = { b64: read(p).toString('base64') }; continue; }
+    files[p] = p === 'index.html' ? indexSrc : readText(p);
   }
   return '/* NEXUS CLASH — js/tools/bundle.js (generado por tools/build.mjs: copia de todas las fuentes para el botón ZIP) */\n' +
     'window.NX = window.NX || {};\nNX.BUNDLE = ' + JSON.stringify({ version: ver, files }) + ';\n';
 }
 
 const ver = version();
-const index = buildIndex(read('index.html').toString(), ver);
+const index = buildIndex(readText('index.html'), ver);
 const bundle = buildBundle(ver, index);
 const outputs = [['index.html', index], [BUNDLE, bundle]];
-const stale = outputs.filter(([p, s]) => !fs.existsSync(path.join(ROOT, p)) || read(p).toString() !== s).map(([p]) => p);
+const stale = outputs.filter(([p, s]) => !fs.existsSync(path.join(ROOT, p)) || readText(p) !== s).map(([p]) => p);
 
 if (CHECK) {
   if (stale.length) { console.error('Desactualizado: ' + stale.join(', ') + ' → ejecuta `npm run build`'); process.exit(1); }
