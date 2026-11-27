@@ -1,14 +1,22 @@
-# NEXUS CLASH · Ultimate Arena — V1.4
+# NEXUS CLASH · Ultimate Arena — V1.4.1
 
 ### ▶ Jugar ahora: https://jesusuc18.github.io/nexus-clash/
 
 Juego de lucha de plataformas 2D en HTML5 Canvas + JavaScript, sin imágenes externas para los personajes.
 Funciona en **laptop/PC** (teclado o gamepad) y en **teléfono o tablet** (controles táctiles), sin instalar nada.
-**38 luchadores originales**, 5 escenarios competitivos, modos **1 VS 1**, **Batalla Campal**, **Horda** y **Práctica**, y bots
+**38 luchadores originales**, 5 escenarios competitivos, modos **SMASH** (1 a 3 CPUs), **Rey de la Colina**, **Horda** y **Práctica**, y bots
 de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configurable en REGLAS).
 
 > Consejo para teléfono: juega en horizontal. En Android puedes usar *Agregar a la pantalla principal* y se abre
 > como una app a pantalla completa.
+
+## V1.4.1 — SMASH y Rey de la Colina
+- **REY DE LA COLINA** (nuevo modo, `js/engine/match.js` → `initKoth`/`updateKoth`/`drawHill`): una zona con corona sobre
+  el escenario; quien esté **solo** dentro suma tiempo y gana al llegar a **30 s**. La zona rota cada 20 s entre el centro
+  y los tercios de la plataforma principal y las plataformas flotantes anchas (3 s de aviso). Vidas infinitas; al acabarse
+  el tiempo gana quien más tiempo acumuló (desempate: menos caídas, luego menos %). HUD con barra ♛ por jugador y
+  columna **Colina** en los resultados. Los bots van a la zona y se quedan dentro (`ai.js` → `hill`).
+- **SMASH** sustituye a 1 VS 1 y a Batalla Campal: el jugador elige de **1 a 3 CPUs** en la selección de luchadores.
 
 ## V1.4 — Nyra y Draco
 - **Nyra** (luchadora 37, `js/fighters/roster/37-nyra.js`): siempre montada en su dragón. Lenta (la que menos reacción y
@@ -85,7 +93,7 @@ de nivel 1 a 9. Reglamento por defecto: 3 vidas · 7:00 · sin objetos (configur
   | D  | Kumo · Nyx |
   | E  | Medu |
 - Cada luchador tiene una **ficha**: barras de DAÑO, REACCIÓN, PESO, MOVILIDAD y ALCANCE (calculadas en vivo
-  desde sus movimientos), su pasiva y por qué está en ese puesto. El botón **LUCHAR CON…** abre 1 VS 1 con ese
+  desde sus movimientos), su pasiva y por qué está en ese puesto. El botón **LUCHAR CON…** abre SMASH con ese
   luchador ya elegido.
 - **NOVEDADES**: al entrar al menú principal tras una actualización aparece un panel con los cambios de la
   versión (y pestañas con las anteriores). Sale una sola vez por versión; se puede volver a abrir en
@@ -253,8 +261,11 @@ Notas: las fuentes se cargan desde Google Fonts (sin internet se usan fuentes de
 se activa tras la primera tecla o clic, como exigen los navegadores. Pulsa **M** para silenciar.
 
 ## Modos
-- **1 VS 1**: tú contra un CPU. Ajusta su nivel (1–9) con los botones − / + de su tarjeta.
-- **Batalla Campal**: tú contra 3 CPUs, todos contra todos, cada uno con su propio nivel.
+- **SMASH**: tú contra **1, 2 o 3 CPUs** (elígelo con − / + junto a "CPUs" en la selección de luchadores); con 1 CPU es
+  un 1 VS 1 y con 3, todos contra todos. Ajusta el nivel (1–9) de cada CPU con los botones − / + de su tarjeta.
+- **Rey de la Colina**: también de 1 a 3 CPUs. Gana quien pase **30 s** solo dentro de la zona de la corona (si hay dos o
+  más dentro, nadie suma). La zona cambia de sitio cada 20 s, con 3 s de aviso y el contorno del siguiente sitio. Vidas
+  infinitas; si se acaba el tiempo gana quien más tiempo estuvo en la colina.
 - **Horda**: 10 oleadas de rivales aleatorios contra reloj, con jefe final en la oleada 10.
 - **⬇ .ZIP** (botón pequeño arriba a la derecha del menú): empaqueta todo el proyecto. Usa JSZip desde CDN y, sin conexión, un
   compresor ZIP propio integrado.
@@ -289,7 +300,7 @@ y Enter. Esc vuelve atrás.
 ## IA de los bots (Parte 3)
 Máquina de estados: recuperación prioritaria (orientarse al borde, doble salto y Up-B), borde,
 perseguir, espaciar, atacar, escudar/contraatacar, evadir proyectiles, guardia de borde, agarres y
-lanzamientos, DI y tech. En Batalla Campal cada bot elige objetivo dinámicamente (el más cercano o
+lanzamientos, DI y tech. Contra varios CPUs cada bot elige objetivo dinámicamente (el más cercano o
 con más daño). El nivel ajusta tiempo de reacción, agresividad, defensa y precisión.
 
 ## Estructura

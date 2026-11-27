@@ -72,7 +72,7 @@
     luma: 'Rápida y con un espíritu de fuego potente, pero necesita llenar su medidor para brillar.',
     jett: 'Ataca muy rápido, pero cae rapidísimo y es ligera: es fácil combearla.',
     vespera: 'Flota y refleja, pero es ligera y sus golpes salen lentos para el daño que hacen.',
-    volta: 'Su rayo encadenado brilla en Batalla Campal; en 1 VS 1 le falta daño.',
+    volta: 'Su rayo encadenado brilla en SMASH contra varios CPUs; en 1 VS 1 le falta daño.',
     monocromo: 'Kit divertido (Juez, Cubo), pero es de los más ligeros y depende mucho del azar.',
     kumo: 'Telarañas útiles y mucha velocidad, pero es de las que menos daño hacen.',
     nyx: 'La más rápida al atacar y casi invisible tras la Bomba de Humo, pero pega muy poco y sale volando pronto.',

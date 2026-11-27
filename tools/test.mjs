@@ -71,7 +71,7 @@ test('changelog: la primera entrada es NX.VERSION', () => {
   assert(NX.CHANGELOG && NX.CHANGELOG[0].version === NX.VERSION, `NX.VERSION=${NX.VERSION} pero el changelog empieza por ${NX.CHANGELOG && NX.CHANGELOG[0].version}`);
 });
 
-test('humo: cada luchador en 1 VS 1, Batalla Campal, Horda y Práctica', () => {
+test('humo: cada luchador en SMASH (1 y 3 CPUs), Rey de la Colina, Horda y Práctica', () => {
   const ids = NX.ROSTER.map(d => d.id), stages = NX.STAGES.map(s => s.id);
   ids.forEach((id, i) => {
     const E = loadEngine({ seed: 500 + i });
@@ -81,6 +81,7 @@ test('humo: cada luchador en 1 VS 1, Batalla Campal, Horda y Práctica', () => {
     run({ fighters: [id, ids[(i + 1) % ids.length], ids[(i + 2) % ids.length], ids[(i + 3) % ids.length]], frames: 1200 });
     run({ mode: 'horde', fighters: [id, ids[(i + 5) % ids.length]], frames: 900 });
     run({ mode: 'practice', fighters: [ids[(i + 7) % ids.length], id], frames: 600 });
+    run({ mode: 'koth', fighters: [id, ids[(i + 13) % ids.length], ids[(i + 17) % ids.length]], frames: 900 });
   });
 });
 

@@ -11,10 +11,14 @@
   function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   const TIME_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0];
   const fmtMin = m => (m ? m + ':00' : '∞');
-  function rulesHTML() {
+  function rulesHTML(mode) {
     const S = NX.Settings;
+    /* V1.4.1 · Rey de la Colina: no hay vidas; la meta es estar 30 s solo en la zona. */
+    if (mode === 'koth') return `<span class="chip chip-hill">META <b>${Math.round((NX.KOTH ? NX.KOTH.target : 1800) / 60)} s</b></span><span class="chip"><b>${fmtMin(S.minutes)}</b> ${S.minutes ? 'MIN' : 'TIEMPO'}</span><span class="chip">VIDAS <b>∞</b></span>`;
     return `<span class="chip"><b>${S.stocks}</b> ${S.stocks === 1 ? 'VIDA' : 'VIDAS'}</span><span class="chip"><b>${fmtMin(S.minutes)}</b> ${S.minutes ? 'MIN' : 'TIEMPO'}</span><span class="chip chip-red">SIN OBJETOS</span>`;
   }
+  /* V1.4.1 · SMASH y REY DE LA COLINA: el jugador elige de 1 a 3 CPUs. */
+  const CPU_MODES = { smash: 1, koth: 1 };
 
   /* v8 · Récord de la Horda (mejor tiempo), guardado en el navegador. */
   const BEST_KEY = 'nexusclash.hordeBest';
@@ -134,10 +138,10 @@
         tiles.appendChild(b); return b;
       };
       const list = [];
-      const b1 = mk('tile-red', '1 VS 1', 'Tú contra un CPU · Dificultad nivel 1 a 9', () => this.show('select', { mode: '1v1' }));
+      const b1 = mk('tile-red', 'SMASH', 'Tú contra 1, 2 o 3 CPUs · Dificultad nivel 1 a 9', () => this.show('select', { mode: 'smash' }));
       const best = hordeBest();
       const bH = mk('tile-horde', 'HORDA', `10 oleadas de rivales al azar · Contra reloj${best ? ' · Récord ' + fmtClock(best.frames) : ''}`, () => this.show('select', { mode: 'horde' }));
-      const b2 = mk('tile-black', 'BATALLA CAMPAL', 'Tú contra 3 CPUs · Todos contra todos', () => this.show('select', { mode: 'ffa' }));
+      const b2 = mk('tile-black tile-hill', 'REY DE LA COLINA', `Quédate ${Math.round((NX.KOTH ? NX.KOTH.target : 1800) / 60)} s en la zona · Contra 1 a 3 CPUs`, () => this.show('select', { mode: 'koth' }));
       const bP = mk('tile-practice', 'PRÁCTICA', 'Tú contra un muñeco quieto · Prueba combos a gusto', () => this.show('select', { mode: 'practice' }));
       /* Mosaico de NOVEDADES: muestra la versión actual y avisa si aún no se ha visto. */
       const log0 = (NX.CHANGELOG || [])[0];
@@ -327,7 +331,7 @@
     rulesBack() {
       NX.Audio.play('menuBack');
       const d = this.rulesData || {};
-      if (d.back === 'select') this.show('select', { mode: d.mode, keep: true });
+      if (d.back === 'select') this.show('select', { mode: d.mode, cpus: d.cpus, keep: true });
       else this.show('main');
     },
 
@@ -456,7 +460,7 @@
       const C = this.tierCells[this.tierIdx];
       if (!C || this.locked) return;
       NX.Audio.play('menuSelect');
-      this.show('select', { mode: '1v1', pick: C.id });
+      this.show('select', { mode: 'smash', pick: C.id });
     },
     tierBack() {
       NX.Audio.play('menuBack');
@@ -470,7 +474,9 @@
       const mode = data.mode;
       const roster = NX.ROSTER || [];
       const prev = this.game.setup && this.game.setup.mode === mode ? this.game.setup : null;
-      const nCpu = mode === 'ffa' ? 3 : mode === 'horde' ? 0 : 1;
+      const nCpu = mode in CPU_MODES
+        ? U.clamp(data.cpus || (prev ? prev.players.length - 1 : CPU_MODES[mode]), 1, 3)
+        : mode === 'horde' ? 0 : 1;
       this.sel = {
         mode, cursor: 0, dragging: null, active: 0,
         slots: [{ human: true, fighterId: prev ? prev.players[0].fighterId : null, level: 0, color: NX.SLOT_COLORS[0], tag: 'P1' }]
@@ -488,8 +494,9 @@
       s.innerHTML = `
         <div class="sel-header">
           <div class="sel-title">ELIGE A TU LUCHADOR</div>
-          <div class="sel-mode">${mode === 'ffa' ? 'BATALLA CAMPAL · 4 JUGADORES' : mode === 'horde' ? 'HORDA · 10 OLEADAS · CONTRA RELOJ' : mode === 'practice' ? 'PRÁCTICA · MUÑECO QUIETO · SIN LÍMITES' : '1 VS 1 · COMPETITIVO'}</div>
-          <div class="sel-rules">${mode === 'practice' ? '<span class="chip chip-practice">VIDAS <b>∞</b></span><span class="chip">TIEMPO <b>∞</b></span>' : rulesHTML()}</div>
+          <div class="sel-mode">${mode === 'koth' ? 'REY DE LA COLINA · ' + (nCpu === 1 ? '1 VS 1' : (nCpu + 1) + ' JUGADORES') : mode === 'horde' ? 'HORDA · 10 OLEADAS · CONTRA RELOJ' : mode === 'practice' ? 'PRÁCTICA · MUÑECO QUIETO · SIN LÍMITES' : 'SMASH · ' + (nCpu === 1 ? '1 VS 1' : (nCpu + 1) + ' JUGADORES')}</div>
+          ${mode in CPU_MODES ? `<div class="cpu-pick"><button data-d="-1" aria-label="Menos CPUs"${nCpu <= 1 ? ' disabled' : ''}>−</button><span>CPUs <b>${nCpu}</b></span><button data-d="1" aria-label="Más CPUs"${nCpu >= 3 ? ' disabled' : ''}>+</button></div>` : ''}
+          <div class="sel-rules">${mode === 'practice' ? '<span class="chip chip-practice">VIDAS <b>∞</b></span><span class="chip">TIEMPO <b>∞</b></span>' : rulesHTML(mode)}</div>
           <button class="rules-btn">⚙ REGLAS <small class="kb-only">(R)</small></button>
         </div>
         <div class="sel-grid"></div>
@@ -571,6 +578,7 @@
       s.querySelector('.ready-bar').addEventListener('click', () => this.selectDone());
       s.querySelector('.back-mini').addEventListener('click', () => { NX.Audio.play('menuBack'); this.show('main'); });
       s.querySelector('.rules-btn').addEventListener('click', () => this.openRulesFromSelect());
+      s.querySelectorAll('.cpu-pick button').forEach(b => b.addEventListener('click', () => this.setCpus(nCpu + Number(b.dataset.d))));
       this.onBack = null;
       this.updateSelect();
       requestAnimationFrame(() => this.layoutTokens());
@@ -676,10 +684,19 @@
       return -1;
     },
 
+    /* V1.4.1 · Cambia cuántos CPUs hay (1 a 3) conservando las elecciones hechas. */
+    setCpus(n) {
+      n = U.clamp(n, 1, 3);
+      if (!this.sel || n === this.sel.slots.length - 1) return;
+      NX.Audio.play('menuMove');
+      this.selMemo = this.sel.slots.map(s => ({ fighterId: s.fighterId, level: s.level }));
+      this.show('select', { mode: this.sel.mode, cpus: n, keep: true });
+    },
+
     openRulesFromSelect() {
       NX.Audio.play('menuSelect');
       this.selMemo = this.sel.slots.map(s => ({ fighterId: s.fighterId, level: s.level }));
-      this.show('rules', { back: 'select', mode: this.sel.mode });
+      this.show('rules', { back: 'select', mode: this.sel.mode, cpus: this.sel.slots.length - 1 });
     },
 
     selectInput(ev) {
@@ -720,7 +737,7 @@
     /* ----------------------- SELECCIÓN DE ESCENARIO ---------------------- */
     build_stage() {
       const s = el('div', 'scr scr-stage');
-      s.innerHTML = `<div class="sel-header"><div class="sel-title">ELIGE ESCENARIO</div><div class="sel-mode">COMPETITIVO · SIN HAZARDS</div><div class="sel-rules">${rulesHTML()}</div></div>
+      s.innerHTML = `<div class="sel-header"><div class="sel-title">ELIGE ESCENARIO</div><div class="sel-mode">COMPETITIVO · SIN HAZARDS</div><div class="sel-rules">${rulesHTML(this.game.setup && this.game.setup.mode)}</div></div>
         <div class="stage-cards"></div><button class="back-mini">◄ VOLVER <span class="kb-only">(Esc)</span></button>`;
       const wrap = s.querySelector('.stage-cards');
       const list = (NX.STAGES || []).map(sd => {
@@ -744,7 +761,7 @@
       this.setFocusables(list, true);
       const prevIdx = (NX.STAGES || []).findIndex(x => x.id === this.game.setup.stageId);
       if (prevIdx >= 0) { this.focusIdx = prevIdx; this.refreshFocus(); }
-      this.onBack = () => { NX.Audio.play('menuBack'); this.show('select', { mode: this.game.setup.mode }); };
+      this.onBack = () => { NX.Audio.play('menuBack'); this.show('select', { mode: this.game.setup.mode, cpus: this.game.setup.players.length - 1 }); };
     },
 
     drawStagePreview(cv, sd) {
@@ -771,7 +788,9 @@
       const R = this.game.match ? this.game.match.rules : NX.Settings;
       const H = this.game.match && this.game.match.horde;
       const PR = this.game.match && this.game.match.practice;
-      const chips = H ? `<span class="chip chip-horde">HORDA</span><span class="chip">OLEADA <b>${H.wave}</b>/${H.total}</span><span class="chip">VIDAS <b>∞</b></span>`
+      const KH = this.game.match && this.game.match.koth;
+      const chips = KH ? `<span class="chip chip-hill">REY DE LA COLINA</span><span class="chip">META <b>${Math.round(KH.target / 60)} s</b></span><span class="chip">VIDAS <b>∞</b></span>`
+        : H ? `<span class="chip chip-horde">HORDA</span><span class="chip">OLEADA <b>${H.wave}</b>/${H.total}</span><span class="chip">VIDAS <b>∞</b></span>`
         : PR ? `<span class="chip chip-practice">PRÁCTICA</span><span class="chip">MEJOR COMBO <b>${PR.best ? PR.best.toFixed(1) + '%' : '—'}</b></span><span class="chip">VIDAS <b>∞</b></span>`
         : `<span class="chip"><b>${R.stocks}</b> VIDAS</span><span class="chip"><b>${fmtMin(R.minutes)}</b></span><span class="chip chip-red">SIN OBJETOS</span>`;
       s.innerHTML = `<div class="pause-k">PAUSA</div><div class="pause-rules">${chips}</div>`;
@@ -806,11 +825,11 @@
         <div class="res-left">
           <div class="res-burst"></div>
           <canvas class="res-art" width="520" height="600"></canvas>
-          <div class="res-winner"><small>GANADOR</small><b>${w ? w.slotDef.name.toUpperCase() : 'EMPATE'}</b><span>${w ? w.tag : ''}${res.sudden ? ' · MUERTE SÚBITA' : ''}</span></div>
+          <div class="res-winner"><small>${res.koth ? 'REY DE LA COLINA' : 'GANADOR'}</small><b>${w ? w.slotDef.name.toUpperCase() : 'EMPATE'}</b><span>${w ? w.tag : ''}${res.sudden ? ' · MUERTE SÚBITA' : ''}</span></div>
         </div>
         <div class="res-right">
           <div class="res-title">RESULTADOS</div>
-          <table class="res-table"><thead><tr><th>#</th><th>Luchador</th><th>KOs</th><th>Caídas</th><th>SD</th><th>Daño inf.</th><th>Daño rec.</th></tr></thead><tbody></tbody></table>
+          <table class="res-table"><thead><tr><th>#</th><th>Luchador</th>${res.koth ? '<th>Colina</th>' : ''}<th>KOs</th><th>Caídas</th><th>SD</th><th>Daño inf.</th><th>Daño rec.</th></tr></thead><tbody></tbody></table>
           <div class="res-time">Tiempo de combate: ${NX.fmtTime(res.frames).m}:${NX.fmtTime(res.frames).s}</div>
           <div class="res-btns"></div>
         </div>`;
@@ -823,6 +842,7 @@
         const td = el('td', 'res-name'); td.appendChild(icon); td.appendChild(el('span', '', `${f.slotDef.name}${f.slotDef.forms ? ' · ' + f.def.name : ''} <small>${f.tag}</small>`));
         tr.appendChild(el('td', 'res-rank', String(i + 1)));
         tr.appendChild(td);
+        if (res.koth) tr.appendChild(el('td', 'res-hill', (f.hill / 60).toFixed(1) + ' s'));
         [f.stats.kos, f.stats.falls, f.stats.sds, f.stats.damageDealt.toFixed(1) + '%', f.stats.damageTaken.toFixed(1) + '%'].forEach(v => tr.appendChild(el('td', '', String(v))));
         tb.appendChild(tr);
       });
@@ -830,7 +850,7 @@
       const mk = (t, fn, cls) => { const b = el('button', 'mbtn ' + (cls || ''), t); b.addEventListener('click', () => { NX.Audio.play('menuSelect'); fn(); }); btns.appendChild(b); return b; };
       const list = [
         mk('REVANCHA', () => this.game.startMatch(this.game.setup), 'btn-red'),
-        mk('CAMBIAR LUCHADORES', () => this.show('select', { mode: this.game.setup.mode })),
+        mk('CAMBIAR LUCHADORES', () => this.show('select', { mode: this.game.setup.mode, cpus: this.game.setup.players.length - 1 })),
         mk('MENÚ PRINCIPAL', () => { NX.Audio.playMusic('menu'); this.show('main'); })
       ];
       this.root.appendChild(s);

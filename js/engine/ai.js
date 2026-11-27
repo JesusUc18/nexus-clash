@@ -239,6 +239,27 @@
       }
     }
 
+    /* V1.4.1 · Rey de la Colina: ir a la zona y quedarse dentro; pelear si un rival se acerca. */
+    hill(t, adx) {
+      const f = this.f, m = this.match, z = m.hillZone();
+      const cx = z.x + z.w / 2, inside = m.inHill(f, z);
+      const near = t && adx < this.reach() + 30 && Math.abs(t.y - f.y) < 100;
+      if (near && this.chance(0.55 + this.aggro * 0.3)) return false;
+      if (inside) {
+        this.mode = 'hill';
+        this.hold = { x: Math.abs(f.x - cx) > z.w * 0.3 ? Math.sign(cx - f.x) * 0.5 : 0 };
+        return true;
+      }
+      if (!this.chance(0.6 + this.skill * 0.35)) return false;
+      this.mode = 'hill';
+      const dx = cx - f.x, dir = Math.sign(dx) || 1, dy = z.y - f.y;
+      if (!f.ground) { this.hold = { x: dir }; return true; }
+      if (dy < -30 && Math.abs(dx) < 220) return this.q([{ n: 1, tap: ['jump'], x: dir }, { n: 14, hold: ['jump'], x: dir }, { n: 18, x: dir }]);
+      if (dy > 30 && f.ground.type === 'pass' && Math.abs(dx) < z.w) return this.q([{ n: 1, y: 0 }, { n: 1, y: 1 }, { n: 8, x: dir * 0.5 }]);
+      this.hold = { x: dir };
+      return true;
+    }
+
     /* ------------------------------ DECISIÓN ----------------------------- */
     decide(raw) {
       const f = this.f, H = this.hint, sk = this.skill;
@@ -246,6 +267,7 @@
       this.hold = { x: 0, y: 0 };
       if (!t) return;
       const dx = t.x - f.x, adx = Math.abs(dx), dy = t.y - f.y, dir = Math.sign(dx) || 1;
+      if (this.match.koth && this.hill(t, adx)) return;
 
       /* Evadir / bloquear proyectiles. */
       const pr = this.incomingProjectile();

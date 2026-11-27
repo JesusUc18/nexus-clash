@@ -63,7 +63,7 @@ export function runMatch(NX, { fighters, stageId, frames = 3600, level = 9, mode
   }
   return {
     frame: m.frame, over: m.over, phase: m.phase,
-    fighters: m.fighters.map(f => ({ id: f.slotDef.id, stocks: f.stocks, pct: Math.round(f.percent * 100) / 100, x: Math.round(f.x * 100) / 100, y: Math.round(f.y * 100) / 100, kos: f.stats.kos }))
+    fighters: m.fighters.map(f => Object.assign({ id: f.slotDef.id, stocks: f.stocks, pct: Math.round(f.percent * 100) / 100, x: Math.round(f.x * 100) / 100, y: Math.round(f.y * 100) / 100, kos: f.stats.kos }, m.koth ? { hill: f.hill } : {}))
   };
 }
 

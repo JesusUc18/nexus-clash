@@ -10,9 +10,19 @@
 (function (NX) {
   'use strict';
 
-  NX.VERSION = '1.4';
+  NX.VERSION = '1.4.1';
 
   NX.CHANGELOG = [
+    {
+      version: '1.4.1', date: 'Noviembre 2026', title: 'SMASH y Rey de la Colina',
+      items: [
+        ['nuevo', '<b>REY DE LA COLINA</b>: quédate <b>30 s</b> solo dentro de la zona de la corona para ganar. Si hay dos o más dentro, nadie suma. La zona cambia de sitio cada 20 s (con aviso) y las vidas son infinitas.'],
+        ['nuevo', 'Si se acaba el tiempo, gana quien más tiempo estuvo en la colina. Cada panel muestra tu tiempo en la zona y los resultados tienen la columna <b>Colina</b>.'],
+        ['cambio', '<b>1 VS 1</b> ahora se llama <b>SMASH</b> y eliges de <b>1 a 3 CPUs</b> con − / + en la selección de luchadores. Con 1 CPU es el 1 VS 1 de siempre.'],
+        ['cambio', 'Se quita <b>BATALLA CAMPAL</b>: ahora es SMASH con 3 CPUs.'],
+        ['ajuste', 'Los CPUs saben jugar Rey de la Colina: van a la zona, se quedan dentro y pelean a quien se acerque.']
+      ]
+    },
     {
       version: '1.4', date: 'Noviembre 2026', title: 'Nyra y Draco',
       items: [

@@ -24,6 +24,11 @@
   function hordeLevel(w) { return Math.min(9, 1 + Math.ceil(w * 0.8)); }
   NX.hordeLevel = hordeLevel;
 
+  /* V1.4.1 · REY DE LA COLINA: gana quien junte 30 s solo dentro de la zona.
+   * La zona cambia de sitio cada 20 s (con 3 s de aviso). Vidas infinitas. */
+  const KOTH = Object.freeze({ target: 30 * 60, moveEvery: 20 * 60, warn: 3 * 60, w: 170, h: 150 });
+  NX.KOTH = KOTH;
+
   /* Colores alternativos para luchadores repetidos (mirror matches). */
   function hueShift(hex, deg, light) {
     const c = U.hexToRgb(hex);
@@ -56,7 +61,8 @@
   class Match {
     constructor(cfg) {
       this.cfg = cfg; this.mode = cfg.mode;
-      const r = cfg.mode === 'horde' || cfg.mode === 'practice' ? { stocks: 1, minutes: 0 } : (cfg.rules || {});
+      const r = cfg.mode === 'horde' || cfg.mode === 'practice' ? { stocks: 1, minutes: 0 }
+        : cfg.mode === 'koth' ? { stocks: 1, minutes: (cfg.rules || {}).minutes } : (cfg.rules || {});
       this.rules = {
         stocks: U.clamp(r.stocks || RULES.stocks, 1, 99),
         minutes: r.minutes == null ? 7 : r.minutes
@@ -111,7 +117,83 @@
         this.fighters[0].infiniteStocks = true;
         this.applyWave(this.fighters[1], 1);
       }
+      this.koth = null;
+      if (cfg.mode === 'koth') this.initKoth();
       this.camera.snap(this);
+    }
+
+    /* ==================== V1.4.1 · REY DE LA COLINA ===================== */
+    initKoth() {
+      const plats = this.stagePlatforms;
+      const main = plats.filter(p => p.type === 'solid').sort((a, b) => b.w - a.w)[0] || plats[0];
+      /* Sitios posibles: centro y tercios de la plataforma principal y el centro de cada plataforma flotante ancha. */
+      const spots = [{ plat: main, k: 0.5 }];
+      plats.filter(p => p !== main && p.w >= 120).forEach(p => spots.push({ plat: p, k: 0.5 }));
+      spots.push({ plat: main, k: 0.22 }, { plat: main, k: 0.78 });
+      this.koth = { target: KOTH.target, spots, idx: 0, next: -1, timer: KOTH.moveEvery, owner: null, contested: false, inside: [] };
+      this.fighters.forEach(f => { f.infiniteStocks = true; f.hill = 0; });
+    }
+    hillZone(i) {
+      const K = this.koth, s = K.spots[i == null ? K.idx : i], p = s.plat;
+      const w = Math.min(KOTH.w, p.w - 16);
+      return { x: p.x + p.w * s.k - w / 2, w, y: p.y, h: KOTH.h };
+    }
+    inHill(f, z) {
+      z = z || this.hillZone();
+      return f.inPlay() && f.state !== NX.ST.RESPAWN && f.state !== NX.ST.DEAD && !f.hidden &&
+        f.x >= z.x && f.x <= z.x + z.w && f.y <= z.y + 3 && f.y >= z.y - z.h;
+    }
+    updateKoth() {
+      const K = this.koth, n = K.spots.length;
+      K.timer--;
+      if (K.timer === KOTH.warn) {
+        K.next = (K.idx + 1 + U.randi(0, Math.max(0, n - 2))) % n;
+        this.announce('¡LA COLINA SE MUEVE!', { style: 'time' });
+        NX.Audio.play('beep');
+      }
+      if (K.timer <= 0) {
+        K.idx = K.next >= 0 ? K.next : (K.idx + 1) % n; K.next = -1; K.timer = KOTH.moveEvery;
+        const z = this.hillZone();
+        this.effects.spawn('ring', z.x + z.w / 2, z.y - 30, { r: 90, color: '#ffd23a', w: 6 });
+        NX.Audio.play('chargeFull');
+      }
+      K.inside = this.fighters.filter(f => this.inHill(f));
+      K.contested = K.inside.length > 1;
+      const owner = K.inside.length === 1 ? K.inside[0] : null;
+      if (owner !== K.owner) { K.owner = owner; this.emit('kothOwner', owner); }
+      if (owner) {
+        owner.hill++;
+        if (owner.hill % 60 === 0 && K.target - owner.hill <= 5 * 60 && owner.hill < K.target) NX.Audio.play('tick');
+        if (owner.hill >= K.target && this.phase === 'play') this.gameSet(owner, owner.x, owner.y - owner.h / 2);
+      }
+    }
+    drawHill(ctx) {
+      const K = this.koth, t = this.frame;
+      const z = this.hillZone();
+      const col = K.contested ? (Math.floor(t / 6) % 2 ? '#ffffff' : '#ff3b30') : K.owner ? K.owner.color : '#ffd23a';
+      const warn = K.timer <= KOTH.warn && Math.floor(t / 8) % 2 === 0;
+      ctx.save();
+      ctx.globalAlpha = warn ? 0.45 : 1;
+      const g = ctx.createLinearGradient(0, z.y - z.h, 0, z.y);
+      g.addColorStop(0, U.rgba(col, 0.1));
+      g.addColorStop(1, U.rgba(col, 0.6));
+      ctx.fillStyle = g; ctx.fillRect(z.x, z.y - z.h, z.w, z.h);
+      ctx.fillStyle = U.rgba(col, 0.35 + 0.15 * Math.sin(t * 0.15)); ctx.fillRect(z.x, z.y - 10, z.w, 10);
+      ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([10, 8]); ctx.lineDashOffset = -t * 0.6;
+      ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x, z.y - z.h); ctx.moveTo(z.x + z.w, z.y); ctx.lineTo(z.x + z.w, z.y - z.h); ctx.stroke();
+      ctx.setLineDash([]); ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x + z.w, z.y); ctx.stroke();
+      /* Corona flotando sobre la zona. */
+      const cx = z.x + z.w / 2, cy = z.y - z.h - 14 + Math.sin(t * 0.08) * 4;
+      ctx.fillStyle = col; ctx.strokeStyle = '#16121c'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(cx - 18, cy + 9); ctx.lineTo(cx - 20, cy - 8); ctx.lineTo(cx - 9, cy + 1); ctx.lineTo(cx, cy - 12); ctx.lineTo(cx + 9, cy + 1);
+      ctx.lineTo(cx + 20, cy - 8); ctx.lineTo(cx + 18, cy + 9); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+      /* Aviso: contorno del siguiente sitio. */
+      if (K.next >= 0) {
+        const nz = this.hillZone(K.next);
+        ctx.save(); ctx.globalAlpha = 0.35 + 0.3 * Math.sin(t * 0.3); ctx.strokeStyle = '#ffd23a'; ctx.lineWidth = 3; ctx.setLineDash([6, 6]);
+        ctx.strokeRect(nz.x, nz.y - nz.h, nz.w, nz.h); ctx.restore();
+      }
     }
 
     /* ============================ HORDA ================================= */
@@ -225,7 +307,7 @@
       this.phaseTime++;
       switch (this.phase) {
         case 'countdown': this.updateCountdown(); this.simulate(false); break;
-        case 'play': this.simulate(true); this.updateTimer(); if (this.horde) this.updateHorde(); if (this.practice) this.updatePractice(); break;
+        case 'play': this.simulate(true); this.updateTimer(); if (this.horde) this.updateHorde(); if (this.practice) this.updatePractice(); if (this.koth && this.phase === 'play') this.updateKoth(); break;
         case 'time': this.updateTimeUp(); break;
         case 'sdintro': this.updateSuddenIntro(); this.simulate(false); break;
         case 'sudden': this.simulate(true); this.updateSudden(); break;
@@ -336,6 +418,8 @@
     updateTimeUp() {
       this.effects.update();
       if (this.phaseTime < 120) return;
+      /* Rey de la Colina: al acabarse el tiempo gana quien más tiempo estuvo en la zona. */
+      if (this.koth) { this.winner = this.kothRanking()[0] || null; this.finish(); return; }
       const alive = this.fighters.filter(f => !f.eliminated);
       const maxStocks = Math.max.apply(null, alive.map(f => f.stocks));
       const leaders = alive.filter(f => f.stocks === maxStocks);
@@ -419,7 +503,7 @@
         else if (this.phase !== 'game') this.hordeCleared(f, px, py);
         return;
       }
-      if (this.practice) { f.stocks = 1; return; }
+      if (this.practice || this.koth) { f.stocks = 1; return; }
       if (f.stocks <= 0) {
         f.eliminated = true; f.eliminatedAt = this.frame; this.koOrder.push(f);
         this.emit('eliminated', f);
@@ -467,9 +551,20 @@
       NX.Audio.stopMusic();
     }
 
+    kothRanking() {
+      return this.fighters.slice().sort((a, b) => (b.hill - a.hill) || (a.stats.falls - b.stats.falls) || (a.percent - b.percent));
+    }
+
     finish() {
       if (this.over) return;
       this.over = true;
+      if (this.koth) {
+        const ranking = this.kothRanking();
+        if (this.winner) { const i = ranking.indexOf(this.winner); if (i > 0) { ranking.splice(i, 1); ranking.unshift(this.winner); } }
+        this.result = { ranking, winner: ranking[0], mode: this.mode, frames: this.frame, timeLeft: this.timer, sudden: false, koth: { target: this.koth.target } };
+        this.emit('finish', this.result);
+        return;
+      }
       const alive = this.fighters.filter(f => !f.eliminated).sort((a, b) => (b.stocks - a.stocks) || (a.percent - b.percent));
       if (this.winner) { const i = alive.indexOf(this.winner); if (i > 0) { alive.splice(i, 1); alive.unshift(this.winner); } }
       const dead = this.koOrder.slice().reverse().filter(f => alive.indexOf(f) < 0);
@@ -498,6 +593,7 @@
         if (b.draw) b.draw(ctx, b, this); else this.drawDefaultBlock(ctx, b);
       }
       for (const f of this.fighters) if (f.state === NX.ST.RESPAWN && f.respawnPlat) this.drawAngelPlatform(ctx, f);
+      if (this.koth) this.drawHill(ctx);
       for (const f of this.fighters) if (f.slotDef.drawBackdrop && !f.eliminated) f.slotDef.drawBackdrop(ctx, f, this);
       const order = this.fighters.slice().sort((a, b) => (a.isHuman ? 1 : 0) - (b.isHuman ? 1 : 0));
       for (const f of order) if (f.boss && f.inPlay() && !f.hidden) this.drawBossAura(ctx, f);

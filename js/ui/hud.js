@@ -65,6 +65,9 @@
       if (match.horde) this.setWave(match.horde.wave, match.horde.total);
       this.rulesEl.classList.toggle('practice', !!match.practice);
       if (match.practice) { this.setPractice(match.practice); match.on('practice', P => this.setPractice(P)); }
+      /* V1.4.1 · Rey de la Colina: quién controla la zona y la meta. */
+      this.rulesEl.classList.toggle('koth', !!match.koth);
+      if (match.koth) { this.setKoth(match.koth.owner, match); match.on('kothOwner', o => this.setKoth(o, match)); }
       this.lastTimer = '';
       this.bigEl.innerHTML = '';
       this.annEl.innerHTML = '';
@@ -97,6 +100,13 @@
       }
       const stockX = many ? el('span', 'hud-stock-x', f.infiniteStocks ? '∞' : '×' + f.stocks) : null;
       if (stockX) stocks.appendChild(stockX);
+      let hill = null, hillFill = null, hillLabel = null;
+      if (this.match && this.match.koth) {
+        hill = el('div', 'hud-hill');
+        hillFill = el('div', 'hud-hill-fill');
+        hillLabel = el('div', 'hud-hill-label', '♛ 0.0 s');
+        hill.append(hillFill, hillLabel);
+      }
       let meter = null, meterFill = null, meterLabel = null;
       if (f.def.meter) {
         meter = el('div', 'hud-meter');
@@ -109,8 +119,9 @@
       info.append(tag, name);
       p.append(port, info, pct, stocks);
       if (meter) p.appendChild(meter);
+      if (hill) p.appendChild(hill);
       p.appendChild(elim);
-      return { f, p, pct, pi: pct.querySelector('.pi'), pd: pct.querySelector('.pd'), icons, stockX, many, meterFill, meterLabel, port, name, def: f.def, last: {} };
+      return { f, p, pct, pi: pct.querySelector('.pi'), pd: pct.querySelector('.pd'), icons, stockX, many, meterFill, meterLabel, hillFill, hillLabel, port, name, def: f.def, last: {} };
     },
 
     /* v8 · Horda: cambia el panel del rival al entrar una nueva oleada. */
@@ -131,6 +142,11 @@
       const live = P.hits > 0;
       this.rulesEl.innerHTML = `PRÁCTICA <i></i> ${live ? `COMBO <b>×${P.hits}</b> <b>${P.dmg.toFixed(1)}%</b>` : `ÚLTIMO <b>${P.last ? P.last.toFixed(1) + '%' : '—'}</b>`} <i></i> MEJOR <b>${P.best ? P.best.toFixed(1) + '%' : '—'}</b>${P.bestHits > 1 ? ` (×${P.bestHits})` : ''}`;
       this.rulesEl.classList.toggle('live', live);
+    },
+
+    setKoth(owner, match) {
+      const K = match.koth;
+      this.rulesEl.innerHTML = `REY DE LA COLINA <i></i> META <b>${Math.round(K.target / 60)} s</b> <i></i> ${owner ? `COLINA: <b style="color:${owner.color}">${owner.def.name.toUpperCase()}</b>` : 'COLINA <b>LIBRE</b>'}`;
     },
 
     rebuildStocks() {
@@ -189,6 +205,12 @@
           if (L.meter !== w) { P.meterFill.style.width = w + '%'; P.p.classList.toggle('meter-full', k >= 1); L.meter = w; }
           const lbl = f.def.meter.text ? f.def.meter.text(f) : f.def.meter.label;
           if (L.mlabel !== lbl) { P.meterLabel.textContent = lbl; L.mlabel = lbl; }
+        }
+        if (P.hillFill && match.koth) {
+          const sec = Math.floor(f.hill / 6) / 10, w = Math.min(100, Math.round(f.hill / match.koth.target * 1000) / 10);
+          if (L.hill !== sec) { P.hillFill.style.width = w + '%'; P.hillLabel.textContent = '♛ ' + sec.toFixed(1) + ' s'; L.hill = sec; }
+          const own = match.koth.owner === f;
+          if (L.own !== own) { P.p.classList.toggle('hill-own', own); L.own = own; }
         }
         if (L.elim !== f.eliminated) { P.p.classList.toggle('eliminated', f.eliminated); L.elim = f.eliminated; }
       }
